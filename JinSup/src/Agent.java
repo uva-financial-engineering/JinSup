@@ -9,7 +9,6 @@ public class Agent {
 	}
 
 	public void Act() {
-		fghj
 	}
 	
 	public boolean isActive(int time)
