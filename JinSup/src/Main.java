@@ -24,6 +24,8 @@ public class Main {
 		// code to check that comparable works correctly
 //		Order order1 = new Order(1, 41, 5, true);
 //		
+//	// slight problem: if create them one after the other,
+//	// it seems like they are created at the same time.
 //		for (int i = 0; i < 100000000; i++) {
 //			
 //		}

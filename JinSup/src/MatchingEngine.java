@@ -5,7 +5,14 @@ import java.util.TreeSet;
 
 
 public class MatchingEngine {
-	private HashMap<Agent, ArrayList<Order>> orderMap;
+	// hashmap should take agenID instead...makes it easier to delete
+	// objects (dont need the agent object).
+	
+	// but nope. It is easier to just have it as agents so we can notify them
+	// when a trade is made.
+	
+	private HashMap<Long, ArrayList<Order>> orderMap;
+	private int lastVolumeTraded;
 	
 	//these priority queues will only have the 10 most recent orders
 		private ArrayList<Order> allOrders;
@@ -13,35 +20,39 @@ public class MatchingEngine {
 //	private ArrayList<Order> priorityQueueSell; 
 	
 	public MatchingEngine () {
-		orderMap = new HashMap<Agent, ArrayList<Order>>();
+		orderMap = new HashMap<Long, ArrayList<Order>>();
 //		priorityQueueBuy = new ArrayList<Order>();
 //		priorityQueueSell = new ArrayList<Order>();
 		allOrders = new ArrayList<Order>();
 	}
 	
-	public void cancelOrder(Order o, Agent a){
+	public void cancelOrder(Order o, long agentID){
 		allOrders.remove(o);
-		orderMap.get(a).remove(o);
+		orderMap.get(agentID).remove(o);
 		//log the action.
 	}
 	
-	public void createOrder(Order o, Agent a) {
+	public void createOrder(Order o, long agentID) {
 		allOrders.add(o);
-		if(orderMap.containsKey(a)) {
-			orderMap.get(a).add(o);
+		if(orderMap.containsKey(agentID)) {
+			orderMap.get(agentID).add(o);
 		}
 		else {
 			ArrayList<Order> orderList = new ArrayList<Order>();
 			orderList.add(o);
-			orderMap.put(a, orderList);
+			orderMap.put(agentID, orderList);
 		}
 		//log the action.
+		// must then check if a trade can occur
+		checkMakeTrade(o);
 	}
 	
 	public void modifyOrder(Order o, double newPrice, int newQuant) {
 		o.setPrice(newPrice);
 		o.setQuant(newQuant);
 		//log the action
+		// must then check if a trade can occur
+		checkMakeTrade(o);
 	}
 	
 	public double getLastTradePrice() {
@@ -109,5 +120,93 @@ public class MatchingEngine {
 		}
 		return topSellOrders;
 	}
+	
+	// method to check for and make trades
+	public void checkMakeTrade(Order o) {
+		ArrayList<Order> samePrice = new ArrayList<Order>();
+		if(o.isBuyOrder()) {
+			// check for sell orders at the same sell price
+			// must be sure to pick orders that were placed first.
+			// TODO: potential error due to double precision
+			for(int i = 0; i < allOrders.size(); i ++) {
+				if(!allOrders.get(i).isBuyOrder() && allOrders.get(i).getPrice() == o.getPrice()) {
+					samePrice.add(allOrders.get(i));
+				}
+			}
+		} else {
+			for(int i = 0; i < allOrders.size(); i ++) {
+				if(allOrders.get(i).isBuyOrder() && allOrders.get(i).getPrice() == o.getPrice()) {
+					samePrice.add(allOrders.get(i));
+				}
+			}
+		}
+		
+		// trade was not made
+		int volumeTraded = 0;
+		if(samePrice.isEmpty()) {
+			
+			return;
+		}
+		
+		// now select the orders that were made first.
+		Collections.sort(samePrice);
+		
+		Order orderToTrade = samePrice.get(0);
+				
+		if(o.getCurrentQuant() == orderToTrade.getCurrentQuant()) {
+			allOrders.remove(o);
+			allOrders.remove(orderToTrade);
+			orderMap.get(o.getCreatorID()).remove(o);
+			orderMap.get(orderToTrade.getCreatorID()).remove(orderToTrade);	
+			
+	} else if(o.getCurrentQuant() > orderToTrade.getCurrentQuant()) {
+			//delete orderToTrade, decrease quantity of o
+			volumeTraded = orderToTrade.getCurrentQuant();
+			o.setQuant(orderToTrade.getCurrentQuant());
+			allOrders.remove(orderToTrade);
+			orderMap.get(orderToTrade.getCreatorID()).remove(orderToTrade);
+		} else {
+			volumeTraded = o.getCurrentQuant();
+			orderToTrade.setQuant(o.getCurrentQuant());
+			allOrders.remove(o);
+			orderMap.get(o.getCreatorID()).remove(o);
+	}
+		// log the action and ID of trade, with System.currentTimeMillis()
+		// and volume traded.
+		// notify both agents that a trade has occurred.
+		
+			
+		
+		
+		
+}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 }

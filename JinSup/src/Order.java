@@ -7,17 +7,17 @@ public class Order implements Comparable<Order>{
 	private int currentQuant;
 	private long id;
 	private boolean buyOrder; //true if this is a buy order.
-	private long agentId; //id of the agent that initiated the order
+	private long agentID; //id of the agent that initiated the order
 
-	public Order(long agentId, double price, int originalQuant, boolean buyOrder) {
+	public Order(long agentID, double price, int originalQuant, boolean buyOrder) {
 		id = System.currentTimeMillis();
-		this.agentId = agentId;
+		this.agentID = agentID;
 		this.buyOrder = buyOrder;
 		this.originalQuant  = originalQuant;
 		this.price = price;
 		currentQuant = originalQuant;
 	}
-
+	
 	public long getId() {
 		return id;
 	}
@@ -44,6 +44,10 @@ public class Order implements Comparable<Order>{
 	
 	public boolean isBuyOrder() {
 		return buyOrder;
+	}
+	
+	public long getCreatorID() {
+		return agentID;
 	}
 
 
