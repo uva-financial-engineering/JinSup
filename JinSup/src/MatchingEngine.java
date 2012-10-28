@@ -21,7 +21,7 @@ public class MatchingEngine {
 	public void createOrder(Order o, Agent a) {
 		priorityQueue.add(o);
 		if(orderMap.containsKey(a)) {
-			
+			orderMap.get(a).add(o);
 		}
 		else {
 			ArrayList<Order> orderList = new ArrayList<Order>();
@@ -31,14 +31,10 @@ public class MatchingEngine {
 		//log the action.
 	}
 	
-	public void modifyOrderPrice(Order o, Agent a, double newPrice) {
+	public void modifyOrder(Order o, double newPrice, int newQuant) {
 		o.setPrice(newPrice);
-		
+		o.setQuant(newQuant);
 		//log the action
 	}
 	
-	public void modifyOrderQuant(Order o, Agent a, int newQuant) {
-		
-		//log the action
-	}
 }
