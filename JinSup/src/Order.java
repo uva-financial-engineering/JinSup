@@ -1,7 +1,7 @@
 import java.util.Comparator;
 
 
-public class Order implements Comparator<Order>{
+public class Order implements Comparable<Order>{
 	private double price;
 	private int originalQuant;
 	private int currentQuant;
@@ -41,18 +41,20 @@ public class Order implements Comparator<Order>{
 	public void setPrice(double newPrice) {
 		price = newPrice;
 	}
+	
+	public boolean isBuyOrder() {
+		return buyOrder;
+	}
+
 
 	@Override
-	public int compare(Order arg0, Order arg1) {
+	public int compareTo(Order o) {
 		// TODO Auto-generated method stub
-		//check this double comparison!!
-		//multiply by 100 and cast price as int.
-		// object is "less than" (higher on the queue) if price is greater, ms is smaller.
-		if((int)(arg0.price*100) - (int)(arg1.price*100) != 0) {
-			return -1*((int)(arg0.price*100) - (int)(arg1.price*100));
+		if((int)(this.price*100) - (int)(o.price*100) != 0) {
+			return -1*((int)(this.price*100) - (int)(o.price*100));
 		}
 		else {
-			return (int) (arg0.id/100 - arg1.id/100);
+			return (int) (this.id/100 - o.id/100);
 		}
 	}
 
