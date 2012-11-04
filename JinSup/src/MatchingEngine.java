@@ -163,13 +163,11 @@ public class MatchingEngine {
 
     } else if(o.getCurrentQuant() > orderToTrade.getCurrentQuant()) {
       //delete orderToTrade, decrease quantity of o
-      volumeTraded = orderToTrade.getCurrentQuant();
-      o.setQuant(orderToTrade.getCurrentQuant());
+      o.setQuant(o.getCurrentQuant() - orderToTrade.getCurrentQuant());
       allOrders.remove(orderToTrade);
       orderMap.get(orderToTrade.getCreatorID()).remove(orderToTrade);
     } else {
-      volumeTraded = o.getCurrentQuant();
-      orderToTrade.setQuant(o.getCurrentQuant());
+      orderToTrade.setQuant(orderToTrade.getCurrentQuant() - o.getCurrentQuant());
       allOrders.remove(o);
       orderMap.get(o.getCreatorID()).remove(o);
     }
@@ -203,6 +201,10 @@ public class MatchingEngine {
   	return asks.get(asks.size()-1);
   }
   
+  // the following code is for testing purposes only!
+  public ArrayList<Order> getAllOrders() {
+  	return allOrders;
+  }
   
   
 }

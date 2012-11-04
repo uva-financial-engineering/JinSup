@@ -8,6 +8,10 @@ public class Main {
 	public static int currentTime = 0;
 	public static void main(String[] args) {
 		
+		
+		
+		
+		
 //		while (CurrentTime < 100) {
 //			
 //			for (Agent agent : controller.agentList)
