@@ -147,7 +147,7 @@ public class MatchingEngine {
 
       return;
     }
-    
+
     lastTradePrice = samePrice.get(0).getPrice();
 
     // now select the orders that were made first.
@@ -176,35 +176,35 @@ public class MatchingEngine {
     // notify both agents that a trade has occurred.
 
   }
-  
+
   public Order getBestBid() {
-  	ArrayList<Order> bids = new ArrayList<Order>();
-  	for(int i = 0; i < allOrders.size(); i++) {
-  		if(allOrders.get(i).isBuyOrder()) {
-  			bids.add(allOrders.get(i));
-  		}
-  	}
-  	Collections.sort(bids);
-  	// want the highest bid price
-  	return bids.get(0);
+    ArrayList<Order> bids = new ArrayList<Order>();
+    for(int i = 0; i < allOrders.size(); i++) {
+      if(allOrders.get(i).isBuyOrder()) {
+        bids.add(allOrders.get(i));
+      }
+    }
+    Collections.sort(bids);
+    // want the highest bid price
+    return bids.get(0);
   }
-  
+
   public Order getBestAsk() {
-  	ArrayList<Order> asks = new ArrayList<Order>();
-  	for(int i = 0; i < allOrders.size(); i++) {
-  		if(!allOrders.get(i).isBuyOrder()) {
-  			asks.add(allOrders.get(i));
-  		}
-  	}
-  	Collections.sort(asks);
-  	// want the lowest asking price
-  	return asks.get(asks.size()-1);
+    ArrayList<Order> asks = new ArrayList<Order>();
+    for(int i = 0; i < allOrders.size(); i++) {
+      if(!allOrders.get(i).isBuyOrder()) {
+        asks.add(allOrders.get(i));
+      }
+    }
+    Collections.sort(asks);
+    // want the lowest asking price
+    return asks.get(asks.size()-1);
   }
-  
+
   // the following code is for testing purposes only!
   public ArrayList<Order> getAllOrders() {
-  	return allOrders;
+    return allOrders;
   }
-  
-  
+
+
 }
