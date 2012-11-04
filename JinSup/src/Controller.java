@@ -4,6 +4,7 @@ public class Controller {
 	public ArrayList<Agent> agentList;
 	private long time;
 	public Controller()
+	
 	{
 		agentList = new ArrayList<Agent>();
 		time = 0;

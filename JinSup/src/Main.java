@@ -5,7 +5,7 @@ import java.util.TreeSet;
 public class Main {
 
 	public static Controller controller = new Controller();
-	public static int CurrentTime = 0;
+	public static int currentTime = 0;
 	public static void main(String[] args) {
 		
 //		while (CurrentTime < 100) {

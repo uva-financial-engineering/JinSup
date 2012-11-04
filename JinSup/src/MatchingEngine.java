@@ -13,6 +13,7 @@ public class MatchingEngine {
 
   private HashMap<Long, ArrayList<Order>> orderMap;
   private int lastVolumeTraded;
+  private double lastTradePrice;
 
   //these priority queues will only have the 10 most recent orders
   private ArrayList<Order> allOrders;
@@ -56,8 +57,7 @@ public class MatchingEngine {
   }
 
   public double getLastTradePrice() {
-    // TODO
-    return 0.0;
+    return lastTradePrice;
   }
 
 
@@ -147,6 +147,8 @@ public class MatchingEngine {
 
       return;
     }
+    
+    lastTradePrice = samePrice.get(0).getPrice();
 
     // now select the orders that were made first.
     Collections.sort(samePrice);
@@ -176,5 +178,31 @@ public class MatchingEngine {
     // notify both agents that a trade has occurred.
 
   }
+  
+  public Order getBestBid() {
+  	ArrayList<Order> bids = new ArrayList<Order>();
+  	for(int i = 0; i < allOrders.size(); i++) {
+  		if(allOrders.get(i).isBuyOrder()) {
+  			bids.add(allOrders.get(i));
+  		}
+  	}
+  	Collections.sort(bids);
+  	// want the highest bid price
+  	return bids.get(0);
+  }
+  
+  public Order getBestAsk() {
+  	ArrayList<Order> asks = new ArrayList<Order>();
+  	for(int i = 0; i < allOrders.size(); i++) {
+  		if(!allOrders.get(i).isBuyOrder()) {
+  			asks.add(allOrders.get(i));
+  		}
+  	}
+  	Collections.sort(asks);
+  	// want the lowest asking price
+  	return asks.get(asks.size()-1);
+  }
+  
+  
   
 }
