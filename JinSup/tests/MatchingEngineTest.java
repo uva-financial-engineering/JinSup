@@ -37,10 +37,29 @@ public class MatchingEngineTest {
     matchingEngine = new MatchingEngine();
     buyer = new FundBuyer(matchingEngine);
     seller = new FundSeller(matchingEngine);
-    buyer.createNewOrder(1, 40, true);
+    buyer.createNewOrder(20, 40, true);
     buyer.createNewOrder(10000, 40, true);
+    buyer.createNewOrder(21, 40, true);
+    buyer.createNewOrder(26, 40, true);
+    buyer.createNewOrder(23, 40, true);
+    buyer.createNewOrder(22, 40, true);
+    buyer.createNewOrder(29, 40, true);
+    buyer.createNewOrder(27, 40, true);
+    buyer.createNewOrder(28, 40, true);
+    buyer.createNewOrder(24, 40, true);
+    buyer.createNewOrder(25, 40, true);
+
     seller.createNewOrder(20000, 50, false);
     seller.createNewOrder(2, 3, false);
+    seller.createNewOrder(1, 2, false);
+    seller.createNewOrder(3, 2, false);
+    seller.createNewOrder(4, 2, false);
+    seller.createNewOrder(10, 2, false);
+    seller.createNewOrder(5, 2, false);
+    seller.createNewOrder(6, 2, false);
+    seller.createNewOrder(7, 2, false);
+    seller.createNewOrder(9, 2, false);
+    seller.createNewOrder(8, 2, false);
 
   }
 
@@ -83,8 +102,24 @@ public class MatchingEngineTest {
 
   @Test
   public void testgetBestAsk() {
-    assertEquals((double) 2, (double) matchingEngine.getBestAsk().getPrice(),
+    assertEquals((double) 1, (double) matchingEngine.getBestAsk().getPrice(),
       0.0001);
+  }
+
+  @Test
+  public void testTopBuyOrders() {
+    ArrayList<Order> buyOrders = matchingEngine.topBuyOrders();
+    for (int i = 0; i < 10; i++) {
+      System.out.println(buyOrders.get(i).getPrice());
+    }
+  }
+
+  @Test
+  public void testTopSellOrders() {
+    ArrayList<Order> sellOrders = matchingEngine.topSellOrders();
+    for (int i = 0; i < 10; i++) {
+      System.out.println(sellOrders.get(i).getPrice());
+    }
   }
 
 }
