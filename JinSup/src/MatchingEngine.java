@@ -3,9 +3,9 @@ import java.util.Collections;
 import java.util.HashMap;
 
 /**
- * Class that handles order creation, modification, and cancellation. Also 
- * deals with trades and provides agents with appropriate trade data from 
- * the last millisecond of trading. *
+ * Class that handles order creation, modification, and cancellation. Also deals
+ * with trades and provides agents with appropriate trade data from the last
+ * millisecond of trading. *
  */
 public class MatchingEngine {
 
@@ -19,15 +19,14 @@ public class MatchingEngine {
    */
   private final HashMap<Long, Agent> agentMap;
 
-
   /**
    * All the orders in the simulation, unsorted.
    */
   private final ArrayList<Order> allOrders;
 
   /**
-   * The volume of shares sold that were initiated by an aggressive buying
-   * agent in the last millisecond of trading.
+   * The volume of shares sold that were initiated by an aggressive buying agent
+   * in the last millisecond of trading.
    */
   private int lastAgVolumeBuySide;
 
@@ -43,9 +42,8 @@ public class MatchingEngine {
    */
   private double lastTradePrice;
 
-
   /**
-   * Creates a matching engine with empty fields. Everything is initialized to 
+   * Creates a matching engine with empty fields. Everything is initialized to
    * zero.
    */
   public MatchingEngine() {
@@ -57,11 +55,13 @@ public class MatchingEngine {
     lastTradePrice = 0;
   }
 
-
   /**
    * Deletes an order from the simulation (orderMap and allOrders).
-   * @param o The order to be removed.
-   * @param agentID ID of the agent whose order is to be removed.
+   * 
+   * @param o
+   *          The order to be removed.
+   * @param agentID
+   *          ID of the agent whose order is to be removed.
    */
   public void cancelOrder(Order o, long agentID) {
     allOrders.remove(o);
@@ -69,25 +69,29 @@ public class MatchingEngine {
     // log the action.
   }
 
-
   /**
-   * Inserts the agent into the MatchingEngine's agentMap so that it can 
-   * keep track of it. This is called every time a new agent is constructed so 
-   * it should not have to be explicitly called.
-   * @param id ID of the agent.
-   * @param agent Agent object to be added.
+   * Inserts the agent into the MatchingEngine's agentMap so that it can keep
+   * track of it. This is called every time a new agent is constructed so it
+   * should not have to be explicitly called.
+   * 
+   * @param id
+   *          ID of the agent.
+   * @param agent
+   *          Agent object to be added.
    */
   public void addNewAgent(long id, Agent agent) {
     agentMap.put(id, agent);
   }
 
-
   /**
    * Takes a newly created order and stores it in the MatchingEngine's allOrders
    * and orderMap so that it can keep track of it. Also checks if any trade
    * occurs from this newly created order.
-   * @param o New order to be inserted into the MatchingEngine.
-   * @param agentID ID of the agent that initiated the order.
+   * 
+   * @param o
+   *          New order to be inserted into the MatchingEngine.
+   * @param agentID
+   *          ID of the agent that initiated the order.
    */
   public void createOrder(Order o, long agentID) {
     allOrders.add(o);
@@ -104,11 +108,15 @@ public class MatchingEngine {
   }
 
   /**
-   * Modifies the order in the MatchingEngine's allOrders and orderMap.
-   * Also checks if any trade occurs from this modification.
-   * @param o Order being modified.
-   * @param newPrice The new price the order should have.
-   * @param newQuant The new quantity the order should have.
+   * Modifies the order in the MatchingEngine's allOrders and orderMap. Also
+   * checks if any trade occurs from this modification.
+   * 
+   * @param o
+   *          Order being modified.
+   * @param newPrice
+   *          The new price the order should have.
+   * @param newQuant
+   *          The new quantity the order should have.
    */
   public void modifyOrder(Order o, double newPrice, int newQuant) {
     o.setPrice(newPrice);
@@ -118,10 +126,9 @@ public class MatchingEngine {
     checkMakeTrade(o);
   }
 
-
   /**
    * @return The last price that a share was traded for. Used primarily as data
-   * for the bar chart.
+   *         for the bar chart.
    */
   public double getLastTradePrice() {
     return lastTradePrice;
@@ -132,65 +139,42 @@ public class MatchingEngine {
 
   /**
    * @return The top ten pending buy orders sorted by price (highest) and time
-   * of order creation (most recent).
+   *         of order creation (most recent).
    */
   public ArrayList<Order> topBuyOrders() {
     ArrayList<Order> topBuyOrders = new ArrayList<Order>();
-    int numBuyOrders = 0;
-    while (numBuyOrders < allOrders.size()) {
-      if(allOrders.get(numBuyOrders).isBuyOrder()) {
-        numBuyOrders++;
-      }
-    }
-
-    // in case there are no buy orders in the array
-    if (numBuyOrders == 0) {
-      return topBuyOrders;
-    } 
-
-    for (int i = 0; i < allOrders.size(); i++) {
-      if (allOrders.get(i).isBuyOrder()) {
-        if (topBuyOrders.size() < 10)
-          topBuyOrders.add(allOrders.get(i));
-        Collections.sort(topBuyOrders, null);
-      } else {
-        if (allOrders.get(i).compare(allOrders.get(i),(topBuyOrders.get(9))) > 0) {
-          topBuyOrders.set(9, allOrders.get(i));
+    for (Order o : allOrders) {
+      if (o.isBuyOrder()) {
+        if (topBuyOrders.size() < 10) {
+          topBuyOrders.add(o);
           Collections.sort(topBuyOrders, null);
+        } else {
+          if (o.compare(o, topBuyOrders.get(9)) > 0) {
+            topBuyOrders.set(9, o);
+            Collections.sort(topBuyOrders, null);
+          }
         }
       }
     }
     return topBuyOrders;
   }
 
-  
   /**
    * @return The top ten sell orders sorted by price (lowest) and time of order
-   * creation (most recent).
+   *         creation (most recent).
    */
   public ArrayList<Order> topSellOrders() {
     ArrayList<Order> topSellOrders = new ArrayList<Order>();
-    int numSellOrders = 0;
-    while (numSellOrders < allOrders.size() ) {
-      if(!allOrders.get(numSellOrders).isBuyOrder()) {
-        numSellOrders++;
-      }
-    }
-
-    // in case there are no buy orders in the array
-    if (numSellOrders == 0) {
-      return topSellOrders;
-    } 
-
-    for (int i = 0; i < allOrders.size(); i++) {
-      if (!allOrders.get(i).isBuyOrder()) {
-        if (topSellOrders.size() < 10)
-          topSellOrders.add(allOrders.get(i));
-        Collections.sort(topSellOrders, Order.lowestFirstComparator);
-      } else {
-        if (allOrders.get(i).compare(allOrders.get(i),(topSellOrders.get(9))) < 0) {
-          topSellOrders.set(9, allOrders.get(i));
+    for (Order a : allOrders) {
+      if (!a.isBuyOrder()) {
+        if (topSellOrders.size() < 10) {
+          topSellOrders.add(a);
           Collections.sort(topSellOrders, Order.lowestFirstComparator);
+        } else {
+          if (a.compare(a, (topSellOrders.get(9))) < 0) {
+            topSellOrders.set(9, a);
+            Collections.sort(topSellOrders, Order.lowestFirstComparator);
+          }
         }
       }
     }
@@ -198,24 +182,22 @@ public class MatchingEngine {
   }
 
   // method to check for and make trades
-  public void checkMakeTrade(Order o) {
+  public void checkMakeTrade(Order order) {
     boolean aggressiveBuyer = true;
     ArrayList<Order> samePrice = new ArrayList<Order>();
-    if (o.isBuyOrder()) {
+    if (order.isBuyOrder()) {
       // check for sell orders at the same sell price
       // must be sure to pick orders that were placed first.
       // TODO: potential error due to double precision
-      for (int i = 0; i < allOrders.size(); i++) {
-        if (!allOrders.get(i).isBuyOrder()
-            && allOrders.get(i).getPrice() == o.getPrice()) {
-          samePrice.add(allOrders.get(i));
+      for (Order o : allOrders) {
+        if (!o.isBuyOrder() && o.getPrice() == order.getPrice()) {
+          samePrice.add(o);
         }
       }
     } else {
-      for (int i = 0; i < allOrders.size(); i++) {
-        if (allOrders.get(i).isBuyOrder()
-            && allOrders.get(i).getPrice() == o.getPrice()) {
-          samePrice.add(allOrders.get(i));
+      for (Order o : allOrders) {
+        if (o.isBuyOrder() && o.getPrice() == order.getPrice()) {
+          samePrice.add(o);
           aggressiveBuyer = false;
         }
       }
@@ -235,24 +217,24 @@ public class MatchingEngine {
 
     int volumeTraded = 0;
 
-    if (o.getCurrentQuant() == orderToTrade.getCurrentQuant()) {
-      volumeTraded = o.getCurrentQuant();
-      allOrders.remove(o);
+    if (order.getCurrentQuant() == orderToTrade.getCurrentQuant()) {
+      volumeTraded = order.getCurrentQuant();
+      allOrders.remove(order);
       allOrders.remove(orderToTrade);
-      orderMap.get(o.getCreatorID()).remove(o);
+      orderMap.get(order.getCreatorID()).remove(order);
       orderMap.get(orderToTrade.getCreatorID()).remove(orderToTrade);
 
-    } else if (o.getCurrentQuant() > orderToTrade.getCurrentQuant()) {
+    } else if (order.getCurrentQuant() > orderToTrade.getCurrentQuant()) {
       // delete orderToTrade, decrease quantity of o
-      volumeTraded = o.getCurrentQuant() - orderToTrade.getCurrentQuant();
-      o.setQuant(volumeTraded);
+      volumeTraded = order.getCurrentQuant() - orderToTrade.getCurrentQuant();
+      order.setQuant(volumeTraded);
       allOrders.remove(orderToTrade);
       orderMap.get(orderToTrade.getCreatorID()).remove(orderToTrade);
     } else {
-      volumeTraded = orderToTrade.getCurrentQuant() - o.getCurrentQuant();
+      volumeTraded = orderToTrade.getCurrentQuant() - order.getCurrentQuant();
       orderToTrade.setQuant(volumeTraded);
-      allOrders.remove(o);
-      orderMap.get(o.getCreatorID()).remove(o);
+      allOrders.remove(order);
+      orderMap.get(order.getCreatorID()).remove(order);
     }
     // log the action and ID of trade, with System.currentTimeMillis()
     // and volume traded.
@@ -264,7 +246,7 @@ public class MatchingEngine {
       lastAgVolumeSellSide += 1;
     }
     // now get the agents and notify them.
-    Agent aggressor = agentMap.get(o.getCreatorID());
+    Agent aggressor = agentMap.get(order.getCreatorID());
     Agent nonAgress = agentMap.get(orderToTrade.getCreatorID());
     aggressor.setLastOrderTraded(true, volumeTraded);
     nonAgress.setLastOrderTraded(true, volumeTraded);
@@ -272,9 +254,9 @@ public class MatchingEngine {
 
   public Order getBestBid() {
     ArrayList<Order> bids = new ArrayList<Order>();
-    for (int i = 0; i < allOrders.size(); i++) {
-      if (allOrders.get(i).isBuyOrder()) {
-        bids.add(allOrders.get(i));
+    for (Order o : allOrders) {
+      if (o.isBuyOrder()) {
+        bids.add(o);
       }
     }
     Collections.sort(bids, null);
@@ -284,9 +266,9 @@ public class MatchingEngine {
 
   public Order getBestAsk() {
     ArrayList<Order> asks = new ArrayList<Order>();
-    for (int i = 0; i < allOrders.size(); i++) {
-      if (!allOrders.get(i).isBuyOrder()) {
-        asks.add(allOrders.get(i));
+    for (Order o : allOrders) {
+      if (!o.isBuyOrder()) {
+        asks.add(o);
       }
     }
     Collections.sort(asks, null);
@@ -298,7 +280,5 @@ public class MatchingEngine {
   public ArrayList<Order> getAllOrders() {
     return allOrders;
   }
-  
-  
 
 }

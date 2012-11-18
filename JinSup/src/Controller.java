@@ -10,18 +10,18 @@ public class Controller {
   }
 
   public int createAgents(int num) {
-    for (int i = 0; i < num; i++) {
-      // agentList.add(new Agent());
-    }
+    // for (int i = 0; i < num; i++) {
+    // agentList.add(new Agent());
+    // }
     return agentList.size();
     // this is a test!
   }
 
   public void selectActingAgent() {
     ArrayList<Agent> actingAgents = new ArrayList<Agent>();
-    for (int i = 0; i < agentList.size(); i++) {
-      if (agentList.get(i).getNextActTime() == time) {
-        actingAgents.add(agentList.get(i));
+    for (Agent a : agentList) {
+      if (a.getNextActTime() == time) {
+        actingAgents.add(a);
       }
     }
     // pick a random agent to activate
