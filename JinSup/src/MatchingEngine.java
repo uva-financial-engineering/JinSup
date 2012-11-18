@@ -170,11 +170,9 @@ public class MatchingEngine {
         if (topSellOrders.size() < 10) {
           topSellOrders.add(a);
           Collections.sort(topSellOrders, Order.lowestFirstComparator);
-        } else {
-          if (Order.lowestFirstComparator.compare(a, topSellOrders.get(9)) < 0) {
-            topSellOrders.set(9, a);
-            Collections.sort(topSellOrders, Order.lowestFirstComparator);
-          }
+        } else if (Order.lowestFirstComparator.compare(a, topSellOrders.get(9)) < 0) {
+          topSellOrders.set(9, a);
+          Collections.sort(topSellOrders, Order.lowestFirstComparator);
         }
       }
     }
@@ -270,6 +268,9 @@ public class MatchingEngine {
       if (!o.isBuyOrder()) {
         asks.add(o);
       }
+    }
+    if (asks.isEmpty()) {
+      return null;
     }
     Collections.sort(asks, null);
     // want the lowest asking price

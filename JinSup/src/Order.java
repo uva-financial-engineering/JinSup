@@ -177,8 +177,8 @@ public class Order implements Comparator<Order> {
    */
   public static Comparator<Order> highestFirstComparator =
     new Comparator<Order>() {
+      @Override
       public int compare(Order o1, Order o2) {
-        // TODO Auto-generated method stub
         long priceDiff = o2.price - o1.price;
         if (priceDiff > 0) {
           return 1;
@@ -214,7 +214,6 @@ public class Order implements Comparator<Order> {
     new Comparator<Order>() {
       @Override
       public int compare(Order o1, Order o2) {
-        // TODO Auto-generated method stub
         long priceDiff = o1.price - o2.price;
         if (priceDiff > 0) {
           return 1;
