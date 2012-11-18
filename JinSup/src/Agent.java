@@ -1,12 +1,11 @@
-
 public class Agent {
-  
 
-  private long id;
-  private MatchingEngine matchEng;
-  private long nextActTime;
+  private final long id;
+  private final MatchingEngine matchEng;
+  private final long nextActTime;
   private boolean willAct;
-  private int inventory; //number of shares bought or sold. -ve if only sold, +ve if only bought
+  private int inventory; // number of shares bought or sold. -ve if only sold,
+  // +ve if only bought
   private boolean lastOrderTraded;
 
   public Agent(MatchingEngine matchEng) {
@@ -20,7 +19,6 @@ public class Agent {
     return;
   }
 
-
   public long getNextActTime() {
     return nextActTime;
   }
@@ -32,7 +30,6 @@ public class Agent {
   public void setWillAct(boolean act) {
     willAct = act;
   }
-
 
   public void cancelOrder(Order o) {
     matchEng.cancelOrder(o, this.id);
