@@ -129,22 +129,22 @@ public class Order implements Comparator<Order> {
 
   /**
    * Compares the order based on price and then time of creation. An order is
-   * "greater than" if it has a higher price; if two orders have the same price,
-   * then the one that was created first is "greater than".
+   * "less than" if it has a higher price; if two orders have the same price,
+   * then the one that was created first is "less than".
    * 
    * @param o1
    *          The first order to be compared.
    * @param o2
    *          The second order to be compared.
-   * @return 1 if o1 has a higher price, or if both orders have the same price,
-   *         1 if o1 was created first. If both orders had the same price and
+   * @return 1 if o2 has a higher price, or if both orders have the same price,
+   *         1 if o2 was created first. If both orders had the same price and
    *         were created at the same time (should not happen), then 0 is
    *         returned. -1 is returned otherwise.
    */
   @Override
   public int compare(Order o1, Order o2) {
     // TODO Auto-generated method stub
-    long priceDiff = o1.price - o2.price;
+    long priceDiff = o2.price - o1.price;
     if (priceDiff > 0) {
       return 1;
     } else if (priceDiff < 0) {
@@ -163,14 +163,50 @@ public class Order implements Comparator<Order> {
 
   /**
    * Compares the order based on price and then time of creation. An order is
-   * "greater than" if either it has a lower price or it was created first.
+   * "less than" if it has a higher price; if two orders have the same price,
+   * then the one that was created first is "less than".
    * 
    * @param o1
    *          The first order to be compared.
    * @param o2
    *          The second order to be compared.
-   * @return 1 if o1 has a lower price, or if both orders have the same price, 1
-   *         if o1 was created first. If both orders had the same price and were
+   * @return 1 if o2 has a higher price, or if both orders have the same price,
+   *         1 if o2 was created first. If both orders had the same price and
+   *         were created at the same time (should not happen), then 0 is
+   *         returned. -1 is returned otherwise.
+   */
+  public static Comparator<Order> highestFirstComparator =
+    new Comparator<Order>() {
+      public int compare(Order o1, Order o2) {
+        // TODO Auto-generated method stub
+        long priceDiff = o2.price - o1.price;
+        if (priceDiff > 0) {
+          return 1;
+        } else if (priceDiff < 0) {
+          return -1;
+        } else {
+          // Prices equal
+          long idDiff = o1.id - o2.id;
+          if (idDiff < 0) {
+            return 1;
+          } else if (idDiff > 0) {
+            return -1;
+          }
+        }
+        return 0;
+      }
+    };
+
+  /**
+   * Compares the order based on price and then time of creation. An order is
+   * "less than" if either it has a lower price or it was created first.
+   * 
+   * @param o1
+   *          The first order to be compared.
+   * @param o2
+   *          The second order to be compared.
+   * @return 1 if o2 has a lower price, or if both orders have the same price, 1
+   *         if o2 was created first. If both orders had the same price and were
    *         created at the same time (should not happen), then 0 is returned.
    *         -1 is returned otherwise.
    */

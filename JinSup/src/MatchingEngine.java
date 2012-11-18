@@ -147,11 +147,11 @@ public class MatchingEngine {
       if (o.isBuyOrder()) {
         if (topBuyOrders.size() < 10) {
           topBuyOrders.add(o);
-          Collections.sort(topBuyOrders, null);
+          Collections.sort(topBuyOrders, Order.highestFirstComparator);
         } else {
           if (o.compare(o, topBuyOrders.get(9)) > 0) {
             topBuyOrders.set(9, o);
-            Collections.sort(topBuyOrders, null);
+            Collections.sort(topBuyOrders, Order.highestFirstComparator);
           }
         }
       }
@@ -171,7 +171,7 @@ public class MatchingEngine {
           topSellOrders.add(a);
           Collections.sort(topSellOrders, Order.lowestFirstComparator);
         } else {
-          if (a.compare(a, (topSellOrders.get(9))) < 0) {
+          if (Order.lowestFirstComparator.compare(a, topSellOrders.get(9)) < 0) {
             topSellOrders.set(9, a);
             Collections.sort(topSellOrders, Order.lowestFirstComparator);
           }
