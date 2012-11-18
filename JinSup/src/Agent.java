@@ -44,6 +44,7 @@ public abstract class Agent {
    * it can keep track of the agent.
    * 
    * @param matchEng
+   *          The MatchingEngine of the simulator.
    */
   public Agent(MatchingEngine matchEng) {
     this.id = System.currentTimeMillis();

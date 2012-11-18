@@ -134,9 +134,6 @@ public class MatchingEngine {
     return lastTradePrice;
   }
 
-  // should verify again that this method should get the top ten, and
-  // not the most recent orders in the orderbook.
-
   /**
    * @return The top ten pending buy orders sorted by price (highest) and time
    *         of order creation (most recent).
@@ -148,11 +145,9 @@ public class MatchingEngine {
         if (topBuyOrders.size() < 10) {
           topBuyOrders.add(o);
           Collections.sort(topBuyOrders, Order.highestFirstComparator);
-        } else {
-          if (o.compare(o, topBuyOrders.get(9)) > 0) {
-            topBuyOrders.set(9, o);
-            Collections.sort(topBuyOrders, Order.highestFirstComparator);
-          }
+        } else if (o.compare(o, topBuyOrders.get(9)) > 0) {
+          topBuyOrders.set(9, o);
+          Collections.sort(topBuyOrders, Order.highestFirstComparator);
         }
       }
     }
@@ -179,7 +174,14 @@ public class MatchingEngine {
     return topSellOrders;
   }
 
-  // method to check for and make trades
+  /**
+   * Checks if a trade occurs as a result of a modified or newly created order.
+   * If an order causes a trade, then the trade will be performed and the
+   * agent's inventories will be updated.
+   * 
+   * @param order
+   *          The order that may cause a trade.
+   */
   public void checkMakeTrade(Order order) {
     boolean aggressiveBuyer = true;
     ArrayList<Order> samePrice = new ArrayList<Order>();
@@ -250,6 +252,9 @@ public class MatchingEngine {
     nonAgress.setLastOrderTraded(true, volumeTraded);
   }
 
+  /**
+   * @return The order with the highest bid price.
+   */
   public Order getBestBid() {
     ArrayList<Order> bids = new ArrayList<Order>();
     for (Order o : allOrders) {
@@ -257,11 +262,17 @@ public class MatchingEngine {
         bids.add(o);
       }
     }
-    Collections.sort(bids, null);
+    if (bids.isEmpty()) {
+      return null;
+    }
+    Collections.sort(bids, Order.highestFirstComparator);
     // want the highest bid price
     return bids.get(0);
   }
 
+  /**
+   * @return The order with the lowest ask price.
+   */
   public Order getBestAsk() {
     ArrayList<Order> asks = new ArrayList<Order>();
     for (Order o : allOrders) {
@@ -272,12 +283,14 @@ public class MatchingEngine {
     if (asks.isEmpty()) {
       return null;
     }
-    Collections.sort(asks, null);
+    Collections.sort(asks, Order.highestFirstComparator);
     // want the lowest asking price
     return asks.get(asks.size() - 1);
   }
 
-  // the following code is for testing purposes only!
+  /**
+   * @return All orders in the simulation.
+   */
   public ArrayList<Order> getAllOrders() {
     return allOrders;
   }

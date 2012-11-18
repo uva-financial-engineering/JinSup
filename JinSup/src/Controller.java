@@ -1,14 +1,36 @@
 import java.util.ArrayList;
 
+/**
+ * Keeps track of simulation time and selects eligible agents so that they can
+ * act during their alloted time.
+ * 
+ */
 public class Controller {
+
+  /**
+   * List of all agents in the simulator
+   */
   public ArrayList<Agent> agentList;
+
+  /**
+   * Simulator time in milliseconds.
+   */
   private long time;
 
+  /**
+   * Creates a controller with no agents.
+   */
   public Controller() {
     agentList = new ArrayList<Agent>();
     time = 0;
   }
 
+  /**
+   * Create all the agents.
+   * 
+   * @param num
+   * @return
+   */
   public int createAgents(int num) {
     // for (int i = 0; i < num; i++) {
     // agentList.add(new Agent());
@@ -17,6 +39,9 @@ public class Controller {
     // this is a test!
   }
 
+  /**
+   * Select eligible agents randomly to act.
+   */
   public void selectActingAgent() {
     ArrayList<Agent> actingAgents = new ArrayList<Agent>();
     for (Agent a : agentList) {
@@ -34,7 +59,12 @@ public class Controller {
     time += 1;
   }
 
-  // run the agent until it does not have any more actions to do.
+  /**
+   * Enable the agent to act until it no longer needs to act.
+   * 
+   * @param a
+   *          Eligibble agent to act.
+   */
   public void activateAgent(Agent a) {
     while (a.getWillAct()) {
       a.act();
