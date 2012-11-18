@@ -6,4 +6,8 @@ public class FundBuyer extends Agent {
     // TODO Auto-generated constructor stub
   }
 
+  public void act() {
+    return;
+  }
+
 }

@@ -6,4 +6,8 @@ public class OpporStrat extends Agent {
     // TODO Auto-generated constructor stub
   }
 
+  public void act() {
+    return;
+  }
+
 }

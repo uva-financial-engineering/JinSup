@@ -5,5 +5,9 @@ public class FundSeller extends Agent {
     super(matchEng);
     // TODO Auto-generated constructor stub
   }
+ 
+  public void act() {
+    return;
+  }
 
 }

@@ -12,7 +12,8 @@ public class MatchingEngine {
   // when a trade is made.
 
   private HashMap<Long, ArrayList<Order>> orderMap;
-  private int lastVolumeTraded;
+  private int lastAgVolumeBuySide;
+  private int lastAgVolumeSellSide;
   private double lastTradePrice;
 
   //these priority queues will only have the 10 most recent orders
@@ -25,6 +26,9 @@ public class MatchingEngine {
     //		priorityQueueBuy = new ArrayList<Order>();
     //		priorityQueueSell = new ArrayList<Order>();
     allOrders = new ArrayList<Order>();
+    lastAgVolumeBuySide = 0;
+    lastAgVolumeSellSide = 0;
+    lastTradePrice = 0;
   }
 
   public void cancelOrder(Order o, long agentID){
@@ -123,6 +127,7 @@ public class MatchingEngine {
 
   // method to check for and make trades
   public void checkMakeTrade(Order o) {
+    boolean aggressiveBuyer = true;
     ArrayList<Order> samePrice = new ArrayList<Order>();
     if(o.isBuyOrder()) {
       // check for sell orders at the same sell price
@@ -137,14 +142,13 @@ public class MatchingEngine {
       for(int i = 0; i < allOrders.size(); i ++) {
         if(allOrders.get(i).isBuyOrder() && allOrders.get(i).getPrice() == o.getPrice()) {
           samePrice.add(allOrders.get(i));
+          aggressiveBuyer = false;
         }
       }
     }
 
     // trade was not made
-    int volumeTraded = 0;
     if(samePrice.isEmpty()) {
-
       return;
     }
 
@@ -154,8 +158,11 @@ public class MatchingEngine {
     Collections.sort(samePrice);
 
     Order orderToTrade = samePrice.get(0);
+    
+    int volumeTraded = 0;
 
     if(o.getCurrentQuant() == orderToTrade.getCurrentQuant()) {
+      volumeTraded = o.getCurrentQuant();
       allOrders.remove(o);
       allOrders.remove(orderToTrade);
       orderMap.get(o.getCreatorID()).remove(o);
@@ -163,17 +170,25 @@ public class MatchingEngine {
 
     } else if(o.getCurrentQuant() > orderToTrade.getCurrentQuant()) {
       //delete orderToTrade, decrease quantity of o
-      o.setQuant(o.getCurrentQuant() - orderToTrade.getCurrentQuant());
+      volumeTraded = o.getCurrentQuant() - orderToTrade.getCurrentQuant();
+      o.setQuant(volumeTraded);
       allOrders.remove(orderToTrade);
       orderMap.get(orderToTrade.getCreatorID()).remove(orderToTrade);
     } else {
-      orderToTrade.setQuant(orderToTrade.getCurrentQuant() - o.getCurrentQuant());
+      volumeTraded = orderToTrade.getCurrentQuant() - o.getCurrentQuant();
+      orderToTrade.setQuant(volumeTraded);
       allOrders.remove(o);
       orderMap.get(o.getCreatorID()).remove(o);
     }
     // log the action and ID of trade, with System.currentTimeMillis()
     // and volume traded.
     // notify both agents that a trade has occurred.
+    
+    if(aggressiveBuyer) {
+     lastAgVolumeBuySide += 1;
+    } else {
+      lastAgVolumeSellSide += 1;
+    }
 
   }
 

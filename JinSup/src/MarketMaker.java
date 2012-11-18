@@ -5,5 +5,10 @@ public class MarketMaker extends Agent {
     super(matchEng);
     // TODO Auto-generated constructor stub
   }
+ 
+  public void act() {
+    
+    return;
+  }
 
 }
