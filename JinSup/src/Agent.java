@@ -1,5 +1,7 @@
 
 public class Agent {
+  
+
   private long id;
   private MatchingEngine matchEng;
   private long nextActTime;
@@ -15,17 +17,9 @@ public class Agent {
   }
 
   public void act() {
-
+    return;
   }
 
-  //	public boolean isActive(int time)
-  //	{
-  //		if(time >0)
-  //			return true;
-  //		else
-  //			return false;
-  //	}
-  //	
 
   public long getNextActTime() {
     return nextActTime;

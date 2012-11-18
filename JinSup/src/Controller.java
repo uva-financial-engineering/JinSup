@@ -14,7 +14,7 @@ public class Controller {
   {
     for(int i = 0; i < num; i++)
     {
-      agentList.add(new Agent());
+//      agentList.add(new Agent());
     }
     return agentList.size();
     //this is a test!
@@ -29,10 +29,14 @@ public class Controller {
       }
     }
     //pick a random agent to activate
-    Agent acting = actingAgents.get((int)(Math.random()*((actingAgents.size()-1) + 1)));
-    acting.setWillAct(true);
-    activateAgent(acting);
-
+    while(!actingAgents.isEmpty()) {
+      int agentIndex = (int)(Math.random()*((actingAgents.size()-1) + 1));
+      Agent acting = actingAgents.get(agentIndex);
+      acting.setWillAct(true);
+      activateAgent(acting);
+      actingAgents.remove(agentIndex);
+    }
+    time += 1;
   }
 
   //run the agent until it does not have any more actions to do.
@@ -40,9 +44,7 @@ public class Controller {
     while(a.getWillAct()) {
       a.act();
     }
-    time += 1;
-    //also log the action
-
+        //also log the action
   }
 
 
