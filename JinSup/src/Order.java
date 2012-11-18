@@ -8,7 +8,7 @@ public class Order implements Comparator<Order> {
   /**
    * The price of the order. Can only be in increments of 0.25.
    */
-  private double price;
+  private long price;
 
   /**
    * The original amount of shares this order is for.
@@ -48,7 +48,7 @@ public class Order implements Comparator<Order> {
    *          Is true if the agent wants to initiate an order to buy shares.
    *          False otherwise.
    */
-  public Order(long agentID, double price, int originalQuant, boolean buyOrder) {
+  public Order(long agentID, long price, int originalQuant, boolean buyOrder) {
     id = System.currentTimeMillis();
     this.agentID = agentID;
     this.buyOrder = buyOrder;
@@ -97,7 +97,7 @@ public class Order implements Comparator<Order> {
    * @param newPrice
    *          The new price to buy/sell that for the order.
    */
-  public void setPrice(double newPrice) {
+  public void setPrice(long newPrice) {
     price = newPrice;
   }
 
@@ -129,7 +129,8 @@ public class Order implements Comparator<Order> {
 
   /**
    * Compares the order based on price and then time of creation. An order is
-   * "greater than" if either it has a higher price or it was created first.
+   * "greater than" if it has a higher price; if two orders have the same price,
+   * then the one that was created first is "greater than".
    * 
    * @param o1
    *          The first order to be compared.
@@ -143,8 +144,21 @@ public class Order implements Comparator<Order> {
   @Override
   public int compare(Order o1, Order o2) {
     // TODO Auto-generated method stub
-    int priceDiff = (int) (o2.price * 100) - (int) (o1.price * 100);
-    return (priceDiff != 0) ? priceDiff : (int) (o1.id / 100 - o2.id / 100);
+    long priceDiff = o1.price - o2.price;
+    if (priceDiff > 0) {
+      return 1;
+    } else if (priceDiff < 0) {
+      return -1;
+    } else {
+      // Prices equal
+      long idDiff = o1.id - o2.id;
+      if (idDiff < 0) {
+        return 1;
+      } else if (idDiff > 0) {
+        return -1;
+      }
+    }
+    return 0;
   }
 
   /**
@@ -165,8 +179,21 @@ public class Order implements Comparator<Order> {
       @Override
       public int compare(Order o1, Order o2) {
         // TODO Auto-generated method stub
-        int priceDiff = (int) (o1.price * 100) - (int) (o2.price * 100);
-        return (priceDiff != 0) ? priceDiff : (int) (o2.id / 100 - o1.id / 100);
+        long priceDiff = o1.price - o2.price;
+        if (priceDiff > 0) {
+          return 1;
+        } else if (priceDiff < 0) {
+          return -1;
+        } else {
+          // Prices equal
+          long idDiff = o2.id - o1.id;
+          if (idDiff > 0) {
+            return 1;
+          } else if (idDiff < 0) {
+            return -1;
+          }
+        }
+        return 0;
       }
     };
 

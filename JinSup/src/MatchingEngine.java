@@ -118,7 +118,7 @@ public class MatchingEngine {
    * @param newQuant
    *          The new quantity the order should have.
    */
-  public void modifyOrder(Order o, double newPrice, int newQuant) {
+  public void modifyOrder(Order o, long newPrice, int newQuant) {
     o.setPrice(newPrice);
     o.setQuant(newQuant);
     // log the action
