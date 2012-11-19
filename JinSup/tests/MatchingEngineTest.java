@@ -34,7 +34,7 @@ public class MatchingEngineTest {
     ordersTime.add(o4);
     ordersTime.add(o3);
 
-    matchingEngine = new MatchingEngine();
+    matchingEngine = new MatchingEngine(10000);
     buyer = new FundBuyer(matchingEngine);
     seller = new FundSeller(matchingEngine);
     buyer.createNewOrder(20, 40, true);
@@ -122,4 +122,10 @@ public class MatchingEngineTest {
     }
   }
 
+  @Test
+  public void testCreateMarketOrder() {
+    buyer.createMarketOrder(5, true);
+    assertEquals((double) 3, (double) matchingEngine.topSellOrders().get(0)
+      .getPrice(), 0.0001);
+  }
 }

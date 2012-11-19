@@ -412,4 +412,12 @@ public class MatchingEngine {
     return buyPrice;
   }
 
+  /**
+   * Resets lastAgVolumeBuySide and lastAgVolumeSellSide for the next
+   * millisecond
+   */
+  public void reset() {
+    lastAgVolumeBuySide = lastAgVolumeSellSide = 0;
+  }
+
 }
