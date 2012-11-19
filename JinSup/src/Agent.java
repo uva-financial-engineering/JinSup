@@ -13,11 +13,11 @@ public abstract class Agent {
   /**
    * Matching engine that is used in the simulation. Should not be changed.
    */
-  private final MatchingEngine matchEng;
+  private final MatchingEngine matchingEngine;
   /**
    * Next time that the agent can act. This is determined in the act() method.
    */
-  private final long nextActTime;
+  private long nextActTime;
 
   /**
    * Is true if the agent is chosen to act by the Controller. Will remain true
@@ -48,7 +48,7 @@ public abstract class Agent {
    */
   public Agent(MatchingEngine matchEng) {
     this.id = System.currentTimeMillis();
-    this.matchEng = matchEng;
+    this.matchingEngine = matchEng;
     this.inventory = 0;
     this.nextActTime = -1;
     matchEng.addNewAgent(this.id, this);
@@ -66,6 +66,10 @@ public abstract class Agent {
    */
   public long getNextActTime() {
     return nextActTime;
+  }
+
+  protected void setNextActTime(long nextTime) {
+    nextActTime = nextTime;
   }
 
   /**
@@ -96,7 +100,7 @@ public abstract class Agent {
    * 
    */
   public void cancelOrder(Order o) {
-    matchEng.cancelOrder(o, this.id);
+    matchingEngine.cancelOrder(o);
   }
 
   /**
@@ -111,7 +115,14 @@ public abstract class Agent {
    */
   public void createNewOrder(long price, int initialQuant, boolean buyOrder) {
     Order newOrder = new Order(this.id, price, initialQuant, buyOrder);
-    matchEng.createOrder(newOrder, this.id);
+    matchingEngine.createOrder(newOrder);
+  }
+
+  // assuming that market orders will always have a price of 0.
+  // marketOrders should be traded immediately.
+  public void createMarketOrder(int initialQuant, boolean buyOrder) {
+    Order newOrder = new Order(this.id, 0, initialQuant, buyOrder);
+    matchingEngine.tradeMarketOrder(newOrder);
   }
 
   /**
@@ -125,7 +136,7 @@ public abstract class Agent {
    *          The new quantity to set the order to.
    */
   public void modifyOrder(Order o, long newPrice, int newQuant) {
-    matchEng.modifyOrder(o, newPrice, newQuant);
+    matchingEngine.modifyOrder(o, newPrice, newQuant);
   }
 
   /**
@@ -140,6 +151,10 @@ public abstract class Agent {
   public void setLastOrderTraded(boolean traded, int volume) {
     lastOrderTraded = traded;
     inventory += volume;
+  }
+
+  public long getBuyPrice() {
+    return matchingEngine.getBuyPrice();
   }
 
 }

@@ -43,16 +43,29 @@ public class MatchingEngine {
   private double lastTradePrice;
 
   /**
+   * Remains true while the simulator is still in the starting period. This
+   * means that all orders that my result in a trade will be cancelled.
+   */
+  private boolean startingPeriod;
+
+  /**
+   * The buy price for a share.
+   */
+  private long buyPrice;
+
+  /**
    * Creates a matching engine with empty fields. Everything is initialized to
    * zero.
    */
-  public MatchingEngine() {
+  public MatchingEngine(long buyPrice) {
     orderMap = new HashMap<Long, ArrayList<Order>>();
     allOrders = new ArrayList<Order>();
     agentMap = new HashMap<Long, Agent>();
     lastAgVolumeBuySide = 0;
     lastAgVolumeSellSide = 0;
     lastTradePrice = 0;
+    startingPeriod = true;
+    this.buyPrice = buyPrice;
   }
 
   /**
@@ -63,9 +76,9 @@ public class MatchingEngine {
    * @param agentID
    *          ID of the agent whose order is to be removed.
    */
-  public void cancelOrder(Order o, long agentID) {
+  public void cancelOrder(Order o) {
     allOrders.remove(o);
-    orderMap.get(agentID).remove(o);
+    orderMap.get(o.getCreatorID()).remove(o);
     // log the action.
   }
 
@@ -93,18 +106,100 @@ public class MatchingEngine {
    * @param agentID
    *          ID of the agent that initiated the order.
    */
-  public void createOrder(Order o, long agentID) {
+  public void createOrder(Order o) {
     allOrders.add(o);
-    if (orderMap.containsKey(agentID)) {
-      orderMap.get(agentID).add(o);
+    if (orderMap.containsKey(o.getCreatorID())) {
+      orderMap.get(o.getCreatorID()).add(o);
     } else {
       ArrayList<Order> orderList = new ArrayList<Order>();
       orderList.add(o);
-      orderMap.put(agentID, orderList);
+      orderMap.put(o.getCreatorID(), orderList);
     }
     // log the action.
     // must then check if a trade can occur
     checkMakeTrade(o);
+  }
+
+  // must account for the case when there are not enough orders to satisfy
+  // a market order.
+  public void tradeMarketOrder(Order o) {
+    // have to add the order to the orderMap and all orders, otherwise the
+    // trade method will not work.
+    createOrder(o);
+    long aggressorID = o.getCreatorID();
+    int totalVolumeTraded = 0;
+    int quantityToRid = o.getCurrentQuant();
+    boolean aggressiveBuyer = true;
+    if (o.isBuyOrder()) {
+      ArrayList<Order> topSells = topSellOrders();
+      while (!topSells.isEmpty()) {
+        int currentVolumeTraded = trade(o, topSells.get(0));
+        totalVolumeTraded += currentVolumeTraded;
+
+        // notify the non agressor.
+        agentMap.get(topSells.get(0).getCreatorID()).setLastOrderTraded(true,
+          currentVolumeTraded);
+
+        if (totalVolumeTraded < quantityToRid) {
+          topSells.remove(0);
+        } else {
+          break;
+        }
+
+      }
+    } else {
+      aggressiveBuyer = false;
+      ArrayList<Order> topBuys = topBuyOrders();
+      while (!topBuys.isEmpty()) {
+        int currentVolumeTraded = trade(o, topBuys.get(0));
+        totalVolumeTraded += currentVolumeTraded;
+
+        // notify the non agressor.
+        agentMap.get(topBuys.get(0).getCreatorID()).setLastOrderTraded(true,
+          currentVolumeTraded);
+
+        if (totalVolumeTraded < quantityToRid) {
+          topBuys.remove(0);
+        } else {
+          break;
+        }
+      }
+    }
+
+    // notify the agressor
+    agentMap.get(aggressorID).setLastOrderTraded(true, totalVolumeTraded);
+    if (aggressiveBuyer) {
+      lastAgVolumeBuySide += totalVolumeTraded;
+    } else {
+      lastAgVolumeSellSide += totalVolumeTraded;
+    }
+  }
+
+  // can use the code below to replace some code in checkMakeTrade()
+  // we cannot use this to notify agents that a trade occurs because
+  // tradeMarketOrder() is handled differently than checkMakeTrade().
+  public int trade(Order o1, Order o2) {
+    int volumeTraded;
+    if (o1.getCurrentQuant() == o2.getCurrentQuant()) {
+      volumeTraded = o1.getCurrentQuant();
+      allOrders.remove(o1);
+      allOrders.remove(o2);
+      orderMap.get(o1.getCreatorID()).remove(o1);
+      orderMap.get(o2.getCreatorID()).remove(o2);
+
+    } else if (o1.getCurrentQuant() > o2.getCurrentQuant()) {
+      // delete orderToTrade, decrease quantity of o
+      volumeTraded = o1.getCurrentQuant() - o2.getCurrentQuant();
+      o1.setQuant(volumeTraded);
+      allOrders.remove(o2);
+      orderMap.get(o2.getCreatorID()).remove(o2);
+    } else {
+      volumeTraded = o2.getCurrentQuant() - o1.getCurrentQuant();
+      o2.setQuant(volumeTraded);
+      allOrders.remove(o1);
+      orderMap.get(o1.getCreatorID()).remove(o1);
+    }
+    return volumeTraded;
   }
 
   /**
@@ -183,6 +278,7 @@ public class MatchingEngine {
    *          The order that may cause a trade.
    */
   public void checkMakeTrade(Order order) {
+
     boolean aggressiveBuyer = true;
     ArrayList<Order> samePrice = new ArrayList<Order>();
     if (order.isBuyOrder()) {
@@ -206,6 +302,9 @@ public class MatchingEngine {
     // trade was not made
     if (samePrice.isEmpty()) {
       return;
+      // trades are not allowed during the startup period.
+    } else if (startingPeriod) {
+      cancelOrder(order);
     }
 
     lastTradePrice = samePrice.get(0).getPrice();
@@ -241,15 +340,14 @@ public class MatchingEngine {
     // notify both agents that a trade has occurred.
 
     if (aggressiveBuyer) {
-      lastAgVolumeBuySide += 1;
+      lastAgVolumeBuySide += volumeTraded;
     } else {
-      lastAgVolumeSellSide += 1;
+      lastAgVolumeSellSide += volumeTraded;
     }
-    // now get the agents and notify them.
-    Agent aggressor = agentMap.get(order.getCreatorID());
-    Agent nonAgress = agentMap.get(orderToTrade.getCreatorID());
-    aggressor.setLastOrderTraded(true, volumeTraded);
-    nonAgress.setLastOrderTraded(true, volumeTraded);
+    // now get the agents (agressor and nonagressor) and notify them.
+    agentMap.get(order.getCreatorID()).setLastOrderTraded(true, volumeTraded);
+    agentMap.get(orderToTrade.getCreatorID()).setLastOrderTraded(true,
+      volumeTraded);
   }
 
   /**
@@ -293,6 +391,25 @@ public class MatchingEngine {
    */
   public ArrayList<Order> getAllOrders() {
     return allOrders;
+  }
+
+  /**
+   * Sets the matching to allow or disallow trades to occur based on whether or
+   * not the simulation is still running in startup mode.
+   * 
+   * @param isStartingPeriod
+   *          If true, then the simulation will remain under startup mode and
+   *          trades will not be allowed. Otherwise, trades will be enabled.
+   */
+  public void setStartingPeriod(boolean isStartingPeriod) {
+    startingPeriod = isStartingPeriod;
+  }
+
+  /**
+   * @return The buy price for a share.
+   */
+  public long getBuyPrice() {
+    return buyPrice;
   }
 
 }
