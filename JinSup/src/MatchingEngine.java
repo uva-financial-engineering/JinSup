@@ -174,7 +174,7 @@ public class MatchingEngine {
   // can use the code below to replace some code in checkMakeTrade()
   // we cannot use this to notify agents that a trade occurs because
   // tradeMarketOrder() is handled differently than checkMakeTrade().
-  public int trade(Order o1, Order o2) {
+  private int trade(Order o1, Order o2) {
     int volumeTraded;
     if (o1.getCurrentQuant() == o2.getCurrentQuant()) {
       volumeTraded = o1.getCurrentQuant();
@@ -290,9 +290,9 @@ public class MatchingEngine {
       for (Order o : allOrders) {
         if (o.isBuyOrder() && o.getPrice() == order.getPrice()) {
           samePrice.add(o);
-          aggressiveBuyer = false;
         }
       }
+      aggressiveBuyer = false;
     }
 
     // trade was not made
@@ -310,27 +310,8 @@ public class MatchingEngine {
 
     Order orderToTrade = samePrice.get(0);
 
-    int volumeTraded = 0;
+    int volumeTraded = trade(order, orderToTrade);
 
-    if (order.getCurrentQuant() == orderToTrade.getCurrentQuant()) {
-      volumeTraded = order.getCurrentQuant();
-      allOrders.remove(order);
-      allOrders.remove(orderToTrade);
-      orderMap.get(order.getCreatorID()).remove(order);
-      orderMap.get(orderToTrade.getCreatorID()).remove(orderToTrade);
-
-    } else if (order.getCurrentQuant() > orderToTrade.getCurrentQuant()) {
-      // delete orderToTrade, decrease quantity of o
-      volumeTraded = order.getCurrentQuant() - orderToTrade.getCurrentQuant();
-      order.setQuant(volumeTraded);
-      allOrders.remove(orderToTrade);
-      orderMap.get(orderToTrade.getCreatorID()).remove(orderToTrade);
-    } else {
-      volumeTraded = orderToTrade.getCurrentQuant() - order.getCurrentQuant();
-      orderToTrade.setQuant(volumeTraded);
-      allOrders.remove(order);
-      orderMap.get(order.getCreatorID()).remove(order);
-    }
     // log the action and ID of trade, with System.currentTimeMillis()
     // and volume traded.
     // notify both agents that a trade has occurred.
