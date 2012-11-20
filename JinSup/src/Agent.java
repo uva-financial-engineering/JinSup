@@ -95,12 +95,12 @@ public abstract class Agent {
   /**
    * Calls the MatchingEngine to cancel the agent's order.
    * 
-   * @param The
-   *          order that needs to be cancelled.
+   * @param order
+   *          The order that needs to be cancelled.
    * 
    */
-  public void cancelOrder(Order o) {
-    matchingEngine.cancelOrder(o);
+  public void cancelOrder(Order order) {
+    matchingEngine.cancelOrder(order);
   }
 
   /**
@@ -128,7 +128,7 @@ public abstract class Agent {
   /**
    * Calls the MatchingEngine to modify an order
    * 
-   * @param o
+   * @param order
    *          The order to be modified.
    * @param newPrice
    *          The new price to set the order to.
