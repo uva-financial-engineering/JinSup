@@ -280,7 +280,6 @@ public class MatchingEngine {
     if (order.isBuyOrder()) {
       // check for sell orders at the same sell price
       // must be sure to pick orders that were placed first.
-      // TODO: potential error due to double precision
       for (Order o : allOrders) {
         if (!o.isBuyOrder() && o.getPrice() == order.getPrice()) {
           samePrice.add(o);
@@ -295,8 +294,8 @@ public class MatchingEngine {
       aggressiveBuyer = false;
     }
 
-    // trade was not made
     if (samePrice.isEmpty()) {
+      // trade was not made
       return;
       // trades are not allowed during the startup period.
     } else if (startingPeriod) {
