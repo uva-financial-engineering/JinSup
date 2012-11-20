@@ -17,8 +17,8 @@ public class FundBuyer extends Agent {
       }
     }
 
-    // ten percent chance of issuing a market buy order...assuming that this can
-    // occur only once per turn.
+    // ten percent chance of issuing a market buy order... assuming that this
+    // can occur only once per turn.
     if (Math.random() < 0.1) {
       createMarketOrder(2, true);
     }

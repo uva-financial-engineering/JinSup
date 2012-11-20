@@ -129,14 +129,13 @@ public class MatchingEngine {
     long aggressorID = o.getCreatorID();
     int totalVolumeTraded = 0;
     int quantityToRid = o.getCurrentQuant();
-    boolean aggressiveBuyer = true;
     if (o.isBuyOrder()) {
       ArrayList<Order> topSells = topSellOrders();
       while (!topSells.isEmpty()) {
         int currentVolumeTraded = trade(o, topSells.get(0));
         totalVolumeTraded += currentVolumeTraded;
 
-        // notify the non agressor.
+        // notify the non aggressor.
         agentMap.get(topSells.get(0).getCreatorID()).setLastOrderTraded(true,
           currentVolumeTraded);
 
@@ -147,14 +146,16 @@ public class MatchingEngine {
         }
 
       }
+      // notify the aggressor
+      agentMap.get(aggressorID).setLastOrderTraded(true, totalVolumeTraded);
+      lastAgVolumeBuySide += totalVolumeTraded;
     } else {
-      aggressiveBuyer = false;
       ArrayList<Order> topBuys = topBuyOrders();
       while (!topBuys.isEmpty()) {
         int currentVolumeTraded = trade(o, topBuys.get(0));
         totalVolumeTraded += currentVolumeTraded;
 
-        // notify the non agressor.
+        // notify the non aggressor.
         agentMap.get(topBuys.get(0).getCreatorID()).setLastOrderTraded(true,
           currentVolumeTraded);
 
@@ -164,13 +165,8 @@ public class MatchingEngine {
           break;
         }
       }
-    }
-
-    // notify the agressor
-    agentMap.get(aggressorID).setLastOrderTraded(true, totalVolumeTraded);
-    if (aggressiveBuyer) {
-      lastAgVolumeBuySide += totalVolumeTraded;
-    } else {
+      // notify the aggressor
+      agentMap.get(aggressorID).setLastOrderTraded(true, totalVolumeTraded);
       lastAgVolumeSellSide += totalVolumeTraded;
     }
   }
@@ -344,7 +340,7 @@ public class MatchingEngine {
     } else {
       lastAgVolumeSellSide += volumeTraded;
     }
-    // now get the agents (agressor and nonagressor) and notify them.
+    // now get the agents (aggressor and non-aggressor) and notify them.
     agentMap.get(order.getCreatorID()).setLastOrderTraded(true, volumeTraded);
     agentMap.get(orderToTrade.getCreatorID()).setLastOrderTraded(true,
       volumeTraded);

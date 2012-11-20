@@ -65,7 +65,7 @@ public class Controller {
    * Enable the agent to act until it no longer needs to act.
    * 
    * @param a
-   *          Eligibble agent to act.
+   *          Eligible agent to act.
    */
   public void activateAgent(Agent a) {
     while (a.getWillAct()) {
