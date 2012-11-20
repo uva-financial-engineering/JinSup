@@ -51,7 +51,7 @@ public class MatchingEngine {
   /**
    * The buy price for a share.
    */
-  private long buyPrice;
+  private final long buyPrice;
 
   /**
    * Creates a matching engine with empty fields. Everything is initialized to

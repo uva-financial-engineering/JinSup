@@ -5,6 +5,7 @@ public class FundBuyer extends Agent {
     // TODO Auto-generated constructor stub
   }
 
+  @Override
   public void act() {
     for (int i = 0; i < 10; i++) {
       // request to purchase 2 shares for the 10 highest buy prices
@@ -24,6 +25,6 @@ public class FundBuyer extends Agent {
     setWillAct(false);
 
     // calculate next act time (+/- 5 seconds) with variation of 10%
-    setNextActTime((long) (Math.random() * 500 + 5000));
+    setNextActTime((long) (Math.random() * 500 + 4750));
   }
 }

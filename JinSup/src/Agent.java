@@ -114,15 +114,15 @@ public abstract class Agent {
    *          True if the agent wants to buy. False otherwise.
    */
   public void createNewOrder(long price, int initialQuant, boolean buyOrder) {
-    Order newOrder = new Order(this.id, price, initialQuant, buyOrder);
-    matchingEngine.createOrder(newOrder);
+    matchingEngine
+      .createOrder(new Order(this.id, price, initialQuant, buyOrder));
   }
 
   // assuming that market orders will always have a price of 0.
   // marketOrders should be traded immediately.
   public void createMarketOrder(int initialQuant, boolean buyOrder) {
-    Order newOrder = new Order(this.id, 0, initialQuant, buyOrder);
-    matchingEngine.tradeMarketOrder(newOrder);
+    matchingEngine.tradeMarketOrder(new Order(this.id, 0, initialQuant,
+      buyOrder));
   }
 
   /**
@@ -135,8 +135,8 @@ public abstract class Agent {
    * @param newQuant
    *          The new quantity to set the order to.
    */
-  public void modifyOrder(Order o, long newPrice, int newQuant) {
-    matchingEngine.modifyOrder(o, newPrice, newQuant);
+  public void modifyOrder(Order order, long newPrice, int newQuant) {
+    matchingEngine.modifyOrder(order, newPrice, newQuant);
   }
 
   /**

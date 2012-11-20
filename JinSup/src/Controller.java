@@ -21,12 +21,12 @@ public class Controller {
    * The time when the simulation should end the startup period and allow agents
    * to trade.
    */
-  private long startupTime;
+  private final long startupTime;
 
   /**
    * The MatchingEngine used for this simulation.
    */
-  private MatchingEngine matchingEngine;
+  private final MatchingEngine matchingEngine;
 
   /**
    * Creates a controller with no agents.
@@ -36,20 +36,6 @@ public class Controller {
     time = 0;
     this.startupTime = startupTime;
     this.matchingEngine = matchingEngine;
-  }
-
-  /**
-   * Create all the agents.
-   * 
-   * @param num
-   * @return
-   */
-  public int createAgents(int num) {
-    // for (int i = 0; i < num; i++) {
-    // agentList.add(new Agent());
-    // }
-    return agentList.size();
-    // this is a test!
   }
 
   /**
