@@ -112,10 +112,12 @@ public abstract class Agent {
    *          The quantity that the agent wants to buy/sell.
    * @param buyOrder
    *          True if the agent wants to buy. False otherwise.
+   * 
+   * @return True if the creation of the order resulted in a trade
    */
-  public void createNewOrder(long price, int initialQuant, boolean buyOrder) {
-    matchingEngine
-      .createOrder(new Order(this.id, price, initialQuant, buyOrder));
+  public boolean createNewOrder(long price, int initialQuant, boolean buyOrder) {
+    return matchingEngine.createOrder(new Order(this.id, price, initialQuant,
+      buyOrder));
   }
 
   // assuming that market orders will always have a price of 0.
@@ -134,9 +136,11 @@ public abstract class Agent {
    *          The new price to set the order to.
    * @param newQuant
    *          The new quantity to set the order to.
+   * 
+   * @return True if the modification of this order resulted in a trade.
    */
-  public void modifyOrder(Order order, long newPrice, int newQuant) {
-    matchingEngine.modifyOrder(order, newPrice, newQuant);
+  public boolean modifyOrder(Order order, long newPrice, int newQuant) {
+    return matchingEngine.modifyOrder(order, newPrice, newQuant);
   }
 
   /**
@@ -155,6 +159,23 @@ public abstract class Agent {
 
   public long getBuyPrice() {
     return matchingEngine.getBuyPrice();
+  }
+
+  /**
+   * @return Midpoint between the best ask price and best bid price
+   */
+  public long getMidPoint() {
+    return (long) (matchingEngine.getBestBid().getPrice() + matchingEngine
+      .getBestAsk().getPrice()) / 2;
+  }
+
+  /**
+   * @return The moving average calculated by the matching engine. See the
+   *         getMovingAverage() method in the MatchingEngine class for more
+   *         details.
+   */
+  public long getMovAvg() {
+    return matchingEngine.getMovingAverage();
   }
 
 }

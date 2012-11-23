@@ -8,8 +8,13 @@ public class MarketMaker extends Agent {
   @Override
   public void act() {
     for (int i = 0; i < 10; i++) {
-      createNewOrder(getBuyPrice() - i * 25, 1, true);
-      createNewOrder(getBuyPrice() + (i + 1) * 25, 1, true);
+      while (createNewOrder(getBuyPrice() - i * 25, 1, true)) {
+        createNewOrder(getBuyPrice() - i * 25, 1, true);
+      }
+
+      while (createNewOrder(getBuyPrice() + (i + 1) * 25, 1, true)) {
+        createNewOrder(getBuyPrice() + (i + 1) * 25, 1, true);
+      }
     }
 
     // if a trade occurs, must maintain structure.
@@ -18,5 +23,4 @@ public class MarketMaker extends Agent {
     setNextActTime((long) (Math.random() * 100 + 950));
     return;
   }
-
 }

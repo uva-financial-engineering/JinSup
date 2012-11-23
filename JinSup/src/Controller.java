@@ -55,7 +55,7 @@ public class Controller {
       acting.setWillAct(true);
       activateAgent(acting);
     }
-    time += 1;
+    moveTime();
     if (time == startupTime) {
       matchingEngine.setStartingPeriod(false);
     }
@@ -74,4 +74,12 @@ public class Controller {
     // also log the action
   }
 
+  /**
+   * Method that increments time and performs other necessary actions per time
+   * step.
+   */
+  public void moveTime() {
+    matchingEngine.storeMovingAverage(500);
+    time += 1;
+  }
 }

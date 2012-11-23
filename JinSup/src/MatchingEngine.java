@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 /**
  * Class that handles order creation, modification, and cancellation. Also deals
@@ -54,6 +55,12 @@ public class MatchingEngine {
   private final long buyPrice;
 
   /**
+   * Queue containing the midpoints of best bid and best ask prices. The length
+   * of the list is determined by the get moving average method.
+   */
+  private LinkedList<Long> midpoints;
+
+  /**
    * Creates a matching engine with empty fields. Everything is initialized to
    * zero.
    */
@@ -61,6 +68,7 @@ public class MatchingEngine {
     orderMap = new HashMap<Long, ArrayList<Order>>();
     allOrders = new ArrayList<Order>();
     agentMap = new HashMap<Long, Agent>();
+    midpoints = new LinkedList<Long>();
     lastAgVolumeBuySide = 0;
     lastAgVolumeSellSide = 0;
     lastTradePrice = 0;
@@ -106,7 +114,7 @@ public class MatchingEngine {
    * @param agentID
    *          ID of the agent that initiated the order.
    */
-  public void createOrder(Order o) {
+  public boolean createOrder(Order o) {
     allOrders.add(o);
     if (orderMap.containsKey(o.getCreatorID())) {
       orderMap.get(o.getCreatorID()).add(o);
@@ -117,7 +125,8 @@ public class MatchingEngine {
     }
     // log the action.
     // must then check if a trade can occur
-    checkMakeTrade(o);
+    return trade(o, willTrade(o));
+
   }
 
   // must account for the case when there are not enough orders to satisfy
@@ -209,12 +218,12 @@ public class MatchingEngine {
    * @param newQuant
    *          The new quantity the order should have.
    */
-  public void modifyOrder(Order o, long newPrice, int newQuant) {
+  public boolean modifyOrder(Order o, long newPrice, int newQuant) {
     o.setPrice(newPrice);
     o.setQuant(newQuant);
     // log the action
     // must then check if a trade can occur
-    checkMakeTrade(o);
+    return trade(o, willTrade(o));
   }
 
   /**
@@ -266,16 +275,14 @@ public class MatchingEngine {
   }
 
   /**
-   * Checks if a trade occurs as a result of a modified or newly created order.
-   * If an order causes a trade, then the trade will be performed and the
-   * agent's inventories will be updated.
+   * Checks if an order will make cause a trade.
    * 
    * @param order
-   *          The order that may cause a trade.
+   *          The order to check for a trade
+   * @return Orders that have the same price, if a trade can be made. Otherwise,
+   *         null.
    */
-  public void checkMakeTrade(Order order) {
-
-    boolean aggressiveBuyer = true;
+  public ArrayList<Order> willTrade(Order order) {
     ArrayList<Order> samePrice = new ArrayList<Order>();
     if (order.isBuyOrder()) {
       // check for sell orders at the same sell price
@@ -291,23 +298,48 @@ public class MatchingEngine {
           samePrice.add(o);
         }
       }
+    }
+    if (samePrice.isEmpty()) {
+      // trade was not made
+      return null;
+    } else {
+      return samePrice;
+    }
+
+  }
+
+  /**
+   * Performs the trade for non-market orders. If samePricedOrders is null, i.e.
+   * the order will not make a trade, then routine simply exits.
+   * 
+   * @param order
+   *          The order to be traded.
+   * @param samePricedOrders
+   *          Orders having the same price as the order to be traded.
+   * 
+   * @return True if the trade was made.
+   */
+  public boolean trade(Order order, ArrayList<Order> samePricedOrders) {
+    if (samePricedOrders == null) {
+      return false;
+    }
+
+    boolean aggressiveBuyer = true;
+
+    if (!order.isBuyOrder()) {
       aggressiveBuyer = false;
     }
 
-    if (samePrice.isEmpty()) {
-      // trade was not made
-      return;
-      // trades are not allowed during the startup period.
-    } else if (startingPeriod) {
+    if (startingPeriod) {
       cancelOrder(order);
     }
 
-    lastTradePrice = samePrice.get(0).getPrice();
+    lastTradePrice = samePricedOrders.get(0).getPrice();
 
     // now select the orders that were made first.
-    Collections.sort(samePrice, null);
+    Collections.sort(samePricedOrders, null);
 
-    Order orderToTrade = samePrice.get(0);
+    Order orderToTrade = samePricedOrders.get(0);
 
     int volumeTraded = trade(order, orderToTrade);
 
@@ -324,6 +356,7 @@ public class MatchingEngine {
     agentMap.get(order.getCreatorID()).setLastOrderTraded(true, volumeTraded);
     agentMap.get(orderToTrade.getCreatorID()).setLastOrderTraded(true,
       volumeTraded);
+    return true;
   }
 
   /**
@@ -394,6 +427,35 @@ public class MatchingEngine {
    */
   public void reset() {
     lastAgVolumeBuySide = lastAgVolumeSellSide = 0;
+  }
+
+  /**
+   * A special method for opportunistic traders that returns the moving average
+   * for the last n number of milliseconds.
+   */
+  public void storeMovingAverage(int n) {
+    long midpoint =
+      (long) ((getBestBid().getPrice() + getBestAsk().getPrice()) / 2);
+    if (midpoints.size() > n) {
+      midpoints.poll();
+      midpoints.add(midpoint);
+    } else {
+      // Have to becareful about division here...
+      midpoints.add(midpoint);
+    }
+  }
+
+  /**
+   * Provides agents with the moving average with length of time specified by
+   * the calculateMovingAverage() method.
+   */
+  public long getMovingAverage() {
+    long sum = 0;
+    for (Long mid : midpoints) {
+      sum += mid;
+    }
+
+    return sum / midpoints.size();
   }
 
 }
