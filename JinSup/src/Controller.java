@@ -15,13 +15,18 @@ public class Controller {
   /**
    * Simulator time in milliseconds.
    */
-  private long time;
+  public static long time;
 
   /**
    * The time when the simulation should end the startup period and allow agents
    * to trade.
    */
   private final long startupTime;
+
+  /**
+   * The time to stop the simulator.
+   */
+  private final long endTime;
 
   /**
    * The MatchingEngine used for this simulation.
@@ -31,10 +36,12 @@ public class Controller {
   /**
    * Creates a controller with no agents.
    */
-  public Controller(long startupTime, MatchingEngine matchingEngine) {
+  public Controller(long startupTime, long endTime,
+    MatchingEngine matchingEngine) {
     agentList = new ArrayList<Agent>();
     time = 0;
     this.startupTime = startupTime;
+    this.endTime = endTime;
     this.matchingEngine = matchingEngine;
   }
 
@@ -58,6 +65,7 @@ public class Controller {
     moveTime();
     if (time == startupTime) {
       matchingEngine.setStartingPeriod(false);
+      System.out.println("Trading Enabled!");
     }
   }
 
@@ -83,4 +91,35 @@ public class Controller {
     time += 1;
   }
 
+  /**
+   * Creates agents with first startup time and runs the simulator and stops it
+   * at a specified time given in the main method.
+   */
+  public void runSimulator() {
+    // create agents
+    for (int i = 0; i < 200; i++) {
+      FundBuyer fundBuyer = new FundBuyer(matchingEngine);
+      fundBuyer.setNextActTime((long) (Math.random() * startupTime));
+      FundSeller fundSeller = new FundSeller(matchingEngine);
+      fundSeller.setNextActTime((long) (Math.random() * startupTime));
+      agentList.add(fundBuyer);
+      agentList.add(fundSeller);
+    }
+
+    for (int i = 0; i < 10; i++) {
+      MarketMaker marketMaker = new MarketMaker(matchingEngine);
+      marketMaker.setNextActTime((long) (Math.random() * startupTime));
+    }
+
+    for (int i = 0; i < 40; i++) {
+      OpporStrat opporStrat = new OpporStrat(matchingEngine);
+      opporStrat.setNextActTime((long) (Math.random() * startupTime));
+    }
+
+    // run simulator until endTime is reached.
+    while (time < endTime) {
+      selectActingAgent();
+    }
+    System.out.println("The simulation has ended.");
+  }
 }

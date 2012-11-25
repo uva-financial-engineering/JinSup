@@ -68,7 +68,7 @@ public abstract class Agent {
     return nextActTime;
   }
 
-  protected void setNextActTime(long nextTime) {
+  public void setNextActTime(long nextTime) {
     nextActTime = nextTime;
   }
 

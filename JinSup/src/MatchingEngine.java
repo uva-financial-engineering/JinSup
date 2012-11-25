@@ -136,12 +136,20 @@ public class MatchingEngine {
     // have to add the order to the orderMap and all orders, otherwise the
     // trade method will not work.
     createOrder(o);
+    if (startingPeriod) {
+      cancelOrder(o);
+      return;
+    }
+    // save price for logging at the end.
+    long price = 0;
+
     long aggressorID = o.getCreatorID();
     int totalVolumeTraded = 0;
     int quantityToRid = o.getCurrentQuant();
     if (o.isBuyOrder()) {
       ArrayList<Order> topSells = topSellOrders();
       while (!topSells.isEmpty()) {
+        price = topSells.get(0).getPrice();
         int currentVolumeTraded = trade(o, topSells.get(0));
         totalVolumeTraded += currentVolumeTraded;
 
@@ -162,6 +170,7 @@ public class MatchingEngine {
     } else {
       ArrayList<Order> topBuys = topBuyOrders();
       while (!topBuys.isEmpty()) {
+        price = topBuys.get(0).getPrice();
         int currentVolumeTraded = trade(o, topBuys.get(0));
         totalVolumeTraded += currentVolumeTraded;
 
@@ -180,7 +189,8 @@ public class MatchingEngine {
       lastAgVolumeSellSide += totalVolumeTraded;
 
       // log this trade
-
+      logTrade(o, price, totalVolumeTraded);
+      // also have to log for the other party
     }
   }
 
@@ -188,6 +198,8 @@ public class MatchingEngine {
   // we cannot use this to notify agents that a trade occurs because
   // tradeMarketOrder() is handled differently than checkMakeTrade().
   private int trade(Order o1, Order o2) {
+    // save price for logging at the end.
+    long price = o1.getPrice();
     int volumeTraded;
     if (o1.getCurrentQuant() == o2.getCurrentQuant()) {
       volumeTraded = o1.getCurrentQuant();
@@ -208,6 +220,10 @@ public class MatchingEngine {
       allOrders.remove(o1);
       orderMap.get(o1.getCreatorID()).remove(o1);
     }
+
+    logTrade(o1, price, volumeTraded);
+    // also have to log for the other party.
+
     return volumeTraded;
   }
 
@@ -329,16 +345,20 @@ public class MatchingEngine {
       return false;
     }
 
+    // save price for logging below
+    long price = order.getPrice();
+
     boolean aggressiveBuyer = order.isBuyOrder();
 
     if (startingPeriod) {
       cancelOrder(order);
+      return false;
     }
 
     lastTradePrice = samePricedOrders.get(0).getPrice();
 
     // now select the orders that were made first.
-    Collections.sort(samePricedOrders, null);
+    Collections.sort(samePricedOrders, Order.highestFirstComparator);
 
     Order orderToTrade = samePricedOrders.get(0);
 
@@ -357,6 +377,8 @@ public class MatchingEngine {
     agentMap.get(order.getCreatorID()).setLastOrderTraded(true, volumeTraded);
     agentMap.get(orderToTrade.getCreatorID()).setLastOrderTraded(true,
       volumeTraded);
+
+    logTrade(order, price, volumeTraded);
     return true;
   }
 
@@ -435,8 +457,14 @@ public class MatchingEngine {
    * for the last n number of milliseconds.
    */
   public void storeMovingAverage(int n) {
-    long midpoint =
-      (long) ((getBestBid().getPrice() + getBestAsk().getPrice()) / 2);
+    long midpoint = 0;
+    if (getBestBid() == null || getBestAsk() == null) {
+      // since we cannot represent 12.5 in cents only
+      midpoint = buyPrice + 12;
+    } else {
+      midpoint =
+        (long) ((getBestBid().getPrice() + getBestAsk().getPrice()) / 2);
+    }
     if (midpoints.size() > n) {
       midpoints.poll();
     }
@@ -479,8 +507,9 @@ public class MatchingEngine {
    * fields for Price of Trade, Quantity Filled, Aggressor Indicator (Y/N), and
    * Trade ID. Calls updateGraph() if needed.
    */
-  public void logTrade(Order o) {
-
+  public void logTrade(Order o, long tradePrice, int volume) {
+    System.out.println("Time: " + Controller.time + " Price: " + "Volume: "
+      + volume);
   }
 
   public void updateGraph() {

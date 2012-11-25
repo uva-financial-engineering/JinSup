@@ -67,7 +67,7 @@ public class Order implements Comparator<Order> {
   /**
    * @return The price of the order.
    */
-  public double getPrice() {
+  public long getPrice() {
     return price;
   }
 
