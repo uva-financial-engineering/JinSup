@@ -88,6 +88,7 @@ public class MatchingEngine {
     allOrders.remove(o);
     orderMap.get(o.getCreatorID()).remove(o);
     // log the action.
+    log(o, 3, false);
   }
 
   /**
@@ -125,8 +126,8 @@ public class MatchingEngine {
     }
     // log the action.
     // must then check if a trade can occur
+    log(o, 1, false);
     return trade(o, willTrade(o));
-
   }
 
   // must account for the case when there are not enough orders to satisfy
@@ -177,6 +178,9 @@ public class MatchingEngine {
       // notify the aggressor
       agentMap.get(aggressorID).setLastOrderTraded(true, totalVolumeTraded);
       lastAgVolumeSellSide += totalVolumeTraded;
+
+      // log this trade
+
     }
   }
 
@@ -222,6 +226,7 @@ public class MatchingEngine {
     o.setPrice(newPrice);
     o.setQuant(newQuant);
     // log the action
+    log(o, 2, false);
     // must then check if a trade can occur
     return trade(o, willTrade(o));
   }
@@ -456,6 +461,38 @@ public class MatchingEngine {
     }
 
     return sum / midpoints.size();
+  }
+
+  /**
+   * Logs all the required information into the orderbook and updates graph when
+   * an order is created, modified, or deleted. The CSV to be logged will have
+   * the following fields: Agent ID, Message Type (1 = new order, 2 =
+   * modification , 3 = cancel, 105 = trade), Buy/Sell (1/2), Order ID, Original
+   * Order Quantity, Price, Order Type (limit/market), Leaves Quantity.
+   * 
+   * @param o
+   *          Order to log
+   * @param code
+   *          Message type
+   * @param market
+   *          True if logging a market order. False if logging a limit order
+   */
+  public void log(Order o, int code, boolean market) {
+
+  }
+
+  /**
+   * Logs all the required information into the orderbook and updates graph if
+   * trade occurs. In addition to the fields above, this method will also add
+   * fields for Price of Trade, Quantity Filled, Aggressor Indicator (Y/N), and
+   * Trade ID. Calls updateGraph() if needed.
+   */
+  public void logTrade(Order o) {
+
+  }
+
+  public void updateGraph() {
+
   }
 
 }

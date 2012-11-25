@@ -82,4 +82,5 @@ public class Controller {
     matchingEngine.storeMovingAverage(500);
     time += 1;
   }
+
 }
