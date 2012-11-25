@@ -18,9 +18,10 @@ public class MarketMaker extends Agent {
     }
 
     // if a trade occurs, must maintain structure.
+    setWillAct(false);
 
     // calculate next act time (+/- 1 seconds) with variation of 10%
-    setNextActTime((long) (Math.random() * 100 + 950));
+    setNextActTime(getNextActTime() + (long) (Math.random() * 100 + 950));
     return;
   }
 }

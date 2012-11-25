@@ -115,7 +115,7 @@ public class MatchingEngine {
    * @param agentID
    *          ID of the agent that initiated the order.
    */
-  public boolean createOrder(Order o) {
+  public boolean createOrder(Order o, boolean market) {
     allOrders.add(o);
     if (orderMap.containsKey(o.getCreatorID())) {
       orderMap.get(o.getCreatorID()).add(o);
@@ -127,7 +127,10 @@ public class MatchingEngine {
     // log the action.
     // must then check if a trade can occur
     log(o, 1, false);
-    return trade(o, willTrade(o));
+    if (!market) {
+      return trade(o, willTrade(o));
+    }
+    return false;
   }
 
   // must account for the case when there are not enough orders to satisfy
@@ -135,7 +138,7 @@ public class MatchingEngine {
   public void tradeMarketOrder(Order o) {
     // have to add the order to the orderMap and all orders, otherwise the
     // trade method will not work.
-    createOrder(o);
+    createOrder(o, false);
     if (startingPeriod) {
       cancelOrder(o);
       return;
@@ -184,14 +187,15 @@ public class MatchingEngine {
           break;
         }
       }
+
       // notify the aggressor
       agentMap.get(aggressorID).setLastOrderTraded(true, totalVolumeTraded);
       lastAgVolumeSellSide += totalVolumeTraded;
 
-      // log this trade
-      logTrade(o, price, totalVolumeTraded);
-      // also have to log for the other party
     }
+    System.out.print("Market ORDER ");
+    logTrade(o, price, totalVolumeTraded);
+
   }
 
   // can use the code below to replace some code in checkMakeTrade()
@@ -199,7 +203,6 @@ public class MatchingEngine {
   // tradeMarketOrder() is handled differently than checkMakeTrade().
   private int trade(Order o1, Order o2) {
     // save price for logging at the end.
-    long price = o1.getPrice();
     int volumeTraded;
     if (o1.getCurrentQuant() == o2.getCurrentQuant()) {
       volumeTraded = o1.getCurrentQuant();
@@ -221,8 +224,7 @@ public class MatchingEngine {
       orderMap.get(o1.getCreatorID()).remove(o1);
     }
 
-    logTrade(o1, price, volumeTraded);
-    // also have to log for the other party.
+    // NO LOGGING HERE! LOGGING IS DONE IN THE OTHER TWO TRADE METHODS!
 
     return volumeTraded;
   }
@@ -330,8 +332,8 @@ public class MatchingEngine {
   }
 
   /**
-   * Performs the trade for non-market orders. If samePricedOrders is null, i.e.
-   * the order will not make a trade, then routine simply exits.
+   * Performs the trade for ALL orders. If samePricedOrders is null, i.e. the
+   * order will not make a trade, then routine simply exits.
    * 
    * @param order
    *          The order to be traded.
@@ -378,6 +380,7 @@ public class MatchingEngine {
     agentMap.get(orderToTrade.getCreatorID()).setLastOrderTraded(true,
       volumeTraded);
 
+    System.out.print("LIMIT ORDER ");
     logTrade(order, price, volumeTraded);
     return true;
   }
@@ -503,8 +506,9 @@ public class MatchingEngine {
    * Trade ID. Calls updateGraph() if needed.
    */
   public void logTrade(Order o, long tradePrice, int volume) {
-    System.out.println("Time: " + Controller.time + " Price: " + "Volume: "
-      + volume);
+    System.out.println("Time: " + Controller.time + " Price: "
+      + (double) tradePrice / 100 + " Volume: " + volume + " Buy Order: "
+      + o.isBuyOrder());
   }
 
   public void updateGraph() {

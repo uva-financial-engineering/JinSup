@@ -25,6 +25,6 @@ public class FundBuyer extends Agent {
     setWillAct(false);
 
     // calculate next act time (+/- 5 seconds) with variation of 10%
-    setNextActTime((long) (Math.random() * 500 + 4750));
+    setNextActTime(getNextActTime() + (long) (Math.random() * 500 + 4750));
   }
 }

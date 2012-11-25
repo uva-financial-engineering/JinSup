@@ -97,6 +97,7 @@ public class Controller {
    */
   public void runSimulator() {
     // create agents
+    System.out.print("Creating agents...");
     FundBuyer fundBuyer;
     FundSeller fundSeller;
     for (int i = 0; i < 200; i++) {
@@ -119,6 +120,9 @@ public class Controller {
       opporStrat = new OpporStrat(matchingEngine);
       opporStrat.setNextActTime((long) (Math.random() * startupTime));
     }
+    System.out.print("Done!");
+    System.out.println();
+    System.out.println("Simulation has started");
 
     // run simulator until endTime is reached.
     while (time < endTime) {

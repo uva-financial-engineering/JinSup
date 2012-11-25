@@ -13,8 +13,9 @@ public class OpporStrat extends Agent {
     // TODO what if the currentMidpoint is equal to the moving average?
     createMarketOrder(2, getMidPoint() > getMovAvg());
 
+    setWillAct(false);
     // calculate next act time (+/- 500 ms) with variation of 10%
-    setNextActTime((long) (Math.random() * 50 + 475));
+    setNextActTime(getNextActTime() + (long) (Math.random() * 50 + 475));
     return;
   }
 }

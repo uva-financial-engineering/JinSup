@@ -117,7 +117,7 @@ public abstract class Agent {
    */
   public boolean createNewOrder(long price, int initialQuant, boolean buyOrder) {
     return matchingEngine.createOrder(new Order(this.id, price, initialQuant,
-      buyOrder));
+      buyOrder), false);
   }
 
   // assuming that market orders will always have a price of 0.

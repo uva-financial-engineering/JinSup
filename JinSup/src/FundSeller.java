@@ -21,11 +21,12 @@ public class FundSeller extends Agent {
     // occur only once per turn.
     if (Math.random() < 0.1) {
       createMarketOrder(2, false);
+
     }
     setWillAct(false);
 
     // calculate next act time (+/- 5 seconds) with variation of 10%
-    setNextActTime((long) (Math.random() * 500 + 4750));
+    setNextActTime(getNextActTime() + (long) (Math.random() * 500 + 4750));
   }
 
 }

@@ -15,6 +15,7 @@ public class Main {
     MatchingEngine matchingEngine = new MatchingEngine(buyPrice);
     Controller controller = new Controller(startTime, endTime, matchingEngine);
 
+    System.out.println("Starting simulator...");
     controller.runSimulator();
   }
 }
