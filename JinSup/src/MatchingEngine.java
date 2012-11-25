@@ -457,14 +457,9 @@ public class MatchingEngine {
    * for the last n number of milliseconds.
    */
   public void storeMovingAverage(int n) {
-    long midpoint = 0;
-    if (getBestBid() == null || getBestAsk() == null) {
-      // since we cannot represent 12.5 in cents only
-      midpoint = buyPrice + 12;
-    } else {
-      midpoint =
-        (long) ((getBestBid().getPrice() + getBestAsk().getPrice()) / 2);
-    }
+    long midpoint =
+      (getBestBid() == null || getBestAsk() == null) ? buyPrice + 12
+        : (long) ((getBestBid().getPrice() + getBestAsk().getPrice()) / 2);
     if (midpoints.size() > n) {
       midpoints.poll();
     }

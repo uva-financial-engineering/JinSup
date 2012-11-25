@@ -97,22 +97,26 @@ public class Controller {
    */
   public void runSimulator() {
     // create agents
+    FundBuyer fundBuyer;
+    FundSeller fundSeller;
     for (int i = 0; i < 200; i++) {
-      FundBuyer fundBuyer = new FundBuyer(matchingEngine);
+      fundBuyer = new FundBuyer(matchingEngine);
       fundBuyer.setNextActTime((long) (Math.random() * startupTime));
-      FundSeller fundSeller = new FundSeller(matchingEngine);
+      fundSeller = new FundSeller(matchingEngine);
       fundSeller.setNextActTime((long) (Math.random() * startupTime));
       agentList.add(fundBuyer);
       agentList.add(fundSeller);
     }
 
+    MarketMaker marketMaker;
     for (int i = 0; i < 10; i++) {
-      MarketMaker marketMaker = new MarketMaker(matchingEngine);
+      marketMaker = new MarketMaker(matchingEngine);
       marketMaker.setNextActTime((long) (Math.random() * startupTime));
     }
 
+    OpporStrat opporStrat;
     for (int i = 0; i < 40; i++) {
-      OpporStrat opporStrat = new OpporStrat(matchingEngine);
+      opporStrat = new OpporStrat(matchingEngine);
       opporStrat.setNextActTime((long) (Math.random() * startupTime));
     }
 
