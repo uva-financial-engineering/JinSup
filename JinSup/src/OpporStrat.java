@@ -5,17 +5,13 @@ public class OpporStrat extends Agent {
     // TODO Auto-generated constructor stub
   }
 
+  @Override
   public void act() {
-
     // if current midpoint below moving average, issue sell market order
     // but for what amount? Lets say two for now
 
-    // what if the currentMidpoint is equal to the moving average?
-    if (getMidPoint() <= getMovAvg()) {
-      createMarketOrder(2, false);
-    } else {
-      createMarketOrder(2, true);
-    }
+    // TODO what if the currentMidpoint is equal to the moving average?
+    createMarketOrder(2, getMidPoint() > getMovAvg());
 
     // calculate next act time (+/- 500 ms) with variation of 10%
     setNextActTime((long) (Math.random() * 50 + 475));
