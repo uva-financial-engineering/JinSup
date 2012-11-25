@@ -58,7 +58,7 @@ public class MatchingEngine {
    * Queue containing the midpoints of best bid and best ask prices. The length
    * of the list is determined by the get moving average method.
    */
-  private LinkedList<Long> midpoints;
+  private final LinkedList<Long> midpoints;
 
   /**
    * Creates a matching engine with empty fields. Everything is initialized to
@@ -329,11 +329,7 @@ public class MatchingEngine {
       return false;
     }
 
-    boolean aggressiveBuyer = true;
-
-    if (!order.isBuyOrder()) {
-      aggressiveBuyer = false;
-    }
+    boolean aggressiveBuyer = order.isBuyOrder();
 
     if (startingPeriod) {
       cancelOrder(order);
@@ -443,11 +439,8 @@ public class MatchingEngine {
       (long) ((getBestBid().getPrice() + getBestAsk().getPrice()) / 2);
     if (midpoints.size() > n) {
       midpoints.poll();
-      midpoints.add(midpoint);
-    } else {
-      // Have to becareful about division here...
-      midpoints.add(midpoint);
     }
+    midpoints.add(midpoint);
   }
 
   /**
@@ -459,7 +452,6 @@ public class MatchingEngine {
     for (Long mid : midpoints) {
       sum += mid;
     }
-
     return sum / midpoints.size();
   }
 
