@@ -17,5 +17,9 @@ public class Main {
 
     System.out.println("Starting simulator...");
     controller.runSimulator();
+    // PieChart demo =
+    // new PieChart("Comparison", "Which operating system are you using?");
+    // demo.pack();
+    // demo.setVisible(true);
   }
 }

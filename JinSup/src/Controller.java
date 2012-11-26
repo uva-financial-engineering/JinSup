@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  * Keeps track of simulation time and selects eligible agents so that they can
@@ -49,7 +50,7 @@ public class Controller {
    * Select eligible agents randomly to act.
    */
   public void selectActingAgent() {
-    ArrayList<Agent> actingAgents = new ArrayList<Agent>();
+    LinkedList<Agent> actingAgents = new LinkedList<Agent>();
     for (Agent a : agentList) {
       if (a.getNextActTime() == time) {
         actingAgents.add(a);
@@ -57,10 +58,8 @@ public class Controller {
     }
     // pick a random agent to activate
     while (!actingAgents.isEmpty()) {
-      int agentIndex = (int) (Math.random() * actingAgents.size());
-      Agent acting = actingAgents.remove(agentIndex);
-      acting.setWillAct(true);
-      activateAgent(acting);
+      activateAgent(actingAgents.remove((int) (Math.random() * actingAgents
+        .size())));
     }
     moveTime();
     if (time == startupTime) {
@@ -76,10 +75,9 @@ public class Controller {
    *          Eligible agent to act.
    */
   public void activateAgent(Agent a) {
-    while (a.getWillAct()) {
-      a.act();
-    }
-    // also log the action
+    a.setWillAct(true);
+    a.getWillAct();
+    a.act();
   }
 
   /**
@@ -120,9 +118,7 @@ public class Controller {
       opporStrat = new OpporStrat(matchingEngine);
       opporStrat.setNextActTime((long) (Math.random() * startupTime));
     }
-    System.out.print("Done!");
-    System.out.println();
-    System.out.println("Simulation has started");
+    System.out.print("Done!\nSimulation has started");
 
     // run simulator until endTime is reached.
     while (time < endTime) {

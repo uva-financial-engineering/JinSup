@@ -492,9 +492,9 @@ public class MatchingEngine {
   }
 
   /**
-   * Logs all the required information into the orderbook and updates graph when
-   * an order is created, modified, or deleted. The CSV to be logged will have
-   * the following fields: Agent ID, Message Type (1 = new order, 2 =
+   * Logs all the required information into the order book and updates graph
+   * when an order is created, modified, or deleted. The CSV to be logged will
+   * have the following fields: Agent ID, Message Type (1 = new order, 2 =
    * modification , 3 = cancel, 105 = trade), Buy/Sell (1/2), Order ID, Original
    * Order Quantity, Price, Order Type (limit/market), Leaves Quantity.
    * 
@@ -516,13 +516,8 @@ public class MatchingEngine {
    * Trade ID. Calls updateGraph() if needed.
    */
   public void logTrade(Order o, long tradePrice, int volume) {
-    System.out.println("Time: " + Controller.time + " Price: "
-      + (double) tradePrice / 100 + " Volume: " + volume + " Buy Order: "
-      + o.isBuyOrder());
+    double dollars = (double) tradePrice / 100;
+    System.out.println("Time: " + Controller.time + " Price: " + dollars
+      + " Volume: " + volume + " Buy Order: " + o.isBuyOrder());
   }
-
-  public void updateGraph() {
-
-  }
-
 }
