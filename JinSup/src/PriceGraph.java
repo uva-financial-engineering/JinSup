@@ -33,7 +33,7 @@ public class PriceGraph extends JFrame {
     setContentPane(chartPanel);
   }
 
-  public void addPoint(double ms, double price) {
+  public void addPoint(double seconds, double price) {
     boolean needResize = false;
     if (price < minPrice) {
       minPrice = price;
@@ -49,6 +49,6 @@ public class PriceGraph extends JFrame {
         + 1);
       System.out.println(minPrice + ", " + maxPrice);
     }
-    prices.add(ms, price);
+    prices.add(seconds, price);
   }
 }
