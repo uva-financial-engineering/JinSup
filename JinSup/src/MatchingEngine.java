@@ -138,7 +138,7 @@ public class MatchingEngine {
   public void tradeMarketOrder(Order o) {
     // have to add the order to the orderMap and all orders, otherwise the
     // trade method will not work.
-    createOrder(o, false);
+    createOrder(o, true);
     if (startingPeriod) {
       cancelOrder(o);
       return;
@@ -151,6 +151,11 @@ public class MatchingEngine {
     int quantityToRid = o.getCurrentQuant();
     if (o.isBuyOrder()) {
       ArrayList<Order> topSells = topSellOrders();
+      if (topSells.isEmpty()) {
+        // nothing was traded. order will be cancelled.
+        cancelOrder(o);
+        return;
+      }
       while (!topSells.isEmpty()) {
         price = topSells.get(0).getPrice();
         int currentVolumeTraded = trade(o, topSells.get(0));
@@ -172,6 +177,11 @@ public class MatchingEngine {
       lastAgVolumeBuySide += totalVolumeTraded;
     } else {
       ArrayList<Order> topBuys = topBuyOrders();
+      if (topBuys.isEmpty()) {
+        // nothing was traded. order will be cancelled.
+        cancelOrder(o);
+        return;
+      }
       while (!topBuys.isEmpty()) {
         price = topBuys.get(0).getPrice();
         int currentVolumeTraded = trade(o, topBuys.get(0));
