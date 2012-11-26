@@ -519,5 +519,6 @@ public class MatchingEngine {
     double dollars = (double) tradePrice / 100;
     System.out.println("Time: " + Controller.time + " Price: " + dollars
       + " Volume: " + volume + " Buy Order: " + o.isBuyOrder());
+    Controller.priceGraph.addPoint(Controller.time / 1000.0, dollars);
   }
 }

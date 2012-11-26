@@ -19,6 +19,11 @@ public class Controller {
   public static long time;
 
   /**
+   * Price graph
+   */
+  public static PriceGraph priceGraph;
+
+  /**
    * The time when the simulation should end the startup period and allow agents
    * to trade.
    */
@@ -65,6 +70,9 @@ public class Controller {
     if (time == startupTime) {
       matchingEngine.setStartingPeriod(false);
       System.out.println("Trading Enabled!");
+      priceGraph = new PriceGraph("JinSup", "Order Prices");
+      priceGraph.pack();
+      priceGraph.setVisible(true);
     }
   }
 
@@ -95,7 +103,7 @@ public class Controller {
    */
   public void runSimulator() {
     // create agents
-    System.out.print("Creating agents...");
+    System.out.println("Creating agents...");
     FundBuyer fundBuyer;
     FundSeller fundSeller;
     for (int i = 0; i < 200; i++) {
@@ -118,7 +126,7 @@ public class Controller {
       opporStrat = new OpporStrat(matchingEngine);
       opporStrat.setNextActTime((long) (Math.random() * startupTime));
     }
-    System.out.print("Done!\nSimulation has started");
+    System.out.println("Done!\nSimulation has started");
 
     // run simulator until endTime is reached.
     while (time < endTime) {
