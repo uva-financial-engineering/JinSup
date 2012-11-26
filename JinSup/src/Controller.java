@@ -70,7 +70,7 @@ public class Controller {
     if (time == startupTime) {
       matchingEngine.setStartingPeriod(false);
       System.out.println("Trading Enabled!");
-      priceGraph = new PriceGraph("JinSup", "Order Prices");
+      priceGraph = new PriceGraph(startupTime, endTime);
       priceGraph.pack();
       priceGraph.setVisible(true);
     }

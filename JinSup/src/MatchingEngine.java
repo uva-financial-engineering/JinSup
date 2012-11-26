@@ -518,7 +518,8 @@ public class MatchingEngine {
   public void logTrade(Order o, long tradePrice, int volume) {
     double dollars = (double) tradePrice / 100;
     System.out.println("Time: " + Controller.time + " Price: " + dollars
-      + " Volume: " + volume + " Buy Order: " + o.isBuyOrder());
+      + "\tVolume: " + volume
+      + (o.isBuyOrder() ? "\tBuy Order" : "\tSell Order"));
     Controller.priceGraph.addPoint(Controller.time / 1000.0, dollars);
   }
 }
