@@ -92,6 +92,11 @@ public class GraphFrame extends JFrame {
    *          Price of the order in cents.
    */
   public void addOrder(boolean isBuy, int volume, long price) {
+    Number currentVolume =
+      orderDataset.getValue(isBuy ? "Buy" : "Sell", price / 100.0);
+    if (currentVolume != null) {
+      volume += currentVolume.intValue();
+    }
     orderDataset.setValue(volume, isBuy ? "Buy" : "Sell", price / 100.0 + "");
   }
 
