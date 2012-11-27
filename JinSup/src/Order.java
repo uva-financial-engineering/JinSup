@@ -117,7 +117,6 @@ public class Order implements Comparator<Order> {
 
   // @Override
   // public int compareTo(Order o) {
-  // // TODO Auto-generated method stub
   // int priceDiff = (int)(o.price*100) - (int)(this.price*100);
   // if(priceDiff != 0) {
   // return priceDiff;
@@ -143,7 +142,6 @@ public class Order implements Comparator<Order> {
    */
   @Override
   public int compare(Order o1, Order o2) {
-    // TODO Auto-generated method stub
     long priceDiff = o2.price - o1.price;
     if (priceDiff > 0) {
       return 1;

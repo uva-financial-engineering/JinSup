@@ -2,7 +2,6 @@ public class OpporStrat extends Agent {
 
   public OpporStrat(MatchingEngine matchEng) {
     super(matchEng);
-    // TODO Auto-generated constructor stub
   }
 
   @Override
