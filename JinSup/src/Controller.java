@@ -70,7 +70,7 @@ public class Controller {
     if (time == startupTime) {
       matchingEngine.setStartingPeriod(false);
       System.out.println("Trading Enabled!");
-      graphFrame = new GraphFrame(startupTime, endTime);
+      graphFrame.setTradePeriod(startupTime, endTime);
     }
   }
 

@@ -88,7 +88,7 @@ public class MatchingEngine {
     allOrders.remove(o);
     orderMap.get(o.getCreatorID()).remove(o);
     // log the action.
-    log(o, 3, false);
+    logOrder(o, 3, false);
   }
 
   /**
@@ -110,25 +110,25 @@ public class MatchingEngine {
    * and orderMap so that it can keep track of it. Also checks if any trade
    * occurs from this newly created order.
    * 
-   * @param o
+   * @param order
    *          New order to be inserted into the MatchingEngine.
    * @param agentID
    *          ID of the agent that initiated the order.
    */
-  public boolean createOrder(Order o, boolean market) {
-    allOrders.add(o);
-    if (orderMap.containsKey(o.getCreatorID())) {
-      orderMap.get(o.getCreatorID()).add(o);
+  public boolean createOrder(Order order, boolean market) {
+    allOrders.add(order);
+    if (orderMap.containsKey(order.getCreatorID())) {
+      orderMap.get(order.getCreatorID()).add(order);
     } else {
       ArrayList<Order> orderList = new ArrayList<Order>();
-      orderList.add(o);
-      orderMap.put(o.getCreatorID(), orderList);
+      orderList.add(order);
+      orderMap.put(order.getCreatorID(), orderList);
     }
     // log the action.
     // must then check if a trade can occur
-    log(o, 1, false);
+    logOrder(order, 1, false);
     if (!market) {
-      return trade(o, willTrade(o));
+      return trade(order, willTrade(order));
     }
     return false;
   }
@@ -254,7 +254,7 @@ public class MatchingEngine {
     o.setPrice(newPrice);
     o.setQuant(newQuant);
     // log the action
-    log(o, 2, false);
+    logOrder(o, 2, false);
     // must then check if a trade can occur
     return trade(o, willTrade(o));
   }
@@ -498,15 +498,17 @@ public class MatchingEngine {
    * modification , 3 = cancel, 105 = trade), Buy/Sell (1/2), Order ID, Original
    * Order Quantity, Price, Order Type (limit/market), Leaves Quantity.
    * 
-   * @param o
+   * @param order
    *          Order to log
-   * @param code
+   * @param messageType
    *          Message type
    * @param market
    *          True if logging a market order. False if logging a limit order
    */
-  public void log(Order o, int code, boolean market) {
-
+  public void logOrder(Order order, int messageType, boolean market) {
+    Controller.graphFrame.addOrder(order.isBuyOrder(), order.getCurrentQuant(),
+      order.getPrice());
+    // TODO CSV logging
   }
 
   /**

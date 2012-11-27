@@ -16,25 +16,25 @@ public class GraphFrame extends JFrame {
 
   private static final long serialVersionUID = 1L;
 
-  // Order book graph variables
+  /**
+   * Order book graph variables
+   */
   DefaultCategoryDataset orderDataset;
 
-  // Trade price graph variables
+  /**
+   * Trade price graph variables
+   */
   private final XYSeries priceCollection;
   private double minPrice;
   private double maxPrice;
-  private final ValueAxis yAxis;
+  private final ValueAxis tradeXAxis;
+  private final ValueAxis tradeYAxis;
   private double priceRange;
 
   /**
    * Create the graph window.
-   * 
-   * @param start
-   *          Trading start time in milliseconds
-   * @param end
-   *          Trading end time in milliseconds
    */
-  public GraphFrame(long start, long end) {
+  public GraphFrame() {
     super("JinSup");
 
     minPrice = Double.MAX_VALUE;
@@ -44,21 +44,21 @@ public class GraphFrame extends JFrame {
 
     // Order Book graph
     orderDataset = new DefaultCategoryDataset();
-    orderDataset.setValue(6, "Buy", "0.97");
-    orderDataset.setValue(3, "Buy", "0.98");
-    orderDataset.setValue(7, "Buy", "0.99");
-    orderDataset.setValue(10, "Buy", "1.00");
-    orderDataset.setValue(8, "Buy", "1.01");
-    orderDataset.setValue(8, "Sell", "1.02");
-    orderDataset.setValue(5, "Sell", "1.03");
-    orderDataset.setValue(6, "Sell", "1.04");
-    orderDataset.setValue(12, "Sell", "1.05");
-    orderDataset.setValue(5, "Sell", "1.06");
+    // orderDataset.setValue(6, "Buy", "0.97");
+    // orderDataset.setValue(3, "Buy", "0.98");
+    // orderDataset.setValue(7, "Buy", "0.99");
+    // orderDataset.setValue(10, "Buy", "1.00");
+    // orderDataset.setValue(8, "Buy", "1.01");
+    // orderDataset.setValue(8, "Sell", "1.02");
+    // orderDataset.setValue(5, "Sell", "1.03");
+    // orderDataset.setValue(6, "Sell", "1.04");
+    // orderDataset.setValue(12, "Sell", "1.05");
+    // orderDataset.setValue(5, "Sell", "1.06");
     JFreeChart orderChart =
       ChartFactory.createBarChart3D("Order Book", "Price", "Volume",
         orderDataset, PlotOrientation.VERTICAL, true, true, false);
     ChartPanel orderPanel = new ChartPanel(orderChart);
-    orderPanel.setPreferredSize(new java.awt.Dimension(800, 300));
+    orderPanel.setPreferredSize(new java.awt.Dimension(1000, 300));
     window.add(orderPanel);
 
     // Trade Prices graph
@@ -68,11 +68,10 @@ public class GraphFrame extends JFrame {
     JFreeChart tradeChart =
       ChartFactory.createXYLineChart("Trade Prices", "Time", "Price",
         priceDataset, PlotOrientation.VERTICAL, false, true, false);
-    yAxis = tradeChart.getXYPlot().getRangeAxis();
-    tradeChart.getXYPlot().getDomainAxis()
-      .setRange(start / 1000.0, end / 1000.0);
+    tradeXAxis = tradeChart.getXYPlot().getDomainAxis();
+    tradeYAxis = tradeChart.getXYPlot().getRangeAxis();
     ChartPanel tradePanel = new ChartPanel(tradeChart);
-    tradePanel.setPreferredSize(new java.awt.Dimension(800, 300));
+    tradePanel.setPreferredSize(new java.awt.Dimension(1000, 300));
     window.add(tradePanel);
 
     // Draw window
@@ -89,9 +88,11 @@ public class GraphFrame extends JFrame {
    *          True if buy order, false if sell order.
    * @param volume
    *          Volume of the order.
+   * @param price
+   *          Price of the order in cents.
    */
   public void addOrder(boolean isBuy, int volume, long price) {
-    orderDataset.setValue(volume, isBuy ? "Buy" : "Sell", price + "");
+    orderDataset.setValue(volume, isBuy ? "Buy" : "Sell", price / 100.0 + "");
   }
 
   /**
@@ -116,9 +117,22 @@ public class GraphFrame extends JFrame {
     }
     if (needResize) {
       priceRange = maxPrice - minPrice;
-      yAxis.setRange(minPrice - priceRange / 4.0 - 1, maxPrice + priceRange
-        / 4.0 + 1);
+      tradeYAxis.setRange(minPrice - priceRange / 4.0 - 1, maxPrice
+        + priceRange / 4.0 + 1);
     }
     priceCollection.add(seconds, price);
+  }
+
+  /**
+   * Set the minimum and maximum values for the x-axis (time) of the trade price
+   * graph.
+   * 
+   * @param start
+   *          Simulation start time in milliseconds.
+   * @param end
+   *          Simulation end time in milliseconds.
+   */
+  public void setTradePeriod(long start, long end) {
+    tradeXAxis.setRange(start / 1000.0, end / 1000.0);
   }
 }
