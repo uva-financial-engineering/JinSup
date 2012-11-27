@@ -520,6 +520,6 @@ public class MatchingEngine {
     System.out.println("Time: " + Controller.time + " Price: " + dollars
       + "\tVolume: " + volume
       + (o.isBuyOrder() ? "\tBuy Order" : "\tSell Order"));
-    Controller.priceGraph.addPoint(Controller.time / 1000.0, dollars);
+    Controller.graphFrame.addTrade(Controller.time / 1000.0, dollars);
   }
 }

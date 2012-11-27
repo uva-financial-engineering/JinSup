@@ -21,7 +21,7 @@ public class Controller {
   /**
    * Price graph
    */
-  public static PriceGraph priceGraph;
+  public static GraphFrame graphFrame;
 
   /**
    * The time when the simulation should end the startup period and allow agents
@@ -70,9 +70,7 @@ public class Controller {
     if (time == startupTime) {
       matchingEngine.setStartingPeriod(false);
       System.out.println("Trading Enabled!");
-      priceGraph = new PriceGraph(startupTime, endTime);
-      priceGraph.pack();
-      priceGraph.setVisible(true);
+      graphFrame = new GraphFrame(startupTime, endTime);
     }
   }
 
