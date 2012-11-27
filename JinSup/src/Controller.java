@@ -1,5 +1,6 @@
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Keeps track of simulation time and selects eligible agents so that they can
@@ -9,9 +10,9 @@ import java.util.LinkedList;
 public class Controller {
 
   /**
-   * List of all agents in the simulator
+   * List of all agents in the simulator. K = nextActTime, V = agent
    */
-  public ArrayList<Agent> agentList;
+  public TreeMap<Long, ArrayList<Agent>> agentMap;
 
   /**
    * Simulator time in milliseconds.
@@ -44,7 +45,7 @@ public class Controller {
    */
   public Controller(long startupTime, long endTime,
     MatchingEngine matchingEngine) {
-    agentList = new ArrayList<Agent>();
+    agentMap = new TreeMap<Long, ArrayList<Agent>>();
     time = 0;
     this.startupTime = startupTime;
     this.endTime = endTime;
@@ -55,23 +56,19 @@ public class Controller {
    * Select eligible agents randomly to act.
    */
   public void selectActingAgent() {
-    LinkedList<Agent> actingAgents = new LinkedList<Agent>();
-    for (Agent a : agentList) {
-      if (a.getNextActTime() == time) {
-        actingAgents.add(a);
+    for (Map.Entry<Long, ArrayList<Agent>> e : agentMap.entrySet()) {
+      if (e.getKey() >= time) {
+        moveTime(e.getKey() - time);
+        ArrayList<Agent> actingAgents = new ArrayList<Agent>(e.getValue());
+        // pick a random agent to activate
+        while (!actingAgents.isEmpty()) {
+          activateAgent(actingAgents.remove((int) (Math.random() * actingAgents
+            .size())));
+        }
+        break;
       }
     }
-    // pick a random agent to activate
-    while (!actingAgents.isEmpty()) {
-      activateAgent(actingAgents.remove((int) (Math.random() * actingAgents
-        .size())));
-    }
-    moveTime();
-    if (time == startupTime) {
-      matchingEngine.setStartingPeriod(false);
-      System.out.println("Trading Enabled!");
-      graphFrame.setTradePeriod(startupTime, endTime);
-    }
+    moveTime(1L);
   }
 
   /**
@@ -81,18 +78,34 @@ public class Controller {
    *          Eligible agent to act.
    */
   public void activateAgent(Agent a) {
+    long oldGetNextAct = a.getNextActTime();
     a.setWillAct(true);
     a.getWillAct();
     a.act();
+    agentMap.get(oldGetNextAct).remove(a);
+    if (agentMap.get(a.getNextActTime()) == null) {
+      ArrayList<Agent> tmp = new ArrayList<Agent>();
+      tmp.add(a);
+      agentMap.put(a.getNextActTime(), tmp);
+    } else {
+      agentMap.get(a.getNextActTime()).add(a);
+    }
   }
 
   /**
    * Method that increments time and performs other necessary actions per time
    * step.
    */
-  public void moveTime() {
-    matchingEngine.storeMovingAverage(500);
-    time += 1;
+  public void moveTime(long msToMove) {
+    for (int i = 0; i < msToMove; i++) {
+      matchingEngine.storeMovingAverage(500);
+      time += 1;
+      if (startupTime == time) {
+        matchingEngine.setStartingPeriod(false);
+        System.out.println("Trading Enabled!");
+        graphFrame.setTradePeriod(startupTime, endTime);
+      }
+    }
   }
 
   /**
@@ -100,6 +113,7 @@ public class Controller {
    * at a specified time given in the main method.
    */
   public void runSimulator() {
+    graphFrame = new GraphFrame();
     // create agents
     System.out.println("Creating agents...");
     FundBuyer fundBuyer;
@@ -109,8 +123,20 @@ public class Controller {
       fundBuyer.setNextActTime((long) (Math.random() * startupTime));
       fundSeller = new FundSeller(matchingEngine);
       fundSeller.setNextActTime((long) (Math.random() * startupTime));
-      agentList.add(fundBuyer);
-      agentList.add(fundSeller);
+      if (agentMap.get(fundBuyer.getNextActTime()) == null) {
+        ArrayList<Agent> tmp = new ArrayList<Agent>();
+        tmp.add(fundBuyer);
+        agentMap.put(fundBuyer.getNextActTime(), tmp);
+      } else {
+        agentMap.get(fundBuyer.getNextActTime()).add(fundBuyer);
+      }
+      if (agentMap.get(fundSeller.getNextActTime()) == null) {
+        ArrayList<Agent> tmp = new ArrayList<Agent>();
+        tmp.add(fundSeller);
+        agentMap.put(fundSeller.getNextActTime(), tmp);
+      } else {
+        agentMap.get(fundSeller.getNextActTime()).add(fundSeller);
+      }
     }
 
     MarketMaker marketMaker;

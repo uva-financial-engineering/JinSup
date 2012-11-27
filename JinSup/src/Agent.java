@@ -165,7 +165,7 @@ public abstract class Agent {
    * @return Midpoint between the best ask price and best bid price
    */
   public long getMidPoint() {
-    return (long) (matchingEngine.getBestBid().getPrice() + matchingEngine
+    return (matchingEngine.getBestBid().getPrice() + matchingEngine
       .getBestAsk().getPrice()) / 2;
   }
 
@@ -176,6 +176,16 @@ public abstract class Agent {
    */
   public long getMovAvg() {
     return matchingEngine.getMovingAverage();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    return id == ((Agent) obj).id;
   }
 
 }
