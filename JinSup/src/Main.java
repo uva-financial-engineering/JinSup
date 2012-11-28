@@ -16,7 +16,6 @@ public class Main {
     Controller controller = new Controller(startTime, endTime, matchingEngine);
 
     System.out.println("Starting simulator...");
-    Controller.graphFrame = new GraphFrame();
     controller.runSimulator();
   }
 }

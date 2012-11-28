@@ -101,6 +101,7 @@ public class Controller {
    */
   public void runSimulator() {
     // create agents
+    graphFrame = new GraphFrame();
     System.out.println("Creating agents...");
     FundBuyer fundBuyer;
     FundSeller fundSeller;

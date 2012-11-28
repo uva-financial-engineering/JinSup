@@ -11,19 +11,15 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.RefineryUtilities;
 
 public class GraphFrame extends JFrame {
 
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Order book graph variables
-   */
-  DefaultCategoryDataset orderDataset;
+  private final XYSeries orderCollection;
+  private final DefaultCategoryDataset orderDataset;
 
-  /**
-   * Trade price graph variables
-   */
   private final XYSeries priceCollection;
   private double minPrice;
   private double maxPrice;
@@ -43,6 +39,7 @@ public class GraphFrame extends JFrame {
     window.setLayout(new GridLayout(2, 1));
 
     // Order Book graph
+    orderCollection = new XYSeries("Orders");
     orderDataset = new DefaultCategoryDataset();
     // orderDataset.setValue(6, "Buy", "0.97");
     // orderDataset.setValue(3, "Buy", "0.98");
@@ -55,7 +52,7 @@ public class GraphFrame extends JFrame {
     // orderDataset.setValue(12, "Sell", "1.05");
     // orderDataset.setValue(5, "Sell", "1.06");
     JFreeChart orderChart =
-      ChartFactory.createBarChart3D("Order Book", "Price", "Volume",
+      ChartFactory.createStackedBarChart3D("Order Book", "Price", "Volume",
         orderDataset, PlotOrientation.VERTICAL, true, true, false);
     ChartPanel orderPanel = new ChartPanel(orderChart);
     orderPanel.setPreferredSize(new java.awt.Dimension(1000, 300));
@@ -76,8 +73,9 @@ public class GraphFrame extends JFrame {
 
     // Draw window
     setContentPane(window);
-    pack();
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    pack();
+    RefineryUtilities.centerFrameOnScreen(this);
     setVisible(true);
   }
 
@@ -92,11 +90,11 @@ public class GraphFrame extends JFrame {
    *          Price of the order in cents.
    */
   public void addOrder(boolean isBuy, int volume, long price) {
-    Number currentVolume =
-      orderDataset.getValue(isBuy ? "Buy" : "Sell", price / 100.0);
-    if (currentVolume != null) {
-      volume += currentVolume.intValue();
-    }
+    // Number currentVolume =
+    // orderDataset.getValue(isBuy ? "Buy" : "Sell", price / 100.0);
+    // if (currentVolume != null) {
+    // volume += currentVolume.intValue();
+    // }
     orderDataset.setValue(volume, isBuy ? "Buy" : "Sell", price / 100.0 + "");
   }
 
