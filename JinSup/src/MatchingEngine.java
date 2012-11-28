@@ -55,11 +55,10 @@ public class MatchingEngine {
   private final long buyPrice;
 
   /**
-   * List of pairs containing 1) the averages of the best bid and best ask price
-   * per millisecond, and 2) the number of consecutive milliseconds with the
-   * same average represented by the pair (i.e. the "age" of the average)
+   * Queue containing the midpoints of best bid and best ask prices. The length
+   * of the list is determined by the get moving average method.
    */
-  private final LinkedList<Pair> midpoints;
+  private final LinkedList<Long> midpoints;
 
   /**
    * Creates a matching engine with empty fields. Everything is initialized to
@@ -69,7 +68,7 @@ public class MatchingEngine {
     orderMap = new HashMap<Long, ArrayList<Order>>();
     allOrders = new ArrayList<Order>();
     agentMap = new HashMap<Long, Agent>();
-    midpoints = new LinkedList<Pair>();
+    midpoints = new LinkedList<Long>();
     lastAgVolumeBuySide = 0;
     lastAgVolumeSellSide = 0;
     lastTradePrice = 0;
@@ -244,20 +243,20 @@ public class MatchingEngine {
    * Modifies the order in the MatchingEngine's allOrders and orderMap. Also
    * checks if any trade occurs from this modification.
    * 
-   * @param order
+   * @param o
    *          Order being modified.
    * @param newPrice
    *          The new price the order should have.
    * @param newQuant
    *          The new quantity the order should have.
    */
-  public boolean modifyOrder(Order order, long newPrice, int newQuant) {
-    order.setPrice(newPrice);
-    order.setQuant(newQuant);
+  public boolean modifyOrder(Order o, long newPrice, int newQuant) {
+    o.setPrice(newPrice);
+    o.setQuant(newQuant);
     // log the action
-    logOrder(order, 2, false);
+    logOrder(o, 2, false);
     // must then check if a trade can occur
-    return trade(order, willTrade(order));
+    return trade(o, willTrade(o));
   }
 
   /**
@@ -463,39 +462,21 @@ public class MatchingEngine {
    * millisecond
    */
   public void reset() {
-    lastAgVolumeBuySide = 0;
-    lastAgVolumeSellSide = 0;
+    lastAgVolumeBuySide = lastAgVolumeSellSide = 0;
   }
 
   /**
-   * A special method for opportunistic traders that stores the moving averages
-   * for the last n milliseconds.
-   * 
-   * @param n
-   *          The number of past milliseconds to check.
+   * A special method for opportunistic traders that returns the moving average
+   * for the last n number of milliseconds.
    */
   public void storeMovingAverage(int n) {
-    long midpoint;
-    if (getBestBid() == null || getBestAsk() == null) {
-      midpoints.clear();
-      midpoint = buyPrice + 12;
-      midpoints.add(new Pair(midpoint, n));
-    } else {
-      midpoint = (getBestBid().getPrice() + getBestAsk().getPrice()) / 2;
-    }
-    // Pop oldest average
-    if (midpoints.getFirst().getAge() > 0) {
-      midpoints.getFirst().decrementAge();
-    } else {
+    long midpoint =
+      (getBestBid() == null || getBestAsk() == null) ? buyPrice + 12
+        : (long) ((getBestBid().getPrice() + getBestAsk().getPrice()) / 2);
+    if (midpoints.size() > n) {
       midpoints.poll();
-      midpoints.getFirst().decrementAge();
     }
-    // Push latest average
-    if (midpoints.getLast().getAge() == midpoint) {
-      midpoints.getLast().incrementAge();
-    } else {
-      midpoints.add(new Pair(midpoint, 1L));
-    }
+    midpoints.add(midpoint);
   }
 
   /**
@@ -504,12 +485,10 @@ public class MatchingEngine {
    */
   public long getMovingAverage() {
     long sum = 0;
-    long elapsed = 0;
-    for (Pair p : midpoints) {
-      sum += p.getPrice() * p.getAge();
-      elapsed += p.getAge();
+    for (Long mid : midpoints) {
+      sum += mid;
     }
-    return sum / elapsed;
+    return sum / midpoints.size();
   }
 
   /**
@@ -527,8 +506,8 @@ public class MatchingEngine {
    *          True if logging a market order. False if logging a limit order
    */
   public void logOrder(Order order, int messageType, boolean market) {
-    Controller.graphFrame.modifyOrder(order.isBuyOrder(),
-      order.getCurrentQuant(), order.getPrice());
+    Controller.graphFrame.addOrder(order.isBuyOrder(), order.getCurrentQuant(),
+      order.getPrice());
     // TODO CSV logging
   }
 
@@ -544,49 +523,5 @@ public class MatchingEngine {
       + "\tVolume: " + volume
       + (o.isBuyOrder() ? "\tBuy Order" : "\tSell Order"));
     Controller.graphFrame.addTrade(Controller.time / 1000.0, dollars);
-  }
-
-  private class Pair {
-    private final long price;
-    private long age;
-
-    /**
-     * @param price
-     *          The average price during some contiguous time block.
-     * @param age
-     *          The length of the contiguous time block in milliseconds.
-     */
-    public Pair(long price, long age) {
-      this.price = price;
-      this.age = age;
-    }
-
-    /**
-     * @return Get the average price during some contiguous time block.
-     */
-    public long getPrice() {
-      return price;
-    }
-
-    /**
-     * @return Get the age of the price.
-     */
-    public long getAge() {
-      return age;
-    }
-
-    /**
-     * Subtract 1 millisecond from the price's age.
-     */
-    public void decrementAge() {
-      age -= 1;
-    }
-
-    /**
-     * Add 1 millisecond to the price's age.
-     */
-    public void incrementAge() {
-      age += 1;
-    }
   }
 }

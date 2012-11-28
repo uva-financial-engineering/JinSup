@@ -87,20 +87,17 @@ public class GraphFrame extends JFrame {
    * @param isBuy
    *          True if buy order, false if sell order.
    * @param volume
-   *          Volume to add to the order.
+   *          Volume of the order.
    * @param price
    *          Price of the order in cents.
    */
-  public void modifyOrder(boolean isBuy, int volume, long price) {
-    String columnKey = price / 100.0 + "";
-    String rowKey = isBuy ? "Buy" : "Sell";
-    if (orderDataset.getColumnKeys().contains(columnKey)
-      && orderDataset.getRowKeys().contains(rowKey)) {
-      if (orderDataset.getValue(rowKey, columnKey) != null) {
-        volume += orderDataset.getValue(rowKey, columnKey).intValue();
-      }
+  public void addOrder(boolean isBuy, int volume, long price) {
+    Number currentVolume =
+      orderDataset.getValue(isBuy ? "Buy" : "Sell", price / 100.0);
+    if (currentVolume != null) {
+      volume += currentVolume.intValue();
     }
-    orderDataset.setValue(volume, rowKey, columnKey);
+    orderDataset.setValue(volume, isBuy ? "Buy" : "Sell", price / 100.0 + "");
   }
 
   /**
