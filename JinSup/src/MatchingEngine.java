@@ -1,3 +1,5 @@
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -74,6 +76,19 @@ public class MatchingEngine {
     lastTradePrice = 0;
     startingPeriod = true;
     this.buyPrice = buyPrice;
+
+    // create the CSV file
+    try {
+      FileWriter writer = new FileWriter("log.csv");
+      writer
+        .append("Agent ID, Message, Buy/Sell, Order ID, Original Quantity, Price, Type, Leaves Quantity, Trade Price, Agressor, Trade Match ID\n");
+      writer.flush();
+      writer.close();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
   }
 
   /**
@@ -204,7 +219,7 @@ public class MatchingEngine {
 
     }
     System.out.print("Market ORDER ");
-    logTrade(o, price, totalVolumeTraded);
+    logTrade(o, price, totalVolumeTraded, true);
 
   }
 
@@ -391,7 +406,7 @@ public class MatchingEngine {
       volumeTraded);
 
     System.out.print("LIMIT ORDER ");
-    logTrade(order, price, volumeTraded);
+    logTrade(order, price, volumeTraded, false);
     return true;
   }
 
@@ -509,6 +524,24 @@ public class MatchingEngine {
     Controller.graphFrame.addOrder(order.isBuyOrder(), order.getCurrentQuant(),
       order.getPrice());
     // TODO CSV logging
+    try {
+      FileWriter writer = new FileWriter("log.csv", true);
+      writer.append(order.getCreatorID() + ",");
+      writer.append(messageType + ",");
+      writer.append((order.isBuyOrder() ? "1" : "2") + ",");
+      writer.append(order.getId() + ",");
+      writer.append(order.getOriginalQuant() + ",");
+      writer.append(order.getPrice() / 100.0 + ", ");
+      writer.append((market ? "Market" : "Limit") + ",");
+      writer.append(order.getCurrentQuant() + "\n");
+      writer.flush();
+      writer.close();
+
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
   }
 
   /**
@@ -517,11 +550,36 @@ public class MatchingEngine {
    * fields for Price of Trade, Quantity Filled, Aggressor Indicator (Y/N), and
    * Trade ID. Calls updateGraph() if needed.
    */
-  public void logTrade(Order o, long tradePrice, int volume) {
+  public void
+    logTrade(Order order, long tradePrice, int volume, boolean market) {
     double dollars = (double) tradePrice / 100;
+
+    // TODO have to log for BOTH orders, not just aggressor's order.
+    try {
+      FileWriter writer = new FileWriter("log.csv", true);
+      writer.append(order.getCreatorID() + ",");
+      // 105 is hard-coded as it is the message type for a trade
+      // TODO why is the message type 105 for traded orders??
+      writer.append("105,");
+      writer.append((order.isBuyOrder() ? "1" : "2") + ",");
+      writer.append(order.getId() + ",");
+      writer.append(order.getOriginalQuant() + ",");
+      writer.append(order.getPrice() / 100.0 + ", ");
+      writer.append((market ? "Market" : "Limit") + ",");
+      // need to make sure that current quantity reaches 0.
+      writer.append(order.getCurrentQuant() + "\n");
+      writer.flush();
+      writer.close();
+
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
     System.out.println("Time: " + Controller.time + " Price: " + dollars
       + "\tVolume: " + volume
-      + (o.isBuyOrder() ? "\tBuy Order" : "\tSell Order"));
+      + (order.isBuyOrder() ? "\tBuy Order" : "\tSell Order"));
+
     Controller.graphFrame.addTrade(Controller.time / 1000.0, dollars);
   }
 }
