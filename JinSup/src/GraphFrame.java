@@ -33,7 +33,7 @@ public class GraphFrame extends JFrame {
   private int maxTradePrice;
   private final ValueAxis tradeXAxis;
   private final ValueAxis tradeYAxis;
-  private double priceRange;
+  private double tradeVerticalMargin;
 
   /**
    * Create the graph window.
@@ -160,9 +160,9 @@ public class GraphFrame extends JFrame {
       needResize = true;
     }
     if (needResize) {
-      priceRange = maxTradePrice - minTradePrice;
-      tradeYAxis.setRange((minTradePrice - priceRange / 4.0 - 25.0) / 100.0,
-        (maxTradePrice + priceRange / 4.0 + 25.0) / 100.0);
+      tradeVerticalMargin = (maxTradePrice - minTradePrice) / 4.0;
+      tradeYAxis.setRange((minTradePrice - tradeVerticalMargin - 25.0) / 100.0,
+        (maxTradePrice + tradeVerticalMargin + 25.0) / 100.0);
     }
     priceCollection.add(seconds, price / 100.0);
   }
