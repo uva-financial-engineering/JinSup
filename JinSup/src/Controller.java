@@ -131,6 +131,10 @@ public class Controller {
     while (time < endTime) {
       selectActingAgent();
     }
+
+    // write remaining entries to the log
+    matchingEngine.writeToLog();
+
     System.out.println("The simulation has ended.");
   }
 }
