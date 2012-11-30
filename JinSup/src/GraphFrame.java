@@ -1,4 +1,5 @@
 import java.awt.GridLayout;
+import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.JFrame;
@@ -7,7 +8,9 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
@@ -23,10 +26,8 @@ public class GraphFrame extends JFrame {
    * sell volume.
    */
   private final TreeMap<Integer, Integer[]> orderMap;
-  private final XYSeries orderCollection;
-  private int minOrderPrice;
-  private int maxOrderPrice;
-  private final DefaultCategoryDataset orderDataset;
+  private DefaultCategoryDataset orderDataset;
+  private final JFreeChart orderChart;
 
   private final XYSeries priceCollection;
   private int minTradePrice;
@@ -41,30 +42,18 @@ public class GraphFrame extends JFrame {
   public GraphFrame() {
     super("JinSup");
 
-    minOrderPrice = Integer.MAX_VALUE;
     minTradePrice = Integer.MAX_VALUE;
-    minOrderPrice = 0;
     maxTradePrice = 0;
     JPanel window = new JPanel();
     window.setLayout(new GridLayout(2, 1));
 
     // Order Book graph
     orderMap = new TreeMap<Integer, Integer[]>();
-    orderCollection = new XYSeries("Orders");
-    orderDataset = new DefaultCategoryDataset();
-    // orderDataset.setValue(6, "Buy", "0.97");
-    // orderDataset.setValue(3, "Buy", "0.98");
-    // orderDataset.setValue(7, "Buy", "0.99");
-    // orderDataset.setValue(10, "Buy", "1.00");
-    // orderDataset.setValue(8, "Buy", "1.01");
-    // orderDataset.setValue(8, "Sell", "1.02");
-    // orderDataset.setValue(5, "Sell", "1.03");
-    // orderDataset.setValue(6, "Sell", "1.04");
-    // orderDataset.setValue(12, "Sell", "1.05");
-    // orderDataset.setValue(5, "Sell", "1.06");
-    JFreeChart orderChart =
+    orderChart =
       ChartFactory.createStackedBarChart3D("Order Book", "Price", "Volume",
         orderDataset, PlotOrientation.VERTICAL, true, true, false);
+    orderChart.getCategoryPlot().getDomainAxis()
+      .setCategoryLabelPositions(CategoryLabelPositions.UP_90);
     ChartPanel orderPanel = new ChartPanel(orderChart);
     orderPanel.setPreferredSize(new java.awt.Dimension(1000, 300));
     window.add(orderPanel);
@@ -101,42 +90,36 @@ public class GraphFrame extends JFrame {
    *          Price of the order in cents.
    */
   public void addOrder(boolean isBuy, int volume, int price) {
-    // Number currentVolume =
-    // orderDataset.getValue(isBuy ? "Buy" : "Sell", price / 100.0);
-    // if (currentVolume != null) {
-    // volume += currentVolume.intValue();
-    // }
-
-    // if (price < minOrderPrice) {
-    // minOrderPrice = price;
-    // }
-    // if (price > maxOrderPrice) {
-    // maxOrderPrice = price;
-    // }
-    // Integer[] priceVolume = orderMap.get(price);
-    // if (priceVolume != null) {
-    // priceVolume[(isBuy) ? 0 : 1] += volume;
-    // if (priceVolume[0] == 0 && priceVolume[1] == 0) {
-    // orderMap.remove(price);
-    // }
-    // } else {
-    // priceVolume = new Integer[2];
-    // priceVolume[0] = 0;
-    // priceVolume[1] = 0;
-    // priceVolume[(isBuy) ? 0 : 1] = volume;
-    // orderMap.put(price, priceVolume);
-    // }
-    // DefaultCategoryDataset newOrderDataset = new DefaultCategoryDataset();
-    // for (Map.Entry<Integer, Integer[]> e : orderMap.entrySet()) {
-    // if (e.getValue()[0] > 0) {
-    // newOrderDataset.addValue(volume, "Buy", e.getValue()[0]);
-    // }
-    // if (e.getValue()[1] > 0) {
-    // newOrderDataset.addValue(volume, "Sell", e.getValue()[1]);
-    // }
-    // }
-    // orderDataset = newOrderDataset;
-    orderDataset.setValue(volume, isBuy ? "Buy" : "Sell", price / 100.0 + "");
+    Integer[] priceVolume = orderMap.get(price);
+    // Update orderMap
+    if (priceVolume != null) {
+      priceVolume[(isBuy) ? 0 : 1] += volume;
+      if (priceVolume[0] == 0 && priceVolume[1] == 0) {
+        orderMap.remove(price);
+      }
+    } else {
+      priceVolume = new Integer[2];
+      priceVolume[0] = 0;
+      priceVolume[1] = 0;
+      priceVolume[(isBuy) ? 0 : 1] = volume;
+      orderMap.put(price, priceVolume);
+    }
+    // Rebuild data set
+    orderDataset = new DefaultCategoryDataset();
+    String zeroPad;
+    // TODO Ensure prices increase linearly, i.e. add gaps where buy = sell = 0
+    for (Map.Entry<Integer, Integer[]> e : orderMap.entrySet()) {
+      zeroPad = ((e.getKey() % 50) > 0) ? "" : "0";
+      if (e.getValue()[0] > 0) {
+        orderDataset.addValue(e.getValue()[0], "Buy", e.getKey() / 100.0
+          + zeroPad);
+      }
+      if (e.getValue()[1] > 0) {
+        orderDataset.addValue(e.getValue()[0], "Sell", e.getKey() / 100.0
+          + zeroPad);
+      }
+    }
+    ((CategoryPlot) orderChart.getPlot()).setDataset(orderDataset);
   }
 
   /**
