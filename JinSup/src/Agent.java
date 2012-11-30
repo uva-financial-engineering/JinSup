@@ -100,7 +100,7 @@ public abstract class Agent {
    * 
    */
   public void cancelOrder(Order order) {
-    matchingEngine.cancelOrder(order);
+    matchingEngine.cancelOrder(order, false);
   }
 
   /**
