@@ -1,4 +1,5 @@
 import java.awt.GridLayout;
+import java.util.TreeMap;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -17,12 +18,19 @@ public class GraphFrame extends JFrame {
 
   private static final long serialVersionUID = 1L;
 
+  /**
+   * First element of array is buy volume at the given price; second element is
+   * sell volume.
+   */
+  private final TreeMap<Integer, Integer[]> orderMap;
   private final XYSeries orderCollection;
+  private int minOrderPrice;
+  private int maxOrderPrice;
   private final DefaultCategoryDataset orderDataset;
 
   private final XYSeries priceCollection;
-  private int minPrice;
-  private int maxPrice;
+  private int minTradePrice;
+  private int maxTradePrice;
   private final ValueAxis tradeXAxis;
   private final ValueAxis tradeYAxis;
   private double priceRange;
@@ -33,12 +41,15 @@ public class GraphFrame extends JFrame {
   public GraphFrame() {
     super("JinSup");
 
-    minPrice = Integer.MAX_VALUE;
-    maxPrice = 0;
+    minOrderPrice = Integer.MAX_VALUE;
+    minTradePrice = Integer.MAX_VALUE;
+    minOrderPrice = 0;
+    maxTradePrice = 0;
     JPanel window = new JPanel();
     window.setLayout(new GridLayout(2, 1));
 
     // Order Book graph
+    orderMap = new TreeMap<Integer, Integer[]>();
     orderCollection = new XYSeries("Orders");
     orderDataset = new DefaultCategoryDataset();
     // orderDataset.setValue(6, "Buy", "0.97");
@@ -95,6 +106,36 @@ public class GraphFrame extends JFrame {
     // if (currentVolume != null) {
     // volume += currentVolume.intValue();
     // }
+
+    // if (price < minOrderPrice) {
+    // minOrderPrice = price;
+    // }
+    // if (price > maxOrderPrice) {
+    // maxOrderPrice = price;
+    // }
+    // Integer[] priceVolume = orderMap.get(price);
+    // if (priceVolume != null) {
+    // priceVolume[(isBuy) ? 0 : 1] += volume;
+    // if (priceVolume[0] == 0 && priceVolume[1] == 0) {
+    // orderMap.remove(price);
+    // }
+    // } else {
+    // priceVolume = new Integer[2];
+    // priceVolume[0] = 0;
+    // priceVolume[1] = 0;
+    // priceVolume[(isBuy) ? 0 : 1] = volume;
+    // orderMap.put(price, priceVolume);
+    // }
+    // DefaultCategoryDataset newOrderDataset = new DefaultCategoryDataset();
+    // for (Map.Entry<Integer, Integer[]> e : orderMap.entrySet()) {
+    // if (e.getValue()[0] > 0) {
+    // newOrderDataset.addValue(volume, "Buy", e.getValue()[0]);
+    // }
+    // if (e.getValue()[1] > 0) {
+    // newOrderDataset.addValue(volume, "Sell", e.getValue()[1]);
+    // }
+    // }
+    // orderDataset = newOrderDataset;
     orderDataset.setValue(volume, isBuy ? "Buy" : "Sell", price / 100.0 + "");
   }
 
@@ -108,22 +149,22 @@ public class GraphFrame extends JFrame {
    */
   public void addTrade(double seconds, int price) {
     boolean needResize = false;
-    if (price < minPrice) {
-      minPrice = price;
+    if (price < minTradePrice) {
+      minTradePrice = price;
       needResize = true;
-      if (price > maxPrice) {
-        maxPrice = price;
+      if (price > maxTradePrice) {
+        maxTradePrice = price;
       }
-    } else if (price > maxPrice) {
-      maxPrice = price;
+    } else if (price > maxTradePrice) {
+      maxTradePrice = price;
       needResize = true;
     }
     if (needResize) {
-      priceRange = maxPrice - minPrice;
-      tradeYAxis.setRange(minPrice - priceRange / 400.0 - 1, maxPrice
-        + priceRange / 400.0 + 1);
+      priceRange = maxTradePrice - minTradePrice;
+      tradeYAxis.setRange((minTradePrice - priceRange / 4.0 - 25.0) / 100.0,
+        (maxTradePrice + priceRange / 4.0 + 25.0) / 100.0);
     }
-    priceCollection.add(seconds, price);
+    priceCollection.add(seconds, price / 100.0);
   }
 
   /**

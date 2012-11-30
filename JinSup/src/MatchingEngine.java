@@ -411,8 +411,6 @@ public class MatchingEngine {
     // save price for logging below
     int price = order.getPrice();
 
-    boolean aggressiveBuyer = order.isBuyOrder();
-
     if (startingPeriod) {
       cancelOrder(order, true);
       return false;
@@ -431,7 +429,7 @@ public class MatchingEngine {
     // and volume traded.
     // notify both agents that a trade has occurred.
 
-    if (aggressiveBuyer) {
+    if (order.isBuyOrder()) {
       lastAgVolumeBuySide += volumeTraded;
     } else {
       lastAgVolumeSellSide += volumeTraded;
