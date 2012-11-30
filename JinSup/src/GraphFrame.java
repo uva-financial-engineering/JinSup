@@ -21,8 +21,8 @@ public class GraphFrame extends JFrame {
   private final DefaultCategoryDataset orderDataset;
 
   private final XYSeries priceCollection;
-  private double minPrice;
-  private double maxPrice;
+  private int minPrice;
+  private int maxPrice;
   private final ValueAxis tradeXAxis;
   private final ValueAxis tradeYAxis;
   private double priceRange;
@@ -33,7 +33,7 @@ public class GraphFrame extends JFrame {
   public GraphFrame() {
     super("JinSup");
 
-    minPrice = Double.MAX_VALUE;
+    minPrice = Integer.MAX_VALUE;
     maxPrice = 0;
     JPanel window = new JPanel();
     window.setLayout(new GridLayout(2, 1));
@@ -89,7 +89,7 @@ public class GraphFrame extends JFrame {
    * @param price
    *          Price of the order in cents.
    */
-  public void addOrder(boolean isBuy, int volume, long price) {
+  public void addOrder(boolean isBuy, int volume, int price) {
     // Number currentVolume =
     // orderDataset.getValue(isBuy ? "Buy" : "Sell", price / 100.0);
     // if (currentVolume != null) {
@@ -102,11 +102,11 @@ public class GraphFrame extends JFrame {
    * Add a point to the trade price graph.
    * 
    * @param seconds
-   *          Time when the order took place
+   *          Time when the order took place.
    * @param price
-   *          Price of the order
+   *          Price of the order in cents.
    */
-  public void addTrade(double seconds, double price) {
+  public void addTrade(double seconds, int price) {
     boolean needResize = false;
     if (price < minPrice) {
       minPrice = price;
@@ -120,8 +120,8 @@ public class GraphFrame extends JFrame {
     }
     if (needResize) {
       priceRange = maxPrice - minPrice;
-      tradeYAxis.setRange(minPrice - priceRange / 4.0 - 1, maxPrice
-        + priceRange / 4.0 + 1);
+      tradeYAxis.setRange(minPrice - priceRange / 400.0 - 1, maxPrice
+        + priceRange / 400.0 + 1);
     }
     priceCollection.add(seconds, price);
   }

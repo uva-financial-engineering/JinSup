@@ -8,7 +8,7 @@ public class Order implements Comparator<Order> {
   /**
    * The price of the order. Can only be in increments of 0.25.
    */
-  private long price;
+  private int price;
 
   /**
    * The original amount of shares this order is for.
@@ -48,7 +48,7 @@ public class Order implements Comparator<Order> {
    *          Is true if the agent wants to initiate an order to buy shares.
    *          False otherwise.
    */
-  public Order(long agentID, long price, int originalQuant, boolean buyOrder) {
+  public Order(long agentID, int price, int originalQuant, boolean buyOrder) {
     id = System.currentTimeMillis();
     this.agentID = agentID;
     this.buyOrder = buyOrder;
@@ -67,7 +67,7 @@ public class Order implements Comparator<Order> {
   /**
    * @return The price of the order.
    */
-  public long getPrice() {
+  public int getPrice() {
     return price;
   }
 
@@ -97,7 +97,7 @@ public class Order implements Comparator<Order> {
    * @param newPrice
    *          The new price to buy/sell that for the order.
    */
-  public void setPrice(long newPrice) {
+  public void setPrice(int newPrice) {
     price = newPrice;
   }
 

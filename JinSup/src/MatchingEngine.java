@@ -45,7 +45,7 @@ public class MatchingEngine {
    * The price that the share was last traded at. This should be plotted every
    * time it is updated (i.e. whenever a trade occurs).
    */
-  private double lastTradePrice;
+  private int lastTradePrice;
 
   /**
    * Remains true while the simulator is still in the starting period. This
@@ -56,7 +56,7 @@ public class MatchingEngine {
   /**
    * The buy price for a share.
    */
-  private final long buyPrice;
+  private final int buyPrice;
 
   private final ArrayList<String> logBuffer;
 
@@ -64,17 +64,17 @@ public class MatchingEngine {
    * Queue containing the midpoints of best bid and best ask prices. The length
    * of the list is determined by the get moving average method.
    */
-  private final LinkedList<Long> midpoints;
+  private final LinkedList<Integer> midpoints;
 
   /**
    * Creates a matching engine with empty fields. Everything is initialized to
    * zero.
    */
-  public MatchingEngine(long buyPrice) {
+  public MatchingEngine(int buyPrice) {
     orderMap = new HashMap<Long, ArrayList<Order>>();
     allOrders = new ArrayList<Order>();
     agentMap = new HashMap<Long, Agent>();
-    midpoints = new LinkedList<Long>();
+    midpoints = new LinkedList<Integer>();
     lastAgVolumeBuySide = 0;
     lastAgVolumeSellSide = 0;
     lastTradePrice = 0;
@@ -181,7 +181,7 @@ public class MatchingEngine {
       return;
     }
     // save price for logging at the end.
-    long price = 0;
+    int price = 0;
 
     long aggressorID = order.getCreatorID();
     int totalVolumeTraded = 0;
@@ -258,7 +258,7 @@ public class MatchingEngine {
    */
   private int trade(Order o1, Order o2) {
     // save price for logging at the end.
-    long price = o2.getPrice();
+    int price = o2.getPrice();
 
     int volumeTraded;
     if (o1.getCurrentQuant() == o2.getCurrentQuant()) {
@@ -300,7 +300,7 @@ public class MatchingEngine {
    * @param newQuant
    *          The new quantity the order should have.
    */
-  public boolean modifyOrder(Order o, long newPrice, int newQuant) {
+  public boolean modifyOrder(Order o, int newPrice, int newQuant) {
     o.setPrice(newPrice);
     o.setQuant(newQuant);
     // log the action
@@ -409,7 +409,7 @@ public class MatchingEngine {
     }
 
     // save price for logging below
-    long price = order.getPrice();
+    int price = order.getPrice();
 
     boolean aggressiveBuyer = order.isBuyOrder();
 
@@ -505,7 +505,7 @@ public class MatchingEngine {
   /**
    * @return The buy price for a share.
    */
-  public long getBuyPrice() {
+  public int getBuyPrice() {
     return buyPrice;
   }
 
@@ -522,9 +522,9 @@ public class MatchingEngine {
    * for the last n number of milliseconds.
    */
   public void storeMovingAverage(int n) {
-    long midpoint =
+    int midpoint =
       (getBestBid() == null || getBestAsk() == null) ? buyPrice + 12
-        : (long) ((getBestBid().getPrice() + getBestAsk().getPrice()) / 2);
+        : ((getBestBid().getPrice() + getBestAsk().getPrice()) / 2);
     if (midpoints.size() > n) {
       midpoints.poll();
     }
@@ -535,9 +535,9 @@ public class MatchingEngine {
    * Provides agents with the moving average with length of time specified by
    * the calculateMovingAverage() method.
    */
-  public long getMovingAverage() {
-    long sum = 0;
-    for (Long mid : midpoints) {
+  public int getMovingAverage() {
+    int sum = 0;
+    for (Integer mid : midpoints) {
       sum += mid;
     }
     return sum / midpoints.size();
@@ -583,7 +583,7 @@ public class MatchingEngine {
       // write the stuff to the file.
       writeToLog();
     }
-    logBuffer.add(order.getCreatorID() + ", " + messageType + ","
+    logBuffer.add(order.getCreatorID() + "," + messageType + ","
       + (order.isBuyOrder() ? "1" : "2") + "," + order.getId() + ","
       + order.getOriginalQuant() + "," + order.getPrice() / 100.0 + ","
       + (market ? "Market" : "Limit") + "," + order.getCurrentQuant() + "\n");
@@ -602,8 +602,8 @@ public class MatchingEngine {
    * @param volume
    *          The volume that was traded.
    */
-  public void logTrade(Order agOrder, long tradePrice, int volume) {
-    double dollars = (double) tradePrice / 100;
+  public void logTrade(Order agOrder, int tradePrice, int volume) {
+    int dollars = tradePrice;
 
     // TODO when a market order occurs, what is the last trade price that we
     // log? There is a case when a market order depletes a price point
@@ -668,7 +668,7 @@ public class MatchingEngine {
    *          The volume that was traded on this order.
    */
   public void logAggressiveTrader(Order agOrder, boolean market,
-    long tradePrice, int volume) {
+    int tradePrice, int volume) {
     if (logBuffer.size() == 524288) {
       // write the stuff to the file.
       // logging for the passive order
@@ -692,7 +692,7 @@ public class MatchingEngine {
    * @param volume
    *          The volume that was traded on this order.
    */
-  public void logExtraTrades(Order passOrder, long tradePrice, int volume) {
+  public void logExtraTrades(Order passOrder, int tradePrice, int volume) {
     // TODO logging extra trades in the trade methods above...
     if (logBuffer.size() == 524288) {
       // write the stuff to the file.

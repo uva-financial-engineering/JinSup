@@ -115,7 +115,7 @@ public abstract class Agent {
    * 
    * @return True if the creation of the order resulted in a trade
    */
-  public boolean createNewOrder(long price, int initialQuant, boolean buyOrder) {
+  public boolean createNewOrder(int price, int initialQuant, boolean buyOrder) {
     return matchingEngine.createOrder(new Order(this.id, price, initialQuant,
       buyOrder), false);
   }
@@ -139,7 +139,7 @@ public abstract class Agent {
    * 
    * @return True if the modification of this order resulted in a trade.
    */
-  public boolean modifyOrder(Order order, long newPrice, int newQuant) {
+  public boolean modifyOrder(Order order, int newPrice, int newQuant) {
     return matchingEngine.modifyOrder(order, newPrice, newQuant);
   }
 
@@ -157,14 +157,14 @@ public abstract class Agent {
     inventory += volume;
   }
 
-  public long getBuyPrice() {
+  public int getBuyPrice() {
     return matchingEngine.getBuyPrice();
   }
 
   /**
    * @return Midpoint between the best ask price and best bid price
    */
-  public long getMidPoint() {
+  public int getMidPoint() {
     return (matchingEngine.getBestBid().getPrice() + matchingEngine
       .getBestAsk().getPrice()) / 2;
   }
@@ -174,7 +174,7 @@ public abstract class Agent {
    *         getMovingAverage() method in the MatchingEngine class for more
    *         details.
    */
-  public long getMovAvg() {
+  public int getMovAvg() {
     return matchingEngine.getMovingAverage();
   }
 
