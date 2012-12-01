@@ -90,6 +90,7 @@ public class GraphFrame extends JFrame {
    *          Price of the order in cents.
    */
   public void addOrder(boolean isBuy, int volume, int price) {
+
     Integer[] priceVolume = orderMap.get(price);
     // Update orderMap
     if (priceVolume != null) {

@@ -8,11 +8,11 @@ public class FundSeller extends Agent {
   public void act() {
     for (int i = 0; i < 10; i++) {
       // request to purchase 2 shares for the 10 lowest sell prices
-      createNewOrder(getBuyPrice() + (i + 1) * 25, 2, true);
+      createNewOrder(getBuyPrice() + ((i + 1) * 25), 2, true);
 
-      // request to purchase 1 share for the 10 second highest buy prices
+      // request to purchase 1 share for the 9 second highest buy prices
       if (i < 9) {
-        createNewOrder(getBuyPrice() - (i - 1) * 25, 1, true);
+        createNewOrder(getBuyPrice() - ((i) * 25) - 25, 1, true);
       }
     }
 
@@ -27,5 +27,4 @@ public class FundSeller extends Agent {
     // calculate next act time (+/- 5 seconds) with variation of 10%
     setNextActTime(getNextActTime() + (long) (Math.random() * 500 + 4750));
   }
-
 }

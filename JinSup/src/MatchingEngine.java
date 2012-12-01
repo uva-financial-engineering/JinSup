@@ -107,15 +107,15 @@ public class MatchingEngine {
    *          ID of the agent whose order is to be removed.
    */
   public void cancelOrder(Order o, boolean market) {
-    o.setQuant(0);
     allOrders.remove(o);
     orderMap.get(o.getCreatorID()).remove(o);
     // log the action.
     if (!market) {
-      logOrder(o, 3, false);
+      logOrder(o, 3, false, -1 * o.getCurrentQuant(), 0);
     } else {
-      logOrder(o, 3, true);
+      logOrder(o, 3, true, -1 * o.getCurrentQuant(), 0);
     }
+    o.setQuant(0);
 
   }
 
@@ -156,10 +156,10 @@ public class MatchingEngine {
     // must then check if a trade can occur
 
     if (!market) {
-      logOrder(order, 1, false);
+      logOrder(order, 1, false, 0, 0);
       return trade(order, willTrade(order));
     }
-    logOrder(order, 1, true);
+    logOrder(order, 1, true, 0, 0);
     return false;
   }
 
@@ -265,6 +265,8 @@ public class MatchingEngine {
       volumeTraded = o1.getCurrentQuant();
       allOrders.remove(o1);
       allOrders.remove(o2);
+      o1.setQuant(0);
+      o2.setQuant(0);
       orderMap.get(o1.getCreatorID()).remove(o1);
       orderMap.get(o2.getCreatorID()).remove(o2);
 
@@ -273,11 +275,13 @@ public class MatchingEngine {
       volumeTraded = o1.getCurrentQuant() - o2.getCurrentQuant();
       o1.setQuant(volumeTraded);
       allOrders.remove(o2);
+      o2.setQuant(0);
       orderMap.get(o2.getCreatorID()).remove(o2);
     } else {
       volumeTraded = o2.getCurrentQuant() - o1.getCurrentQuant();
       o2.setQuant(volumeTraded);
       allOrders.remove(o1);
+      o1.setQuant(0);
       orderMap.get(o1.getCreatorID()).remove(o1);
     }
 
@@ -301,10 +305,12 @@ public class MatchingEngine {
    *          The new quantity the order should have.
    */
   public boolean modifyOrder(Order o, int newPrice, int newQuant) {
+    int priceDiff = newPrice - o.getPrice();
+    int quantDiff = newQuant - o.getCurrentQuant();
     o.setPrice(newPrice);
     o.setQuant(newQuant);
     // log the action
-    logOrder(o, 2, false);
+    logOrder(o, 2, false, quantDiff, priceDiff);
     // must then check if a trade can occur
     return trade(o, willTrade(o));
   }
@@ -555,10 +561,42 @@ public class MatchingEngine {
    * @param market
    *          True if logging a market order. False if logging a limit order
    */
-  public void logOrder(Order order, int messageType, boolean market) {
-    Controller.graphFrame.addOrder(order.isBuyOrder(), order.getCurrentQuant(),
-      order.getPrice());
-    // TODO CSV logging
+  public void logOrder(Order order, int messageType, boolean market,
+    int quantChanged, int priceChanged) {
+    // TODO cancelled orders
+    // TODO when an order is modified, only the price or the quantity should be
+    // able to be modified at a single moment (not both at the same time）
+    // TODO modified orders -- when prices are modified.
+
+    if (!market) {
+      switch (messageType) {
+        case 1:
+          Controller.graphFrame.addOrder(order.isBuyOrder(),
+            order.getCurrentQuant(), order.getPrice());
+          break;
+        case 2:
+          if (priceChanged != 0) {
+            // delete all orders from the old price point
+            Controller.graphFrame.addOrder(order.isBuyOrder(),
+              order.getCurrentQuant() * -1, order.getPrice() - priceChanged);
+            // re-add the orders to the new price point
+
+          } else {
+            Controller.graphFrame.addOrder(order.isBuyOrder(), quantChanged,
+              order.getPrice());
+          }
+          break;
+        case 3:
+          Controller.graphFrame.addOrder(order.isBuyOrder(), quantChanged,
+            order.getPrice());
+          break;
+        default:
+          System.out.println("Message type " + messageType + " is invalid.");
+          System.exit(1);
+          break;
+      }
+    }
+
     // try {
     // FileWriter writer = new FileWriter("log.csv", true);
     // writer.append(order.getCreatorID() + ",");
@@ -667,6 +705,9 @@ public class MatchingEngine {
    */
   public void logAggressiveTrader(Order agOrder, boolean market,
     int tradePrice, int volume) {
+
+    Controller.graphFrame.addOrder(agOrder.isBuyOrder(), volume * -1,
+      tradePrice);
     if (logBuffer.size() == 524288) {
       // write the stuff to the file.
       // logging for the passive order
@@ -692,6 +733,8 @@ public class MatchingEngine {
    */
   public void logExtraTrades(Order passOrder, int tradePrice, int volume) {
     // TODO logging extra trades in the trade methods above...
+    Controller.graphFrame.addOrder(passOrder.isBuyOrder(), volume * -1,
+      tradePrice);
     if (logBuffer.size() == 524288) {
       // write the stuff to the file.
       // logging for the passive order
