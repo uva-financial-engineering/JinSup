@@ -42,6 +42,18 @@ public class MatchingEngine {
   private int lastAgVolumeSellSide;
 
   /**
+   * The current (per ms) volume of shares that were initiated by an aggressive
+   * buying agent in the last millisecond of trading.
+   */
+  private int currAgVolumeBuySide;
+
+  /**
+   * The current (per ms) volume of shares that were initiated by an aggressive
+   * selling agent in the last millisecond of trading.
+   */
+  private int currAgVolumeSellSide;
+
+  /**
    * The price that the share was last traded at. This should be plotted every
    * time it is updated (i.e. whenever a trade occurs).
    */
@@ -514,11 +526,15 @@ public class MatchingEngine {
   }
 
   /**
-   * Resets lastAgVolumeBuySide and lastAgVolumeSellSide for the next
-   * millisecond
+   * Stores lastAgVolumeBuySide and lastAgVolumeSellSideResets for the previous
+   * millisecond of trading and resets currAgVolumeBuySide and
+   * currAgVolumeSellSide.
    */
   public void reset() {
-    lastAgVolumeBuySide = lastAgVolumeSellSide = 0;
+    lastAgVolumeBuySide = currAgVolumeBuySide;
+    lastAgVolumeSellSide = currAgVolumeSellSide;
+    currAgVolumeBuySide = 0;
+    currAgVolumeSellSide = 0;
   }
 
   /**
@@ -706,6 +722,12 @@ public class MatchingEngine {
   public void logAggressiveTrader(Order agOrder, boolean market,
     int tradePrice, int volume) {
 
+    if (agOrder.isBuyOrder()) {
+      currAgVolumeBuySide += volume;
+    } else {
+      currAgVolumeSellSide += volume;
+    }
+
     Controller.graphFrame.addOrder(agOrder.isBuyOrder(), volume * -1,
       tradePrice);
     if (logBuffer.size() == 524288) {
@@ -732,7 +754,6 @@ public class MatchingEngine {
    *          The volume that was traded on this order.
    */
   public void logExtraTrades(Order passOrder, int tradePrice, int volume) {
-    // TODO logging extra trades in the trade methods above...
     Controller.graphFrame.addOrder(passOrder.isBuyOrder(), volume * -1,
       tradePrice);
     if (logBuffer.size() == 524288) {
@@ -767,4 +788,21 @@ public class MatchingEngine {
 
     logBuffer.clear();
   }
+
+  /**
+   * @return The volume of aggressive shares bought in the last millisecond of
+   *         trading.
+   */
+  public int getLastAgVolumeBuySide() {
+    return lastAgVolumeBuySide;
+  }
+
+  /**
+   * @return The volume of aggressive shares sold in the last millisecond of
+   *         trading.
+   */
+  public int getLastAgVolumeSellSide() {
+    return lastAgVolumeSellSide;
+  }
+
 }

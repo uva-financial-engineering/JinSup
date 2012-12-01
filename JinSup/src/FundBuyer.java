@@ -12,7 +12,7 @@ public class FundBuyer extends Agent {
 
       // request to purchase 1 share for the 9 second lowest sell prices
       if (i < 9) {
-        createNewOrder(getBuyPrice() + ((i) * 25) + 25, 1, true);
+        createNewOrder(getBuyPrice() + ((i + 1) * 25) + 25, 1, true);
       }
     }
 

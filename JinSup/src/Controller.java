@@ -92,6 +92,7 @@ public class Controller {
    */
   public void moveTime() {
     matchingEngine.storeMovingAverage(500);
+    matchingEngine.reset();
     time += 1;
   }
 

@@ -178,4 +178,20 @@ public abstract class Agent {
     return matchingEngine.getMovingAverage();
   }
 
+  /**
+   * @return The volume of aggressive shares bought in the last millisecond of
+   *         trading.
+   */
+  public int getLastAgVolumeBuySide() {
+    return matchingEngine.getLastAgVolumeBuySide();
+  }
+
+  /**
+   * @return The volume of aggressive shares bought in the last millisecond of
+   *         trading.
+   */
+  public int getLastAgVolumeSellSide() {
+    return matchingEngine.getLastAgVolumeSellSide();
+  }
+
 }
