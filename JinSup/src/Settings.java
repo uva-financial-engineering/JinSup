@@ -15,6 +15,10 @@ public class Settings {
     description = "Length of trading period in seconds", required = false)
   private Integer tradeTime;
 
+  @Parameter(names = "-dest", description = "File to write log data",
+    required = false)
+  private String dest;
+
   public Double getBuyPrice() {
     return buyPrice;
   }
@@ -25,6 +29,14 @@ public class Settings {
 
   public Integer getTradeTime() {
     return tradeTime;
+  }
+
+  public String getDest() {
+    return dest;
+  }
+
+  public boolean isSet() {
+    return (buyPrice != null && startTime != null && tradeTime != null && dest != null);
   }
 
 }
