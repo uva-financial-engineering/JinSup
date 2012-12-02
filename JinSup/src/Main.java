@@ -1,8 +1,14 @@
 import java.util.Scanner;
 
+import com.beust.jcommander.JCommander;
+
 public class Main {
 
   public static void main(String[] args) {
+    Settings settings = new Settings();
+    new JCommander(settings, args);
+    System.out.println(settings.getBuyPrice());
+
     Scanner scan = new Scanner(System.in);
     System.out.println("Enter the buy price in dollars (increments of 0.25): ");
     int buyPrice = (int) (scan.nextDouble() * 100);
