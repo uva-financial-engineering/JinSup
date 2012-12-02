@@ -226,6 +226,7 @@ public class MatchingEngine {
       lastAgVolumeBuySide += totalVolumeTraded;
     } else {
       ArrayList<Order> topBuys = topBuyOrders();
+
       if (topBuys.isEmpty()) {
         // nothing was traded. order will be cancelled.
         cancelOrder(order, true);
@@ -347,7 +348,7 @@ public class MatchingEngine {
         if (topBuyOrders.size() < 10) {
           topBuyOrders.add(o);
           Collections.sort(topBuyOrders, Order.highestFirstComparator);
-        } else if (o.compare(o, topBuyOrders.get(9)) > 0) {
+        } else if (o.compare(o, topBuyOrders.get(9)) < 0) {
           topBuyOrders.set(9, o);
           Collections.sort(topBuyOrders, Order.highestFirstComparator);
         }
