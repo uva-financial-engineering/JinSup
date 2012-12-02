@@ -8,10 +8,13 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -47,31 +50,39 @@ public class GraphFrame extends JFrame {
     JPanel window = new JPanel();
     window.setLayout(new GridLayout(2, 1));
 
-    // Order Book graph
+    // Order Book graph panel
     orderMap = new TreeMap<Integer, Integer[]>();
     orderChart =
-      ChartFactory.createStackedBarChart3D("Order Book", "Price", "Volume",
-        orderDataset, PlotOrientation.VERTICAL, true, true, false);
+      ChartFactory.createStackedBarChart("", "Price ($)", "Order Volume",
+        orderDataset, PlotOrientation.VERTICAL, false, true, false);
     orderChart.getCategoryPlot().getDomainAxis()
       .setCategoryLabelPositions(CategoryLabelPositions.UP_90);
+    CategoryAxis orderXAxis = orderChart.getCategoryPlot().getDomainAxis();
+    orderXAxis.setCategoryMargin(0);
+    orderXAxis.setLowerMargin(0.01);
+    orderXAxis.setUpperMargin(0.01);
+    BarRenderer orderRenderer =
+      (BarRenderer) orderChart.getCategoryPlot().getRenderer();
+    orderRenderer.setBarPainter(new StandardBarPainter());
+    orderRenderer.setDrawBarOutline(false);
     ChartPanel orderPanel = new ChartPanel(orderChart);
-    orderPanel.setPreferredSize(new java.awt.Dimension(1000, 300));
-    window.add(orderPanel);
+    orderPanel.setPreferredSize(new java.awt.Dimension(500, 200));
 
-    // Trade Prices graph
+    // Trade Prices graph panel
     priceCollection = new XYSeries("Trades");
     XYSeriesCollection priceDataset = new XYSeriesCollection();
     priceDataset.addSeries(priceCollection);
     JFreeChart tradeChart =
-      ChartFactory.createXYLineChart("Trade Prices", "Time", "Price",
+      ChartFactory.createXYLineChart("", "Time (s)", "Trade Price",
         priceDataset, PlotOrientation.VERTICAL, false, true, false);
     tradeXAxis = tradeChart.getXYPlot().getDomainAxis();
     tradeYAxis = tradeChart.getXYPlot().getRangeAxis();
     ChartPanel tradePanel = new ChartPanel(tradeChart);
-    tradePanel.setPreferredSize(new java.awt.Dimension(1000, 300));
-    window.add(tradePanel);
+    tradePanel.setPreferredSize(new java.awt.Dimension(500, 200));
 
     // Draw window
+    window.add(tradePanel);
+    window.add(orderPanel);
     setContentPane(window);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     pack();
@@ -116,7 +127,7 @@ public class GraphFrame extends JFrame {
           + zeroPad);
       }
       if (e.getValue()[1] > 0) {
-        orderDataset.addValue(e.getValue()[0], "Sell", e.getKey() / 100.0
+        orderDataset.addValue(e.getValue()[1], "Sell", e.getKey() / 100.0
           + zeroPad);
       }
     }
@@ -144,9 +155,9 @@ public class GraphFrame extends JFrame {
       needResize = true;
     }
     if (needResize) {
-      tradeVerticalMargin = (maxTradePrice - minTradePrice) / 4.0;
-      tradeYAxis.setRange((minTradePrice - tradeVerticalMargin - 25.0) / 100.0,
-        (maxTradePrice + tradeVerticalMargin + 25.0) / 100.0);
+      tradeVerticalMargin = (maxTradePrice - minTradePrice + 25.0) / 10.0;
+      tradeYAxis.setRange((minTradePrice - tradeVerticalMargin) / 100.0,
+        (maxTradePrice + tradeVerticalMargin) / 100.0);
     }
     priceCollection.add(seconds, price / 100.0);
   }

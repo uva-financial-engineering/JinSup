@@ -598,9 +598,8 @@ public class MatchingEngine {
           if (priceChanged != 0) {
             // delete all orders from the old price point
             Controller.graphFrame.addOrder(order.isBuyOrder(),
-              order.getCurrentQuant() * -1, order.getPrice() - priceChanged);
+              -order.getCurrentQuant(), order.getPrice() - priceChanged);
             // re-add the orders to the new price point
-
           } else {
             Controller.graphFrame.addOrder(order.isBuyOrder(), quantChanged,
               order.getPrice());
@@ -659,8 +658,6 @@ public class MatchingEngine {
    *          The volume that was traded.
    */
   public void logTrade(Order agOrder, int tradePrice, int volume) {
-    int dollars = tradePrice;
-
     // TODO when a market order occurs, what is the last trade price that we
     // log? There is a case when a market order depletes a price point
     // TODO if logTrade only updates the graph now, we can just call addTrade in
@@ -708,7 +705,7 @@ public class MatchingEngine {
     // + "\tVolume: " + volume
     // + (agOrder.isBuyOrder() ? "\tBuy Order" : "\tSell Order"));
 
-    Controller.graphFrame.addTrade(Controller.time / 1000.0, dollars);
+    Controller.graphFrame.addTrade(Controller.time / 1000.0, tradePrice);
   }
 
   /**
@@ -732,8 +729,7 @@ public class MatchingEngine {
       currAgVolumeSellSide += volume;
     }
 
-    Controller.graphFrame.addOrder(agOrder.isBuyOrder(), volume * -1,
-      tradePrice);
+    Controller.graphFrame.addOrder(agOrder.isBuyOrder(), -volume, tradePrice);
     if (logBuffer.size() == 524288) {
       // write the stuff to the file.
       // logging for the passive order
@@ -758,8 +754,7 @@ public class MatchingEngine {
    *          The volume that was traded on this order.
    */
   public void logExtraTrades(Order passOrder, int tradePrice, int volume) {
-    Controller.graphFrame.addOrder(passOrder.isBuyOrder(), volume * -1,
-      tradePrice);
+    Controller.graphFrame.addOrder(passOrder.isBuyOrder(), -volume, tradePrice);
     if (logBuffer.size() == 524288) {
       // write the stuff to the file.
       // logging for the passive order
