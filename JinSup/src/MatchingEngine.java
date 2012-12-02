@@ -587,6 +587,10 @@ public class MatchingEngine {
     if (!market) {
       switch (messageType) {
         case 1:
+          // if (!order.isBuyOrder()) {
+          // System.out
+          // .println(order.getPrice() + " " + order.getCurrentQuant());
+          // }
           Controller.graphFrame.addOrder(order.isBuyOrder(),
             order.getCurrentQuant(), order.getPrice());
           break;

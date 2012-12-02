@@ -7,17 +7,17 @@ public class FundSeller extends Agent {
   @Override
   public void act() {
     for (int i = 0; i < 10; i++) {
-      // request to purchase 2 shares for the 10 lowest sell prices
-      createNewOrder(getBuyPrice() + ((i + 1) * 25), 2, true);
+      // request to SELL 2 shares for the 10 lowest sell prices
+      createNewOrder(getBuyPrice() + ((i + 1) * 25), 2, false);
 
-      // request to purchase 1 share for the 9 second highest buy prices
+      // request to BUY 1 share for the 9 second highest buy prices
       if (i < 9) {
         createNewOrder(getBuyPrice() - ((i) * 25) - 25, 1, true);
       }
     }
 
-    // ten percent chance of issuing a market buy order...assuming that this can
-    // occur only once per turn.
+    // ten percent chance of issuing a market sell order...assuming that this
+    // can occur only once per turn.
     if (Math.random() < 0.1) {
       createMarketOrder(2, false);
 

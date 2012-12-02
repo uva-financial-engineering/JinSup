@@ -10,8 +10,8 @@ public class MarketMaker extends Agent {
       while (createNewOrder(getBuyPrice() - i * 25, 1, true)) {
         createNewOrder(getBuyPrice() - i * 25, 1, true);
       }
-      while (createNewOrder(getBuyPrice() + (i + 1) * 25, 1, true)) {
-        createNewOrder(getBuyPrice() + (i + 1) * 25, 1, true);
+      while (createNewOrder(getBuyPrice() + (i + 1) * 25, 1, false)) {
+        createNewOrder(getBuyPrice() + (i + 1) * 25, 1, false);
       }
     }
 
