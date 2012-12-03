@@ -70,7 +70,6 @@ public class Controller {
     if (time == startupTime) {
       matchingEngine.setStartingPeriod(false);
       System.out.println("Trading Enabled!");
-      graphFrame.setTradePeriod(startupTime, endTime);
     }
   }
 
@@ -101,6 +100,7 @@ public class Controller {
    * at a specified time given in the main method.
    */
   public void runSimulator() {
+    graphFrame.setTradePeriod(startupTime, endTime);
     // create agents
     System.out.println("Creating agents...");
     FundBuyer fundBuyer;

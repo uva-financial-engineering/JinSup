@@ -79,6 +79,11 @@ public class MatchingEngine {
   private final LinkedList<Integer> midpoints;
 
   /**
+   * Stores moving sum, which is used to efficiently calculate moving average.
+   */
+  private int movingSum;
+
+  /**
    * Creates a matching engine with empty fields. Everything is initialized to
    * zero.
    */
@@ -91,6 +96,7 @@ public class MatchingEngine {
     lastAgVolumeSellSide = 0;
     lastTradePrice = 0;
     startingPeriod = true;
+    movingSum = 0;
     this.buyPrice = buyPrice;
 
     // 2^19 lines before writing to file
@@ -547,8 +553,9 @@ public class MatchingEngine {
       (getBestBid() == null || getBestAsk() == null) ? buyPrice + 12
         : ((getBestBid().getPrice() + getBestAsk().getPrice()) / 2);
     if (midpoints.size() > n) {
-      midpoints.poll();
+      movingSum -= midpoints.poll();
     }
+    movingSum += midpoint;
     midpoints.add(midpoint);
   }
 
@@ -557,11 +564,7 @@ public class MatchingEngine {
    * the calculateMovingAverage() method.
    */
   public int getMovingAverage() {
-    int sum = 0;
-    for (Integer mid : midpoints) {
-      sum += mid;
-    }
-    return sum / midpoints.size();
+    return movingSum / midpoints.size();
   }
 
   /**

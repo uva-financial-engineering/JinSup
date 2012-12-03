@@ -66,7 +66,7 @@ public class GraphFrame extends JFrame {
     orderRenderer.setBarPainter(new StandardBarPainter());
     orderRenderer.setDrawBarOutline(false);
     ChartPanel orderPanel = new ChartPanel(orderChart);
-    orderPanel.setPreferredSize(new java.awt.Dimension(500, 200));
+    orderPanel.setPreferredSize(new java.awt.Dimension(650, 250));
 
     // Trade Prices graph panel
     priceCollection = new XYSeries("Trades");
@@ -78,7 +78,7 @@ public class GraphFrame extends JFrame {
     tradeXAxis = tradeChart.getXYPlot().getDomainAxis();
     tradeYAxis = tradeChart.getXYPlot().getRangeAxis();
     ChartPanel tradePanel = new ChartPanel(tradeChart);
-    tradePanel.setPreferredSize(new java.awt.Dimension(500, 200));
+    tradePanel.setPreferredSize(new java.awt.Dimension(650, 250));
 
     // Draw window
     window.add(tradePanel);
