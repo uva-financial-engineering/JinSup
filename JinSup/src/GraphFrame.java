@@ -3,6 +3,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.jfree.chart.ChartFactory;
@@ -25,6 +26,23 @@ public class GraphFrame extends JFrame {
   private static final long serialVersionUID = 1L;
 
   /**
+   * Buy price in cents.
+   */
+  private int buyPrice;
+  /**
+   * Starting time in ms.
+   */
+  private int startTime;
+  /**
+   * End time in ms.
+   */
+  private int endTime;
+  /**
+   * Destination to write log file.
+   */
+  private String dest;
+
+  /**
    * First element of array is buy volume at the given price; second element is
    * sell volume.
    */
@@ -42,7 +60,7 @@ public class GraphFrame extends JFrame {
   /**
    * Create the graph window.
    */
-  public GraphFrame() {
+  public GraphFrame(boolean optionsSet) {
     super("JinSup");
 
     minTradePrice = Integer.MAX_VALUE;
@@ -88,6 +106,46 @@ public class GraphFrame extends JFrame {
     pack();
     RefineryUtilities.centerFrameOnScreen(this);
     setVisible(true);
+
+    if (optionsSet) {
+      dest = JinSup.settings.getDest();
+    } else {
+      // Show dialogs to obtain in information that wasn't provided via command
+      // line
+      buyPrice =
+        (int) (100 * Double.parseDouble((String) JOptionPane.showInputDialog(
+          this, "Buy price in dollars (must be in increments of $0.25):",
+          "Step 1 of 4", JOptionPane.PLAIN_MESSAGE, null, null, null)));
+      startTime =
+        1000 * Integer.parseInt((String) JOptionPane.showInputDialog(this,
+          "Start time in seconds:", "Step 2 of 4", JOptionPane.PLAIN_MESSAGE,
+          null, null, null));
+      endTime =
+        startTime
+          + 1000
+          * Integer.parseInt((String) JOptionPane.showInputDialog(this,
+            "End time in seconds:", "Step 3 of 4", JOptionPane.PLAIN_MESSAGE,
+            null, null, null));
+      dest =
+        (String) JOptionPane.showInputDialog(this, "Path to save log file:",
+          "Step 4 of 4", JOptionPane.PLAIN_MESSAGE, null, null, null);
+    }
+  }
+
+  public int getBuyPrice() {
+    return buyPrice;
+  }
+
+  public int getStartTime() {
+    return startTime;
+  }
+
+  public int getEndTime() {
+    return endTime;
+  }
+
+  public String getDest() {
+    return dest;
   }
 
   /**

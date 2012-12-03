@@ -104,7 +104,7 @@ public class MatchingEngine {
 
     // create the CSV file
     try {
-      FileWriter writer = new FileWriter("log.csv");
+      FileWriter writer = new FileWriter(Controller.graphFrame.getDest());
       writer
         .append("Agent ID, Message, Buy/Sell, Order ID, Original Quantity, Price, Type, Leaves Quantity, Trade Price, Aggressor, Trade Match ID\n");
       writer.flush();
@@ -777,7 +777,7 @@ public class MatchingEngine {
    */
   public void writeToLog() {
     try {
-      FileWriter writer = new FileWriter("log.csv", true);
+      FileWriter writer = new FileWriter(Controller.graphFrame.getDest(), true);
       for (int i = 0; i < logBuffer.size(); i++) {
         writer.append(logBuffer.get(i));
       }
