@@ -1,7 +1,10 @@
 import java.awt.GridLayout;
+import java.io.File;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -107,28 +110,87 @@ public class GraphFrame extends JFrame {
     RefineryUtilities.centerFrameOnScreen(this);
     setVisible(true);
 
-    if (optionsSet) {
+    if (optionsSet && false) {
       dest = JinSup.settings.getDest();
     } else {
       // Show dialogs to obtain in information that wasn't provided via command
       // line
-      buyPrice =
-        (int) (100 * Double.parseDouble((String) JOptionPane.showInputDialog(
-          this, "Buy price in dollars (must be in increments of $0.25):",
-          "Step 1 of 4", JOptionPane.PLAIN_MESSAGE, null, null, null)));
-      startTime =
-        1000 * Integer.parseInt((String) JOptionPane.showInputDialog(this,
-          "Start time in seconds:", "Step 2 of 4", JOptionPane.PLAIN_MESSAGE,
-          null, null, null));
-      endTime =
-        startTime
-          + 1000
-          * Integer.parseInt((String) JOptionPane.showInputDialog(this,
-            "End time in seconds:", "Step 3 of 4", JOptionPane.PLAIN_MESSAGE,
-            null, null, null));
-      dest =
-        (String) JOptionPane.showInputDialog(this, "Path to save log file:",
-          "Step 4 of 4", JOptionPane.PLAIN_MESSAGE, null, null, null);
+      String buyPriceMsg =
+        "Buy price in dollars (must be in increments of $0.25):";
+      String startTimeMsg = "Starting period length in seconds:";
+      String endTimeMsg = "Trading period length in seconds:";
+      String error = "Error: Input must be a number!\n";
+      String buyPriceErrorMsg = error + buyPriceMsg;
+      String startTimeErrorMsg = error + startTimeMsg;
+      String endTimeErrorMsg = error + endTimeMsg;
+      boolean validInput = false;
+      String input;
+      while (!validInput) {
+        try {
+          input =
+            JOptionPane.showInputDialog(this, buyPriceMsg, "Step 1 of 4",
+              JOptionPane.PLAIN_MESSAGE);
+          if (input == null) {
+            System.exit(0);
+          }
+          buyPrice = (int) (100 * Double.parseDouble(input));
+          validInput = true;
+        } catch (NumberFormatException e) {
+          buyPriceMsg = buyPriceErrorMsg;
+        }
+      }
+      validInput = false;
+      while (!validInput) {
+        try {
+          input =
+            JOptionPane.showInputDialog(this, startTimeMsg, "Step 2 of 4",
+              JOptionPane.PLAIN_MESSAGE);
+          if (input == null) {
+            System.exit(0);
+          }
+          buyPrice = startTime = 1000 * Integer.parseInt(input);
+          validInput = true;
+        } catch (NumberFormatException e) {
+          startTimeMsg = startTimeErrorMsg;
+        }
+      }
+      validInput = false;
+      while (!validInput) {
+        try {
+          input =
+            JOptionPane.showInputDialog(this, endTimeMsg, "Step 3 of 4",
+              JOptionPane.PLAIN_MESSAGE);
+          if (input == null) {
+            System.exit(0);
+          }
+          endTime = startTime + 1000 * Integer.parseInt(input);
+          validInput = true;
+        } catch (NumberFormatException e) {
+          endTimeMsg = endTimeErrorMsg;
+        }
+      }
+      Calendar calendar = Calendar.getInstance();
+      JFileChooser saveDialog = new JFileChooser();
+      saveDialog.setCurrentDirectory(new File("."));
+      saveDialog
+        .setDialogTitle("Step 4 of 4: Choose where to save the log file");
+      saveDialog.setSelectedFile(new File("log-" + calendar.get(Calendar.YEAR)
+        + String.format("%02d", calendar.get(Calendar.MONTH))
+        + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH)) + "-"
+        + String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY))
+        + String.format("%02d", calendar.get(Calendar.MINUTE)) + ".csv"));
+      int saveResult = saveDialog.showSaveDialog(this);
+      switch (saveResult) {
+        case JFileChooser.APPROVE_OPTION:
+          dest = saveDialog.getSelectedFile().getAbsolutePath();
+          break;
+        case JFileChooser.CANCEL_OPTION:
+          System.exit(0);
+          break;
+        default:
+          System.exit(0);
+          break;
+      }
     }
   }
 
