@@ -32,7 +32,7 @@ public abstract class Agent {
 
   /**
    * Is true if an order in the last millisecond resulted in a trade with one of
-   * the agent's order. False otherwise.
+   * the agent's orders. False otherwise.
    */
   private boolean lastOrderTraded;
 
@@ -193,5 +193,4 @@ public abstract class Agent {
   public int getLastAgVolumeSellSide() {
     return matchingEngine.getLastAgVolumeSellSide();
   }
-
 }
