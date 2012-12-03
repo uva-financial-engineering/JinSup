@@ -110,7 +110,7 @@ public class GraphFrame extends JFrame {
     RefineryUtilities.centerFrameOnScreen(this);
     setVisible(true);
 
-    if (optionsSet && false) {
+    if (optionsSet) {
       dest = JinSup.settings.getDest();
     } else {
       // Show dialogs to obtain in information that wasn't provided via command
