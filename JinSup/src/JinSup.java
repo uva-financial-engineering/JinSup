@@ -25,5 +25,6 @@ public class JinSup {
     Controller controller = new Controller(startTime, endTime, matchingEngine);
     System.out.println("Starting simulator...");
     controller.runSimulator();
+    Controller.graphFrame.showFinished();
   }
 }

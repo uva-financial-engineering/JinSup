@@ -210,6 +210,11 @@ public class GraphFrame extends JFrame {
     return dest;
   }
 
+  public void showFinished() {
+    JOptionPane.showMessageDialog(this, "Simulation finished.", "JinSup",
+      JOptionPane.INFORMATION_MESSAGE);
+  }
+
   /**
    * Add a point to the order book graph.
    * 
