@@ -61,7 +61,8 @@ public class GraphFrame extends JFrame {
   private double tradeVerticalMargin;
 
   /**
-   * Create the graph window.
+   * Create the graph window and show dialogs if input was not provided via
+   * command line.
    */
   public GraphFrame(boolean optionsSet) {
     super("JinSup");

@@ -413,12 +413,7 @@ public class MatchingEngine {
         }
       }
     }
-    if (samePrice.isEmpty()) {
-      // trade was not made
-      return null;
-    } else {
-      return samePrice;
-    }
+    return (samePrice.isEmpty()) ? null : samePrice;
   }
 
   /**
@@ -682,7 +677,8 @@ public class MatchingEngine {
       + (agOrder.isBuyOrder() ? "1" : "2") + "," + agOrder.getId() + ","
       + agOrder.getOriginalQuant() + "," + agOrder.getPrice() / 100.0 + ","
       + (market ? "Market," : "Limit,") + agOrder.getCurrentQuant() + ","
-      + tradePrice + "," + volume + ",Y," + System.currentTimeMillis() + "\n");
+      + tradePrice / 100.0 + "," + volume + ",Y," + System.currentTimeMillis()
+      + "\n");
 
   }
 
@@ -693,7 +689,7 @@ public class MatchingEngine {
    * @param passOrder
    *          The passive order to be logged.
    * @param tradePrice
-   *          The price that the trade occurred at.
+   *          The price (cents) that the trade occurred at.
    * @param volume
    *          The volume that was traded on this order.
    */
@@ -714,8 +710,8 @@ public class MatchingEngine {
     logBuffer.add(passOrder.getCreatorID() + ",105,"
       + (passOrder.isBuyOrder() ? "1" : "2") + "," + passOrder.getId() + ","
       + passOrder.getOriginalQuant() + "," + passOrder.getPrice() / 100.0
-      + ",Limit," + passOrder.getCurrentQuant() + "," + tradePrice + ","
-      + volume + ",N," + System.currentTimeMillis() + "\n");
+      + ",Limit," + passOrder.getCurrentQuant() + "," + tradePrice / 100.0
+      + "," + volume + ",N," + System.currentTimeMillis() + "\n");
 
   }
 
