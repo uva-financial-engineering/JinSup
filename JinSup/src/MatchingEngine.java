@@ -8,7 +8,7 @@ import java.util.LinkedList;
 /**
  * Class that handles order creation, modification, and cancellation. Also deals
  * with trades and provides agents with appropriate trade data from the last
- * millisecond of trading. *
+ * millisecond of trading.
  */
 public class MatchingEngine {
 
@@ -31,7 +31,6 @@ public class MatchingEngine {
    * The volume of shares sold that were initiated by an aggressive buying agent
    * in the last millisecond of trading.
    * 
-   * TODO make this work
    */
   private int lastAgVolumeBuySide;
 
@@ -54,22 +53,28 @@ public class MatchingEngine {
   private int currAgVolumeSellSide;
 
   /**
-   * The price that the share was last traded at. This should be plotted every
-   * time it is updated (i.e. whenever a trade occurs).
+   * The price (CENTS) that the share was last traded at. This should be plotted
+   * every time it is updated (i.e. whenever a trade occurs).
    */
   private int lastTradePrice;
 
   /**
    * Remains true while the simulator is still in the starting period. This
-   * means that all orders that my result in a trade will be cancelled.
+   * means that all orders that may result in a trade will be cancelled.
    */
   private boolean startingPeriod;
 
   /**
-   * The buy price for a share.
+   * The buy price (CENTS) for a share, specified by the user.
    */
   private final int buyPrice;
 
+  /**
+   * A temporary buffer in memory used to keep logging information so that the
+   * program does not have write to the log file every time an order is made,
+   * traded, etc. Writes are made to the log file either when the simulator is
+   * done or when the buffer is full.
+   */
   private final ArrayList<String> logBuffer;
 
   /**
@@ -79,13 +84,17 @@ public class MatchingEngine {
   private final LinkedList<Integer> midpoints;
 
   /**
-   * Stores moving sum, which is used to efficiently calculate moving average.
+   * Stores the moving sum, which is used to efficiently calculate moving the
+   * average of the best bid and best ask prices.
    */
   private int movingSum;
 
   /**
    * Creates a matching engine with empty fields. Everything is initialized to
-   * zero.
+   * zero. Also initializes the log file.
+   * 
+   * @param buyPrice
+   *          The price (CENTS) that orders should be centered around.
    */
   public MatchingEngine(int buyPrice) {
     orderMap = new HashMap<Long, ArrayList<Order>>();
@@ -118,21 +127,21 @@ public class MatchingEngine {
   /**
    * Deletes an order from the simulation (orderMap and allOrders).
    * 
-   * @param o
+   * @param order
    *          The order to be removed.
    * @param agentID
    *          ID of the agent whose order is to be removed.
    */
-  public void cancelOrder(Order o, boolean market) {
-    allOrders.remove(o);
-    orderMap.get(o.getCreatorID()).remove(o);
+  public void cancelOrder(Order order, boolean market) {
+    allOrders.remove(order);
+    orderMap.get(order.getCreatorID()).remove(order);
     // log the action.
     if (!market) {
-      logOrder(o, 3, false, -1 * o.getCurrentQuant(), 0);
+      logOrder(order, 3, false, -1 * order.getCurrentQuant(), 0);
     } else {
-      logOrder(o, 3, true, -1 * o.getCurrentQuant(), 0);
+      logOrder(order, 3, true, -1 * order.getCurrentQuant(), 0);
     }
-    o.setQuant(0);
+    order.setQuant(0);
   }
 
   /**
@@ -179,8 +188,6 @@ public class MatchingEngine {
     return false;
   }
 
-  // TODO must account for the case when there are not enough orders to satisfy
-  // a market order.
   /**
    * Trades market orders only. If there are not orders to satisfy the market
    * order, then the order is cancelled.
@@ -261,50 +268,51 @@ public class MatchingEngine {
 
   }
 
-  // can use the code below to replace some code in checkMakeTrade()
-  // we cannot use this to notify agents that a trade occurs because
-  // tradeMarketOrder() is handled differently than checkMakeTrade().
   /**
-   * @param o1
+   * Method that performs the actual trading for the tradeMarketOrder and
+   * trade(Order, ArrayList) method. Takes care of filling the correct
+   * quantities during a trade.
+   * 
+   * @param order1
    *          Order of the aggressive agent.
-   * @param o2
+   * @param order2
    *          Order of the passive agent.
    * @return The volume that was traded between the two orders.
    */
-  private int trade(Order o1, Order o2) {
+  private int trade(Order order1, Order order2) {
     // save price for logging at the end.
-    int price = o2.getPrice();
+    int price = order2.getPrice();
     lastTradePrice = price;
 
     int volumeTraded;
-    if (o1.getCurrentQuant() == o2.getCurrentQuant()) {
-      volumeTraded = o1.getCurrentQuant();
-      allOrders.remove(o1);
-      allOrders.remove(o2);
-      o1.setQuant(0);
-      o2.setQuant(0);
-      orderMap.get(o1.getCreatorID()).remove(o1);
-      orderMap.get(o2.getCreatorID()).remove(o2);
+    if (order1.getCurrentQuant() == order2.getCurrentQuant()) {
+      volumeTraded = order1.getCurrentQuant();
+      allOrders.remove(order1);
+      allOrders.remove(order2);
+      order1.setQuant(0);
+      order2.setQuant(0);
+      orderMap.get(order1.getCreatorID()).remove(order1);
+      orderMap.get(order2.getCreatorID()).remove(order2);
 
-    } else if (o1.getCurrentQuant() > o2.getCurrentQuant()) {
+    } else if (order1.getCurrentQuant() > order2.getCurrentQuant()) {
       // delete orderToTrade, decrease quantity of o
-      volumeTraded = o1.getCurrentQuant() - o2.getCurrentQuant();
-      o1.setQuant(volumeTraded);
-      allOrders.remove(o2);
-      o2.setQuant(0);
-      orderMap.get(o2.getCreatorID()).remove(o2);
+      volumeTraded = order1.getCurrentQuant() - order2.getCurrentQuant();
+      order1.setQuant(volumeTraded);
+      allOrders.remove(order2);
+      order2.setQuant(0);
+      orderMap.get(order2.getCreatorID()).remove(order2);
     } else {
-      volumeTraded = o2.getCurrentQuant() - o1.getCurrentQuant();
-      o2.setQuant(volumeTraded);
-      allOrders.remove(o1);
-      o1.setQuant(0);
-      orderMap.get(o1.getCreatorID()).remove(o1);
+      volumeTraded = order2.getCurrentQuant() - order1.getCurrentQuant();
+      order2.setQuant(volumeTraded);
+      allOrders.remove(order1);
+      order1.setQuant(0);
+      orderMap.get(order1.getCreatorID()).remove(order1);
     }
 
     // NO LOGGING HERE! LOGGING IS DONE IN THE OTHER TWO TRADE METHODS!
     // except for logging extras....
 
-    logExtraTrades(o2, price, volumeTraded);
+    logExtraTrades(order2, price, volumeTraded);
 
     return volumeTraded;
   }
@@ -313,22 +321,22 @@ public class MatchingEngine {
    * Modifies the order in the MatchingEngine's allOrders and orderMap. Also
    * checks if any trade occurs from this modification.
    * 
-   * @param o
+   * @param order
    *          Order being modified.
    * @param newPrice
    *          The new price the order should have.
    * @param newQuant
    *          The new quantity the order should have.
    */
-  public boolean modifyOrder(Order o, int newPrice, int newQuant) {
-    int priceDiff = newPrice - o.getPrice();
-    int quantDiff = newQuant - o.getCurrentQuant();
-    o.setPrice(newPrice);
-    o.setQuant(newQuant);
+  public boolean modifyOrder(Order order, int newPrice, int newQuant) {
+    int priceDiff = newPrice - order.getPrice();
+    int quantDiff = newQuant - order.getCurrentQuant();
+    order.setPrice(newPrice);
+    order.setQuant(newQuant);
     // log the action
-    logOrder(o, 2, false, quantDiff, priceDiff);
+    logOrder(order, 2, false, quantDiff, priceDiff);
     // must then check if a trade can occur
-    return trade(o, willTrade(o));
+    return trade(order, willTrade(order));
   }
 
   /**
@@ -414,8 +422,9 @@ public class MatchingEngine {
   }
 
   /**
-   * Performs the trade for limit orders. If samePricedOrders is null, i.e. the
-   * order will not make a trade, then routine simply exits.
+   * Initializes trading for limit orders. If samePricedOrders is null, i.e. the
+   * order will not make a trade, then the function simply exits and no logging
+   * is done.
    * 
    * @param order
    *          The order to be traded.
@@ -511,7 +520,7 @@ public class MatchingEngine {
 
   /**
    * Sets the matching to allow or disallow trades to occur based on whether or
-   * not the simulation is still running in startup mode.
+   * not the simulation is still running during the startup period.
    * 
    * @param isStartingPeriod
    *          If true, then the simulation will remain under startup mode and
@@ -583,10 +592,6 @@ public class MatchingEngine {
     if (!market) {
       switch (messageType) {
         case 1:
-          // if (!order.isBuyOrder()) {
-          // System.out
-          // .println(order.getPrice() + " " + order.getCurrentQuant());
-          // }
           Controller.graphFrame.addOrder(order.isBuyOrder(),
             order.getCurrentQuant(), order.getPrice());
           break;
@@ -638,14 +643,16 @@ public class MatchingEngine {
   public void logTrade(Order agOrder, int tradePrice, int volume) {
     // TODO when a market order occurs, what is the last trade price that we
     // log? There is a case when a market order depletes a price point
-    // TODO if logTrade only updates the graph now, we can just call addTrade in
-    // the trade methods every time we want to update the trade price
+    // TODO (optimization) if logTrade only updates the graph now, we can just
+    // call addTrade in the trade methods every time we want to update the
+    // trade price
 
     Controller.graphFrame.addTrade(Controller.time / 1000.0, tradePrice);
   }
 
   /**
-   * A logging method that is called to log aggressive orders only.
+   * A logging method that is called to log aggressive orders when they trade
+   * only.
    * 
    * @param agOrder
    *          The aggressive order to be logged.
@@ -680,7 +687,8 @@ public class MatchingEngine {
   }
 
   /**
-   * A logging method that is called to log passive orders only.
+   * A logging method that is called to log passive orders when they are traded
+   * only.
    * 
    * @param passOrder
    *          The passive order to be logged.
@@ -713,6 +721,7 @@ public class MatchingEngine {
 
   /**
    * Writes the logBuffer contents to the file and then clears the log buffer.
+   * This is called when the buffer is full or when the simulation has ended.
    */
   public void writeToLog() {
     try {

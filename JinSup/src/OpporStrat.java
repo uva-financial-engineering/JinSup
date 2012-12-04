@@ -1,5 +1,16 @@
+/**
+ * A Market Maker. The acting methodology for the agent is exactly the same as
+ * was specified in the testing document given.
+ * 
+ */
 public class OpporStrat extends Agent {
 
+  /**
+   * Constructs the Fundamental Buyer.
+   * 
+   * @param matchEng
+   *          The MatchingEngine used in the simulator.
+   */
   public OpporStrat(MatchingEngine matchEng) {
     super(matchEng);
   }

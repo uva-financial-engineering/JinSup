@@ -1,5 +1,18 @@
+/**
+ * A Fundamental Seller. The acting methodology for the agent deviates a bit
+ * from the testing document given since the agent will sell 2 shares for the 10
+ * lowest sell prices and will buy 1 share for the 9 second highest buy prices.
+ * We were not sure whether Agents can simply cross the buy/ask boundary and buy
+ * shares that were in the sell territory the first time around.
+ */
 public class FundSeller extends Agent {
 
+  /**
+   * Constructs the Fundamental Buyer.
+   * 
+   * @param matchEng
+   *          The MatchingEngine used in the simulator.
+   */
   public FundSeller(MatchingEngine matchEng) {
     super(matchEng);
   }

@@ -1,7 +1,8 @@
 /**
- * Holds implementation of Agent's acting procedures. All new agents should
- * inherit from this class since act() is not implemented, i.e. there is no
- * default act() action for an agent.
+ * Holds implementation of a generic agent's acting procedures. All new agents
+ * should inherit from this class since act() is not implemented, i.e. there is
+ * no default act() action for an agent. Instead, any new agent that is created
+ * will need to have its own unique implementation of the act() method.
  */
 
 public abstract class Agent {
@@ -84,8 +85,8 @@ public abstract class Agent {
    * Enable the agent to act during its time slot. This is set by the controller
    * when it chooses agents to act for certain time slots.
    * 
-   * @param If
-   *          true, then the agent will act.
+   * @param act
+   *          If true, then the agent will act.
    * 
    */
   public void setWillAct(boolean act) {
@@ -107,7 +108,7 @@ public abstract class Agent {
    * Calls the MatchingEngine to create a new order for the agent.
    * 
    * @param price
-   *          Price of the order (should be in 0.25 increments only).
+   *          Price (CENTS) of the order (should be in 0.25 increments only).
    * @param initialQuant
    *          The quantity that the agent wants to buy/sell.
    * @param buyOrder
@@ -120,20 +121,29 @@ public abstract class Agent {
       buyOrder), false);
   }
 
-  // assuming that market orders will always have a price of 0.
-  // marketOrders should be traded immediately.
+  /**
+   * A special method that is only used for creation of market orders. Since
+   * they do not have a price, we set the price value to zero. Market orders
+   * should be traded immediately.
+   * 
+   * @param initialQuant
+   *          The quantity that the buy market order is for.
+   * @param buyOrder
+   *          True if this is a buy market order. False if this is a sell market
+   *          order.
+   */
   public void createMarketOrder(int initialQuant, boolean buyOrder) {
     matchingEngine.tradeMarketOrder(new Order(this.id, 0, initialQuant,
       buyOrder));
   }
 
   /**
-   * Calls the MatchingEngine to modify an order
+   * Calls the MatchingEngine to modify an order.
    * 
    * @param order
    *          The order to be modified.
    * @param newPrice
-   *          The new price to set the order to.
+   *          The new price (CENTS) to set the order to.
    * @param newQuant
    *          The new quantity to set the order to.
    * 
@@ -157,6 +167,9 @@ public abstract class Agent {
     inventory += volume;
   }
 
+  /**
+   * @return The buy price (CENTS) that was specified by the user.
+   */
   public int getBuyPrice() {
     return matchingEngine.getBuyPrice();
   }

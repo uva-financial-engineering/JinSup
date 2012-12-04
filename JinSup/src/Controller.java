@@ -52,7 +52,8 @@ public class Controller {
   }
 
   /**
-   * Select eligible agents randomly to act.
+   * Selects all eligible agents in random order to act during a given time
+   * slot.
    */
   public void selectActingAgent() {
     LinkedList<Agent> actingAgents = new LinkedList<Agent>();
@@ -81,13 +82,14 @@ public class Controller {
    */
   public void activateAgent(Agent a) {
     a.setWillAct(true);
-    a.getWillAct();
-    a.act();
+    while (a.getWillAct()) {
+      a.act();
+    }
   }
 
   /**
-   * Method that increments time and performs other necessary actions per time
-   * step.
+   * Method that increments simulator time and performs other necessary actions
+   * after each time step.
    */
   public void moveTime() {
     matchingEngine.storeMovingAverage(500);
@@ -97,7 +99,7 @@ public class Controller {
 
   /**
    * Creates agents with first startup time and runs the simulator and stops it
-   * at a specified time given in the main method.
+   * at a specified time specified by the user.
    */
   public void runSimulator() {
     graphFrame.setTradePeriod(startupTime, endTime);

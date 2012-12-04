@@ -6,7 +6,7 @@ import java.util.Comparator;
 public class Order implements Comparator<Order> {
 
   /**
-   * The price of the order. Can only be in increments of 0.25.
+   * The price (CENTS) of the order. Can only be in increments of 0.25.
    */
   private int price;
 
@@ -41,7 +41,7 @@ public class Order implements Comparator<Order> {
    * @param agentID
    *          ID of the agent that initiated the order.
    * @param price
-   *          Price that for the shares to buy or sell for this order.
+   *          Price (CENTS) that for the shares to buy or sell for this order.
    * @param originalQuant
    *          The quantity of shares the agent originally wants to buy or sell.
    * @param buyOrder
@@ -65,7 +65,7 @@ public class Order implements Comparator<Order> {
   }
 
   /**
-   * @return The price of the order.
+   * @return The price (CENTS) of the order.
    */
   public int getPrice() {
     return price;
@@ -95,7 +95,7 @@ public class Order implements Comparator<Order> {
 
   /**
    * @param newPrice
-   *          The new price to buy/sell that for the order.
+   *          The new price (CENTS) to buy/sell that for the order.
    */
   public void setPrice(int newPrice) {
     price = newPrice;
@@ -114,17 +114,6 @@ public class Order implements Comparator<Order> {
   public long getCreatorID() {
     return agentID;
   }
-
-  // @Override
-  // public int compareTo(Order o) {
-  // int priceDiff = (int)(o.price*100) - (int)(this.price*100);
-  // if(priceDiff != 0) {
-  // return priceDiff;
-  // }
-  // else {
-  // return (int) (o.id/100 - this.id/100);
-  // }
-  // }
 
   /**
    * Compares the order based on price and then time of creation. An order is
