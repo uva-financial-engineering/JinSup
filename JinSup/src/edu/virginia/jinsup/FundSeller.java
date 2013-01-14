@@ -1,3 +1,4 @@
+package edu.virginia.jinsup;
 /**
  * A Fundamental Seller. The acting methodology for the agent deviates a bit
  * from the testing document given since the agent will sell 2 shares for the 10

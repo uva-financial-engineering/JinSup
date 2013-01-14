@@ -1,3 +1,4 @@
+package edu.virginia.jinsup;
 import com.beust.jcommander.JCommander;
 
 public class JinSup {

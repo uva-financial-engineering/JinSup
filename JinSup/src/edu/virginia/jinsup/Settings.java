@@ -1,3 +1,4 @@
+package edu.virginia.jinsup;
 import com.beust.jcommander.Parameter;
 
 public class Settings {

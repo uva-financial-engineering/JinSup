@@ -1,3 +1,4 @@
+package edu.virginia.jinsup;
 /**
  * Holds implementation of a generic agent's acting procedures. All new agents
  * should inherit from this class since act() is not implemented, i.e. there is
