@@ -301,4 +301,8 @@ public class GraphFrame extends JFrame {
   public void setTradePeriod(long start, long end) {
     tradeXAxis.setRange(start / 1000.0, end / 1000.0);
   }
+  
+  public void updateTitleBar(long newTime) {
+	  this.setTitle("Time: " + String.valueOf(newTime) + " ms");
+  }
 }

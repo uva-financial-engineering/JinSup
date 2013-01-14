@@ -96,6 +96,9 @@ public class Controller {
     matchingEngine.storeMovingAverage(500);
     matchingEngine.reset();
     time += 1;
+    if(time%500 == 0) {
+    	graphFrame.updateTitleBar(time);
+    } 
   }
 
   /**
