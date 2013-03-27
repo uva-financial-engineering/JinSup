@@ -15,6 +15,11 @@ import java.util.LinkedList;
 public class MatchingEngine {
 
   /**
+   * Maximum size the log buffer will reach before writing
+   */
+  private static final int                      LOG_BUFFER_SIZE = 524288;
+
+  /**
    * All the orders in the simulation, grouped by agent ID.
    */
   private final HashMap<Long, ArrayList<Order>> orderMap;
@@ -22,54 +27,54 @@ public class MatchingEngine {
   /**
    * All the agents in the simulation, indexed by agent ID.
    */
-  private final HashMap<Long, Agent> agentMap;
+  private final HashMap<Long, Agent>            agentMap;
 
   /**
    * All the orders in the simulation, unsorted.
    */
-  private final ArrayList<Order> allOrders;
+  private final ArrayList<Order>                allOrders;
 
   /**
    * The volume of shares sold that were initiated by an aggressive buying agent
    * in the last millisecond of trading.
    * 
    */
-  private int lastAgVolumeBuySide;
+  private int                                   lastAgVolumeBuySide;
 
   /**
    * The volumes of shares sold that were initiated by an aggressive selling
    * agent in the last millisecond of trading.
    */
-  private int lastAgVolumeSellSide;
+  private int                                   lastAgVolumeSellSide;
 
   /**
    * The current (per ms) volume of shares that were initiated by an aggressive
    * buying agent in the last millisecond of trading.
    */
-  private int currAgVolumeBuySide;
+  private int                                   currAgVolumeBuySide;
 
   /**
    * The current (per ms) volume of shares that were initiated by an aggressive
    * selling agent in the last millisecond of trading.
    */
-  private int currAgVolumeSellSide;
+  private int                                   currAgVolumeSellSide;
 
   /**
    * The price (CENTS) that the share was last traded at. This should be plotted
    * every time it is updated (i.e. whenever a trade occurs).
    */
-  private int lastTradePrice;
+  private int                                   lastTradePrice;
 
   /**
    * Remains true while the simulator is still in the starting period. This
    * means that all orders that may result in a trade will be cancelled.
    */
-  private boolean startingPeriod;
+  private boolean                               startingPeriod;
 
   /**
    * The buy price (CENTS) for a share, specified by the user.
    */
-  private final int buyPrice;
+  private final int                             buyPrice;
 
   /**
    * A temporary buffer in memory used to keep logging information so that the
@@ -77,19 +82,19 @@ public class MatchingEngine {
    * traded, etc. Writes are made to the log file either when the simulator is
    * done or when the buffer is full.
    */
-  private final ArrayList<String> logBuffer;
+  private final ArrayList<String>               logBuffer;
 
   /**
    * Queue containing the midpoints of best bid and best ask prices. The length
    * of the list is determined by the get moving average method.
    */
-  private final LinkedList<Integer> midpoints;
+  private final LinkedList<Integer>             midpoints;
 
   /**
    * Stores the moving sum, which is used to efficiently calculate moving the
    * average of the best bid and best ask prices.
    */
-  private int movingSum;
+  private int                                   movingSum;
 
   /**
    * Creates a matching engine with empty fields. Everything is initialized to
@@ -111,7 +116,7 @@ public class MatchingEngine {
     this.buyPrice = buyPrice;
 
     // 2^19 lines before writing to file
-    logBuffer = new ArrayList<String>(524288);
+    logBuffer = new ArrayList<String>(LOG_BUFFER_SIZE);
 
     // create the CSV file
     try {
@@ -137,12 +142,7 @@ public class MatchingEngine {
   public void cancelOrder(Order order, boolean market) {
     allOrders.remove(order);
     orderMap.get(order.getCreatorID()).remove(order);
-    // log the action.
-    if (!market) {
-      logOrder(order, 3, false, -1 * order.getCurrentQuant(), 0);
-    } else {
-      logOrder(order, 3, true, -1 * order.getCurrentQuant(), 0);
-    }
+    logOrder(order, 3, market, -order.getCurrentQuant(), 0);
     order.setQuant(0);
   }
 
@@ -295,7 +295,6 @@ public class MatchingEngine {
       order2.setQuant(0);
       orderMap.get(order1.getCreatorID()).remove(order1);
       orderMap.get(order2.getCreatorID()).remove(order2);
-
     } else if (order1.getCurrentQuant() > order2.getCurrentQuant()) {
       // delete orderToTrade, decrease quantity of o
       volumeTraded = order1.getCurrentQuant() - order2.getCurrentQuant();
@@ -614,7 +613,7 @@ public class MatchingEngine {
       }
     }
 
-    if (logBuffer.size() == 524288) {
+    if (logBuffer.size() == LOG_BUFFER_SIZE) {
       // write the stuff to the file.
       writeToLog();
     }
@@ -644,7 +643,7 @@ public class MatchingEngine {
     // call addTrade in the trade methods every time we want to update the
     // trade price
 
-    Controller.graphFrame.addTrade(Controller.time / 1000.0, tradePrice);
+    Controller.graphFrame.addTrade(Controller.time * 0.001, tradePrice);
   }
 
   /**
@@ -670,16 +669,16 @@ public class MatchingEngine {
     }
 
     Controller.graphFrame.addOrder(agOrder.isBuyOrder(), -volume, tradePrice);
-    if (logBuffer.size() == 524288) {
+    if (logBuffer.size() == LOG_BUFFER_SIZE) {
       // write the stuff to the file.
       // logging for the passive order
       writeToLog();
     }
     logBuffer.add(agOrder.getCreatorID() + ",105,"
       + (agOrder.isBuyOrder() ? "1" : "2") + "," + agOrder.getId() + ","
-      + agOrder.getOriginalQuant() + "," + agOrder.getPrice() / 100.0 + ","
+      + agOrder.getOriginalQuant() + "," + agOrder.getPrice() * 0.01 + ","
       + (market ? "Market," : "Limit,") + agOrder.getCurrentQuant() + ","
-      + tradePrice / 100.0 + "," + volume + ",Y," + System.currentTimeMillis()
+      + tradePrice * 0.01 + "," + volume + ",Y," + System.currentTimeMillis()
       + "\n");
 
   }
@@ -703,7 +702,7 @@ public class MatchingEngine {
     }
 
     Controller.graphFrame.addOrder(passOrder.isBuyOrder(), -volume, tradePrice);
-    if (logBuffer.size() == 524288) {
+    if (logBuffer.size() == LOG_BUFFER_SIZE) {
       // write the stuff to the file.
       // logging for the passive order
       writeToLog();
@@ -711,9 +710,9 @@ public class MatchingEngine {
     }
     logBuffer.add(passOrder.getCreatorID() + ",105,"
       + (passOrder.isBuyOrder() ? "1" : "2") + "," + passOrder.getId() + ","
-      + passOrder.getOriginalQuant() + "," + passOrder.getPrice() / 100.0
-      + ",Limit," + passOrder.getCurrentQuant() + "," + tradePrice / 100.0
-      + "," + volume + ",N," + System.currentTimeMillis() + "\n");
+      + passOrder.getOriginalQuant() + "," + passOrder.getPrice() * 0.01
+      + ",Limit," + passOrder.getCurrentQuant() + "," + tradePrice * 0.01 + ","
+      + volume + ",N," + System.currentTimeMillis() + "\n");
 
   }
 
