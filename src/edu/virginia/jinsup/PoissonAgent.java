@@ -2,31 +2,24 @@ package edu.virginia.jinsup;
 
 public abstract class PoissonAgent extends Agent {
 
-  private int lambda;
+  private final int lambda;
+  private final double expLambda;
+
   public PoissonAgent(MatchingEngine matchEng, int lambda) {
     super(matchEng);
     this.lambda = lambda;
+    expLambda = Math.exp(-lambda);
   }
 
+  @Override
   abstract void act();
-  
-  protected double calculatePMF(int trades)
-  {
-    return (Math.pow(lambda, trades) * Math.exp(-lambda)) / factorial(trades);
-  }
-  
-  protected int factorial(int num)
-  {
-    if(num == 0)
-    {
-      return 1;
+
+  protected double calculatePMF(int trades) {
+    int factorial = 1;
+    for (int i = 2; i <= trades; ++i) {
+      factorial *= i;
     }
-    int result = 1;
-    for(int i = num; i > 0; --i)
-    {
-      result *= i;
-    }
-    return result;
+    return Math.pow(lambda, trades) * expLambda / factorial;
   }
 
 }
