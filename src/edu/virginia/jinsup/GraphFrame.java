@@ -1,4 +1,5 @@
 package edu.virginia.jinsup;
+
 import java.awt.GridLayout;
 import java.io.File;
 import java.util.Calendar;
@@ -212,8 +213,9 @@ public class GraphFrame extends JFrame {
     return dest;
   }
 
-  public void showFinished() {
-    JOptionPane.showMessageDialog(this, "Simulation finished.", "JinSup",
+  public void showFinished(long nanoseconds) {
+    JOptionPane.showMessageDialog(this, "Simulation finished in " + nanoseconds
+      * 0.000000001 + " real seconds.", "JinSup",
       JOptionPane.INFORMATION_MESSAGE);
   }
 
@@ -301,8 +303,8 @@ public class GraphFrame extends JFrame {
   public void setTradePeriod(long start, long end) {
     tradeXAxis.setRange(start / 1000.0, end / 1000.0);
   }
-  
+
   public void updateTitleBar(long newTime) {
-	  this.setTitle("Time: " + String.valueOf(newTime) + " ms");
+    this.setTitle("Time: " + String.valueOf(newTime) + " ms");
   }
 }

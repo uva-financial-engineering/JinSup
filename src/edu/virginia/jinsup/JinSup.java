@@ -1,4 +1,5 @@
 package edu.virginia.jinsup;
+
 import com.beust.jcommander.JCommander;
 
 public class JinSup {
@@ -25,7 +26,8 @@ public class JinSup {
     MatchingEngine matchingEngine = new MatchingEngine(buyPrice);
     Controller controller = new Controller(startTime, endTime, matchingEngine);
     System.out.println("Starting simulator...");
+    long elapsedTime = System.nanoTime();
     controller.runSimulator();
-    Controller.graphFrame.showFinished();
+    Controller.graphFrame.showFinished(System.nanoTime() - elapsedTime);
   }
 }
