@@ -1,4 +1,5 @@
 package edu.virginia.jinsup;
+
 import java.util.Comparator;
 
 /**
@@ -132,21 +133,11 @@ public class Order implements Comparator<Order> {
    */
   @Override
   public int compare(Order o1, Order o2) {
-    long priceDiff = o2.price - o1.price;
-    if (priceDiff > 0) {
-      return 1;
-    } else if (priceDiff < 0) {
-      return -1;
-    } else {
-      // Prices equal
-      long idDiff = o1.id - o2.id;
-      if (idDiff < 0) {
-        return 1;
-      } else if (idDiff > 0) {
-        return -1;
-      }
+    if (o1.price != o2.price) {
+      return o2.price - o1.price;
     }
-    return 0;
+    // Prices equal
+    return (int) (o2.id - o1.id);
   }
 
   /**
@@ -167,21 +158,10 @@ public class Order implements Comparator<Order> {
     new Comparator<Order>() {
       @Override
       public int compare(Order o1, Order o2) {
-        long priceDiff = o2.price - o1.price;
-        if (priceDiff > 0) {
-          return 1;
-        } else if (priceDiff < 0) {
-          return -1;
-        } else {
-          // Prices equal
-          long idDiff = o1.id - o2.id;
-          if (idDiff < 0) {
-            return 1;
-          } else if (idDiff > 0) {
-            return -1;
-          }
+        if (o1.price != o2.price) {
+          return o2.price - o1.price;
         }
-        return 0;
+        return (int) (o2.id - o1.id);
       }
     };
 
@@ -202,21 +182,10 @@ public class Order implements Comparator<Order> {
     new Comparator<Order>() {
       @Override
       public int compare(Order o1, Order o2) {
-        long priceDiff = o1.price - o2.price;
-        if (priceDiff > 0) {
-          return 1;
-        } else if (priceDiff < 0) {
-          return -1;
-        } else {
-          // Prices equal
-          long idDiff = o2.id - o1.id;
-          if (idDiff > 0) {
-            return 1;
-          } else if (idDiff < 0) {
-            return -1;
-          }
+        if (o1.price != o2.price) {
+          return o1.price - o2.price;
         }
-        return 0;
+        return (int) (o2.id - o1.id);
       }
     };
 
