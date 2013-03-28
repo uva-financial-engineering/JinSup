@@ -1,15 +1,13 @@
 package edu.virginia.jinsup;
 
-public class OpporStratPoisson extends Agent {
+public class OpporStratPoisson extends PoissonAgent {
 
-  public OpporStratPoisson(MatchingEngine matchEng) {
-    super(matchEng);
-    // TODO Auto-generated constructor stub
+  public OpporStratPoisson(MatchingEngine matchEng, int lambda) {
+    super(matchEng, lambda);
   }
 
   @Override
   void act() {
-    // TODO Auto-generated method stub
 
   }
 

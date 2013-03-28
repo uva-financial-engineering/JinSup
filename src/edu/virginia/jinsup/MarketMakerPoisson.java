@@ -1,15 +1,13 @@
 package edu.virginia.jinsup;
 
-public class MarketMakerPoisson extends Agent {
+public class MarketMakerPoisson extends PoissonAgent {
 
-  public MarketMakerPoisson(MatchingEngine matchEng) {
-    super(matchEng);
-    // TODO Auto-generated constructor stub
+  public MarketMakerPoisson(MatchingEngine matchEng, int lambda) {
+    super(matchEng, lambda);
   }
 
   @Override
   void act() {
-    // TODO Auto-generated method stub
 
   }
 
