@@ -1,25 +1,73 @@
 package edu.virginia.jinsup;
 
+import org.apache.commons.math3.distribution.PoissonDistribution;
+
 public abstract class PoissonAgent extends Agent {
 
-  private final int lambda;
-  private final double expLambda;
+  private final PoissonDistribution poissonGeneratorOrder;
+  private final PoissonDistribution poissonGeneratorCancel;
 
-  public PoissonAgent(MatchingEngine matchEng, int lambda) {
+  // lambda specified in seconds
+  public PoissonAgent(MatchingEngine matchEng, int lambdaOrder, int lambdaCancel) {
     super(matchEng);
-    this.lambda = lambda;
-    expLambda = Math.exp(-lambda);
+    poissonGeneratorOrder = new PoissonDistribution(lambdaOrder);
+    poissonGeneratorCancel = new PoissonDistribution(lambdaCancel);
   }
 
-  @Override
-  abstract void act();
-
-  protected double calculatePMF(int trades) {
-    int factorial = 1;
-    for (int i = 2; i <= trades; ++i) {
-      factorial *= i;
+  public void act()
+  {
+    long oldOrderTime = getNextOrderTime();
+    switch (getNextAction())
+    {
+      case CANCEL:
+        // cancel a random order
+        setNextCancelTime(getNextCancelTime());
+        break;
+      case ORDER:
+        makeOrder();
+        setNextOrderTime(getNextOrderTime());
+        break;
+      case NULL:
+        System.out.println("Warning: NULL action type...have all agents been" +
+        		"  properly initialized?");
+        break;
+      default:
+        System.out.println("Fatal Error: Undefined action enum type...exiting");
+        System.exit(1);
+        break;
     }
-    return Math.pow(lambda, trades) * expLambda / factorial;
+    
+    // make sure that both actions do not occur at the same time step
+    if(getNextCancelTime() ==  getNextOrderTime())
+    {
+      while(getNextCancelTime() == getNextOrderTime())
+      {
+        setNextOrderTime(oldOrderTime);
+      }
+    }
+    
+    if (getNextCancelTime() > getNextOrderTime())
+    {
+      setNextAction(Action.ORDER);
+      setNextActTime(getNextOrderTime());
+    }
+    else
+    {
+      setNextAction(Action.CANCEL);
+      setNextActTime(getNextOrderTime());
+    }
+  }
+  
+  protected void setNextOrderTime(long currOrderTime) 
+  {
+    setNextOrderTime(currOrderTime + poissonGeneratorOrder.sample());
+    
   }
 
+  protected void setNextCancelTime(long currCancelTime) 
+  {
+    setNextOrderTime(currCancelTime + poissonGeneratorCancel.sample());
+  }
+  
+  abstract void makeOrder();
 }

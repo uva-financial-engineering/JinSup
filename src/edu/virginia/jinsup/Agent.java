@@ -37,6 +37,18 @@ public abstract class Agent {
    * the agent's orders. False otherwise.
    */
   private boolean lastOrderTraded;
+  
+  private long nextOrderTime;
+  
+  private long nextCancelTime;
+  
+  public enum Action {
+    NULL,
+    ORDER,
+    CANCEL;
+  }
+  
+  private Action nextAction;
 
   /**
    * Creates an agent object with the ID as a time stamp in milliseconds. Must
@@ -53,6 +65,9 @@ public abstract class Agent {
     this.matchingEngine = matchEng;
     this.inventory = 0;
     this.nextActTime = -1;
+    this.nextOrderTime = -1;
+    this.nextCancelTime = -1;
+    this.nextAction = Action.NULL;
     matchEng.addNewAgent(this.id, this);
   }
 
@@ -206,5 +221,30 @@ public abstract class Agent {
    */
   public int getLastAgVolumeSellSide() {
     return matchingEngine.getLastAgVolumeSellSide();
+  }
+
+  protected long getNextOrderTime() {
+    return nextOrderTime;
+  }
+
+  protected long getNextCancelTime() {
+    return nextCancelTime;
+  }
+
+  // should override these
+  protected void setNextOrderTime(long nextOrderTime) {
+    this.nextOrderTime = nextOrderTime;
+  }
+
+  protected void setNextCancelTime(long nextCancelTime) {
+    this.nextCancelTime = nextCancelTime;
+  }
+  
+  public Action getNextAction(){
+    return nextAction;
+  }
+  
+  public void setNextAction(Action nextAction){
+    this.nextAction = nextAction;
   }
 }

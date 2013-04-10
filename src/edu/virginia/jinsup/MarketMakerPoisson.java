@@ -2,13 +2,13 @@ package edu.virginia.jinsup;
 
 public class MarketMakerPoisson extends PoissonAgent {
 
-  public MarketMakerPoisson(MatchingEngine matchEng, int lambda) {
-    super(matchEng, lambda);
+  public MarketMakerPoisson(MatchingEngine matchEng, int lambdaOrder, int lambdaCancel) {
+    super(matchEng, lambdaOrder, lambdaCancel);
   }
 
-  @Override
-  void act() {
-
+  public void makeOrder()
+  {
+    
   }
 
 }
