@@ -21,6 +21,7 @@ public abstract class PoissonAgent extends Agent {
     {
       case CANCEL:
         // cancel a random order
+        cancelOrder(getRandomOrder());
         setNextCancelTime(getNextCancelTime());
         break;
       case ORDER:

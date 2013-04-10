@@ -6,11 +6,52 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Random;
 
 /**
  * Class that handles order creation, modification, and cancellation. Also deals
  * with trades and provides agents with appropriate trade data from the last
  * millisecond of trading.
+ */
+/**
+ * @author scott
+ *
+ */
+/**
+ * @author scott
+ *
+ */
+/**
+ * @author scott
+ *
+ */
+/**
+ * @author scott
+ *
+ */
+/**
+ * @author scott
+ *
+ */
+/**
+ * @author scott
+ *
+ */
+/**
+ * @author scott
+ *
+ */
+/**
+ * @author scott
+ *
+ */
+/**
+ * @author scott
+ *
+ */
+/**
+ * @author scott
+ *
  */
 public class MatchingEngine {
 
@@ -96,6 +137,8 @@ public class MatchingEngine {
    */
   private int                                   movingSum;
 
+  private Random randomElementGenerator;
+  
   /**
    * Creates a matching engine with empty fields. Everything is initialized to
    * zero. Also initializes the log file.
@@ -113,6 +156,7 @@ public class MatchingEngine {
     lastTradePrice = 0;
     startingPeriod = true;
     movingSum = 0;
+    randomElementGenerator = new Random();
     this.buyPrice = buyPrice;
 
     // 2^19 lines before writing to file
@@ -751,6 +795,15 @@ public class MatchingEngine {
    */
   public int getLastAgVolumeSellSide() {
     return lastAgVolumeSellSide;
+  }
+  
+  /**
+   * @param agentID Agent to select orders from
+   * @return A random order that the agent made that has not been traded yet
+   */
+  public Order getRandomOrder(long agentID)
+  {
+    return orderMap.get(agentID).get(randomElementGenerator.nextInt(orderMap.get(agentID).size()));
   }
 
 }

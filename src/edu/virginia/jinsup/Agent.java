@@ -247,4 +247,10 @@ public abstract class Agent {
   public void setNextAction(Action nextAction){
     this.nextAction = nextAction;
   }
+  
+  public Order getRandomOrder()
+  {
+    return matchingEngine.getRandomOrder(this.id);
+  }
+  
 }
