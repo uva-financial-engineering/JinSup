@@ -2,6 +2,7 @@ package edu.virginia.jinsup;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 
 /**
  * Keeps track of simulation time and selects eligible agents so that they can
@@ -57,6 +58,11 @@ public class Controller {
   private final MatchingEngine matchingEngine;
 
   /**
+   * Queue of agents scheduled to act
+   */
+  private final PriorityQueue<Agent> actQueue;
+
+  /**
    * Creates a controller with no agents.
    */
   public Controller(long startupTime, long endTime,
@@ -66,6 +72,9 @@ public class Controller {
     this.startupTime = startupTime;
     this.endTime = endTime;
     this.matchingEngine = matchingEngine;
+    this.actQueue =
+      new PriorityQueue<Agent>(FUND_BUYER_SELLER_COUNT * 2 + MARKET_MAKER_COUNT
+        + OPPOR_STRAT_COUNT);
   }
 
   /**
@@ -94,9 +103,9 @@ public class Controller {
    */
   public void activateAgent(Agent a) {
     a.setWillAct(true);
-    while (a.getWillAct()) {
+    do {
       a.act();
-    }
+    } while (a.getWillAct());
   }
 
   /**
@@ -129,31 +138,39 @@ public class Controller {
 
     FundBuyer fundBuyer;
     FundSeller fundSeller;
-    for (int i = 0; i < FUND_BUYER_SELLER_COUNT; i++) {
+    for (int i = 0; i < FUND_BUYER_SELLER_COUNT; ++i) {
       fundBuyer = new FundBuyer(matchingEngine);
       fundBuyer.setNextActTime((long) (Math.random() * startupTime));
       fundSeller = new FundSeller(matchingEngine);
       fundSeller.setNextActTime((long) (Math.random() * startupTime));
       agentList.add(fundBuyer);
       agentList.add(fundSeller);
+      actQueue.add(fundBuyer);
+      actQueue.add(fundSeller);
     }
 
     MarketMaker marketMaker;
-    for (int i = 0; i < MARKET_MAKER_COUNT; i++) {
+    for (int i = 0; i < MARKET_MAKER_COUNT; ++i) {
       marketMaker = new MarketMaker(matchingEngine);
       marketMaker.setNextActTime((long) (Math.random() * startupTime));
+      actQueue.add(marketMaker);
     }
 
     OpporStrat opporStrat;
-    for (int i = 0; i < OPPOR_STRAT_COUNT; i++) {
+    for (int i = 0; i < OPPOR_STRAT_COUNT; ++i) {
       opporStrat = new OpporStrat(matchingEngine);
       opporStrat.setNextActTime((long) (Math.random() * startupTime));
+      actQueue.add(opporStrat);
     }
     System.out.println("Done! Simulation has started");
 
     // run simulator until endTime is reached.
+    long nextActTime = actQueue.peek().getNextActTime();
+    // TODO Loop moveTime until nextActTime without testing whether nextActTime
+    // == time
     while (time < endTime) {
       selectActingAgent();
+      // activateAgent(actQueue.poll());
       moveTime();
     }
 
