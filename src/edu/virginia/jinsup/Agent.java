@@ -255,6 +255,26 @@ public abstract class Agent implements Comparable<Agent> {
     return matchingEngine.getLastTradePrice();
   }
 
+  public int getBestBuyPrice() {
+    return matchingEngine.getBestBid().getPrice();
+  }
+
+  public int getBestSellPrice() {
+    return matchingEngine.getBestAsk().getPrice();
+  }
+
+  public int getInventory() {
+    return inventory;
+  }
+
+  public void cancelAllSellOrders() {
+    matchingEngine.cancelAllSellOrders(id);
+  }
+
+  public void cancelAllBuyOrders() {
+    matchingEngine.cancelAllBuyOrders(id);
+  }
+
   @Override
   public int compareTo(Agent a) {
     // TODO Auto-generated method stub
