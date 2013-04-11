@@ -246,7 +246,7 @@ public class MatchingEngine {
 
         // notify the non aggressor.
         agentMap.get(topSells.get(0).getCreatorID()).setLastOrderTraded(true,
-          currentVolumeTraded);
+          -currentVolumeTraded);
 
         if (totalVolumeTraded < quantityToRid) {
           topSells.remove(0);
@@ -281,7 +281,7 @@ public class MatchingEngine {
         }
       }
       // notify the aggressor
-      agentMap.get(aggressorID).setLastOrderTraded(true, totalVolumeTraded);
+      agentMap.get(aggressorID).setLastOrderTraded(true, -totalVolumeTraded);
       lastAgVolumeSellSide += totalVolumeTraded;
     }
     // System.out.print("Market ORDER ");
