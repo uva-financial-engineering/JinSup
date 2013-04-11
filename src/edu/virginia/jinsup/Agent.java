@@ -7,7 +7,7 @@ package edu.virginia.jinsup;
  * will need to have its own unique implementation of the act() method.
  */
 
-public abstract class Agent {
+public abstract class Agent implements Comparable<Agent> {
 
   /**
    * ID of the agent. Used by the Order class to track agents.
@@ -253,5 +253,12 @@ public abstract class Agent {
 
   public int getLastTradePrice() {
     return matchingEngine.getLastTradePrice();
+  }
+
+  @Override
+  public int compareTo(Agent a) {
+    // TODO Auto-generated method stub
+    return getNextActTime() > a.getNextActTime() ? 1 : getNextActTime() < a
+      .getNextActTime() ? -1 : 0;
   }
 }
