@@ -267,4 +267,11 @@ public abstract class Agent {
     return inventory;
   }
 
+  public void cancelAllSellOrders() {
+    matchingEngine.cancelAllSellOrders(id);
+  }
+
+  public void cancelAllBuyOrders() {
+    matchingEngine.cancelAllBuyOrders(id);
+  }
 }

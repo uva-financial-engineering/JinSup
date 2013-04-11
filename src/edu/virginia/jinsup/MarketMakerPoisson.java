@@ -13,17 +13,18 @@ public class MarketMakerPoisson extends PoissonAgent {
   }
 
   public void makeOrder() {
-
     // bestBuyOrder/(bestBuyOrder + bestSellOrder)
     double factor =
       getBestBuyPrice() / (getBestBuyPrice() + getBestSellPrice());
     boolean willBuy = true;
     if (getInventory() > 9) {
       // cancel all buy orders orders
+      cancelAllBuyOrders();
       willBuy = false;
     }
     if (getInventory() < -9) {
       // cancel all sell orders
+      cancelAllSellOrders();
       willBuy = true;
     }
     if (factor < 0.10) {
