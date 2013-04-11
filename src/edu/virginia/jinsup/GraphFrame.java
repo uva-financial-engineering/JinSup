@@ -47,6 +47,8 @@ public class GraphFrame extends JFrame {
    */
   private String dest;
 
+  private long counter = 0;
+
   /**
    * First element of array is buy volume at the given price; second element is
    * sell volume.
@@ -245,22 +247,26 @@ public class GraphFrame extends JFrame {
       priceVolume[(isBuy) ? 0 : 1] = volume;
       orderMap.put(price, priceVolume);
     }
-    // Rebuild data set
-    orderDataset = new DefaultCategoryDataset();
-    String zeroPad;
-    // TODO Ensure prices increase linearly, i.e. add gaps where buy = sell = 0
-    for (Map.Entry<Integer, Integer[]> e : orderMap.entrySet()) {
-      zeroPad = ((e.getKey() % 50) > 0) ? "" : "0";
-      if (e.getValue()[0] > 0) {
-        orderDataset.addValue(e.getValue()[0], "Buy", e.getKey() / 100.0
-          + zeroPad);
+    counter += 1;
+    if (counter % 100 == 0) {
+      // Rebuild data set
+      orderDataset = new DefaultCategoryDataset();
+      String zeroPad;
+      // TODO Ensure prices increase linearly, i.e. add gaps where buy = sell =
+      // 0
+      for (Map.Entry<Integer, Integer[]> e : orderMap.entrySet()) {
+        zeroPad = ((e.getKey() % 50) > 0) ? "" : "0";
+        if (e.getValue()[0] > 0) {
+          orderDataset.addValue(e.getValue()[0], "Buy", e.getKey() / 100.0
+            + zeroPad);
+        }
+        if (e.getValue()[1] > 0) {
+          orderDataset.addValue(e.getValue()[1], "Sell", e.getKey() / 100.0
+            + zeroPad);
+        }
       }
-      if (e.getValue()[1] > 0) {
-        orderDataset.addValue(e.getValue()[1], "Sell", e.getKey() / 100.0
-          + zeroPad);
-      }
+      ((CategoryPlot) orderChart.getPlot()).setDataset(orderDataset);
     }
-    ((CategoryPlot) orderChart.getPlot()).setDataset(orderDataset);
   }
 
   /**
