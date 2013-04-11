@@ -13,46 +13,7 @@ import java.util.Random;
  * with trades and provides agents with appropriate trade data from the last
  * millisecond of trading.
  */
-/**
- * @author scott
- *
- */
-/**
- * @author scott
- *
- */
-/**
- * @author scott
- *
- */
-/**
- * @author scott
- *
- */
-/**
- * @author scott
- *
- */
-/**
- * @author scott
- *
- */
-/**
- * @author scott
- *
- */
-/**
- * @author scott
- *
- */
-/**
- * @author scott
- *
- */
-/**
- * @author scott
- *
- */
+
 public class MatchingEngine {
 
   /**
