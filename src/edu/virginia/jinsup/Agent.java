@@ -1,4 +1,5 @@
 package edu.virginia.jinsup;
+
 /**
  * Holds implementation of a generic agent's acting procedures. All new agents
  * should inherit from this class since act() is not implemented, i.e. there is
@@ -37,17 +38,15 @@ public abstract class Agent {
    * the agent's orders. False otherwise.
    */
   private boolean lastOrderTraded;
-  
+
   private long nextOrderTime;
-  
+
   private long nextCancelTime;
-  
+
   public enum Action {
-    NULL,
-    ORDER,
-    CANCEL;
+    NULL, ORDER, CANCEL;
   }
-  
+
   private Action nextAction;
 
   /**
@@ -239,18 +238,20 @@ public abstract class Agent {
   protected void setNextCancelTime(long nextCancelTime) {
     this.nextCancelTime = nextCancelTime;
   }
-  
-  public Action getNextAction(){
+
+  public Action getNextAction() {
     return nextAction;
   }
-  
-  public void setNextAction(Action nextAction){
+
+  public void setNextAction(Action nextAction) {
     this.nextAction = nextAction;
   }
-  
-  public Order getRandomOrder()
-  {
+
+  public Order getRandomOrder() {
     return matchingEngine.getRandomOrder(this.id);
   }
-  
+
+  public int getLastTradePrice() {
+    return matchingEngine.getLastTradePrice();
+  }
 }

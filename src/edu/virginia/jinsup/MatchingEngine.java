@@ -354,7 +354,7 @@ public class MatchingEngine {
    * @return The last price that a share was traded for. Used primarily as data
    *         for the bar chart.
    */
-  public double getLastTradePrice() {
+  public int getLastTradePrice() {
     return lastTradePrice;
   }
 
@@ -764,7 +764,8 @@ public class MatchingEngine {
   }
 
   /**
-   * @param agentID Agent to select orders from
+   * @param agentID
+   *          Agent to select orders from
    * @return A random order that the agent made that has not been traded yet
    */
   public Order getRandomOrder(long agentID) {
