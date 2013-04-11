@@ -1,4 +1,5 @@
 package edu.virginia.jinsup;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -8,6 +9,21 @@ import java.util.LinkedList;
  * 
  */
 public class Controller {
+
+  /**
+   * Number of fund buyers (equal to number of fund sellers)
+   */
+  private static final int FUND_BUYER_SELLER_COUNT = 200;
+
+  /**
+   * Number of market makers
+   */
+  private static final int MARKET_MAKER_COUNT = 10;
+
+  /**
+   * Number of oppor strat traders
+   */
+  private static final int OPPOR_STRAT_COUNT = 40;
 
   /**
    * List of all agents in the simulator
@@ -68,11 +84,6 @@ public class Controller {
       activateAgent(actingAgents.remove((int) (Math.random() * actingAgents
         .size())));
     }
-    moveTime();
-    if (time == startupTime) {
-      matchingEngine.setStartingPeriod(false);
-      System.out.println("Trading Enabled!");
-    }
   }
 
   /**
@@ -93,12 +104,16 @@ public class Controller {
    * after each time step.
    */
   public void moveTime() {
-    matchingEngine.storeMovingAverage(500);
+    matchingEngine.storeMovingAverage();
     matchingEngine.reset();
     time += 1;
-    if(time%500 == 0) {
-    	graphFrame.updateTitleBar(time);
-    } 
+    if (time % 500 == 0) {
+      graphFrame.updateTitleBar(time);
+    }
+    if (time == startupTime) {
+      matchingEngine.setStartingPeriod(false);
+      System.out.println("Trading Enabled!");
+    }
   }
 
   /**
@@ -107,11 +122,14 @@ public class Controller {
    */
   public void runSimulator() {
     graphFrame.setTradePeriod(startupTime, endTime);
-    // create agents
+
+    // Create agents
+
     System.out.println("Creating agents...");
+
     FundBuyer fundBuyer;
     FundSeller fundSeller;
-    for (int i = 0; i < 200; i++) {
+    for (int i = 0; i < FUND_BUYER_SELLER_COUNT; i++) {
       fundBuyer = new FundBuyer(matchingEngine);
       fundBuyer.setNextActTime((long) (Math.random() * startupTime));
       fundSeller = new FundSeller(matchingEngine);
@@ -121,21 +139,22 @@ public class Controller {
     }
 
     MarketMaker marketMaker;
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < MARKET_MAKER_COUNT; i++) {
       marketMaker = new MarketMaker(matchingEngine);
       marketMaker.setNextActTime((long) (Math.random() * startupTime));
     }
 
     OpporStrat opporStrat;
-    for (int i = 0; i < 40; i++) {
+    for (int i = 0; i < OPPOR_STRAT_COUNT; i++) {
       opporStrat = new OpporStrat(matchingEngine);
       opporStrat.setNextActTime((long) (Math.random() * startupTime));
     }
-    System.out.println("Done!\nSimulation has started");
+    System.out.println("Done! Simulation has started");
 
     // run simulator until endTime is reached.
     while (time < endTime) {
       selectActingAgent();
+      moveTime();
     }
 
     // write remaining entries to the log

@@ -19,7 +19,12 @@ public class MatchingEngine {
   /**
    * Maximum size the log buffer will reach before writing
    */
-  private static final int                      LOG_BUFFER_SIZE = 524288;
+  private static final int LOG_BUFFER_SIZE = 524288;
+
+  /**
+   * Number of milliseconds to calculate moving average
+   */
+  private static final int MOVING_AVERAGE_LENGTH = 500;
 
   /**
    * All the orders in the simulation, grouped by agent ID.
@@ -29,54 +34,54 @@ public class MatchingEngine {
   /**
    * All the agents in the simulation, indexed by agent ID.
    */
-  private final HashMap<Long, Agent>            agentMap;
+  private final HashMap<Long, Agent> agentMap;
 
   /**
    * All the orders in the simulation, unsorted.
    */
-  private final ArrayList<Order>                allOrders;
+  private final ArrayList<Order> allOrders;
 
   /**
    * The volume of shares sold that were initiated by an aggressive buying agent
    * in the last millisecond of trading.
    * 
    */
-  private int                                   lastAgVolumeBuySide;
+  private int lastAgVolumeBuySide;
 
   /**
    * The volumes of shares sold that were initiated by an aggressive selling
    * agent in the last millisecond of trading.
    */
-  private int                                   lastAgVolumeSellSide;
+  private int lastAgVolumeSellSide;
 
   /**
    * The current (per ms) volume of shares that were initiated by an aggressive
    * buying agent in the last millisecond of trading.
    */
-  private int                                   currAgVolumeBuySide;
+  private int currAgVolumeBuySide;
 
   /**
    * The current (per ms) volume of shares that were initiated by an aggressive
    * selling agent in the last millisecond of trading.
    */
-  private int                                   currAgVolumeSellSide;
+  private int currAgVolumeSellSide;
 
   /**
    * The price (CENTS) that the share was last traded at. This should be plotted
    * every time it is updated (i.e. whenever a trade occurs).
    */
-  private int                                   lastTradePrice;
+  private int lastTradePrice;
 
   /**
    * Remains true while the simulator is still in the starting period. This
    * means that all orders that may result in a trade will be cancelled.
    */
-  private boolean                               startingPeriod;
+  private boolean startingPeriod;
 
   /**
    * The buy price (CENTS) for a share, specified by the user.
    */
-  private final int                             buyPrice;
+  private final int buyPrice;
 
   /**
    * A temporary buffer in memory used to keep logging information so that the
@@ -84,22 +89,22 @@ public class MatchingEngine {
    * traded, etc. Writes are made to the log file either when the simulator is
    * done or when the buffer is full.
    */
-  private final ArrayList<String>               logBuffer;
+  private final ArrayList<String> logBuffer;
 
   /**
    * Queue containing the midpoints of best bid and best ask prices. The length
    * of the list is determined by the get moving average method.
    */
-  private final LinkedList<Integer>             midpoints;
+  private final LinkedList<Integer> midpoints;
 
   /**
    * Stores the moving sum, which is used to efficiently calculate moving the
    * average of the best bid and best ask prices.
    */
-  private int                                   movingSum;
+  private int movingSum;
 
-  private Random randomElementGenerator;
-  
+  private final Random randomElementGenerator;
+
   /**
    * Creates a matching engine with empty fields. Everything is initialized to
    * zero. Also initializes the log file.
@@ -552,13 +557,13 @@ public class MatchingEngine {
 
   /**
    * A special method for opportunistic traders that returns the moving average
-   * for the last n number of milliseconds.
+   * for the last MOVING_AVERAGE_LENGTH number of milliseconds.
    */
-  public void storeMovingAverage(int n) {
+  public void storeMovingAverage() {
     int midpoint =
       (getBestBid() == null || getBestAsk() == null) ? buyPrice + 12
         : ((getBestBid().getPrice() + getBestAsk().getPrice()) / 2);
-    if (midpoints.size() > n) {
+    if (midpoints.size() > MOVING_AVERAGE_LENGTH) {
       movingSum -= midpoints.poll();
     }
     movingSum += midpoint;
@@ -757,14 +762,14 @@ public class MatchingEngine {
   public int getLastAgVolumeSellSide() {
     return lastAgVolumeSellSide;
   }
-  
+
   /**
    * @param agentID Agent to select orders from
    * @return A random order that the agent made that has not been traded yet
    */
-  public Order getRandomOrder(long agentID)
-  {
-    return orderMap.get(agentID).get(randomElementGenerator.nextInt(orderMap.get(agentID).size()));
+  public Order getRandomOrder(long agentID) {
+    return orderMap.get(agentID).get(
+      randomElementGenerator.nextInt(orderMap.get(agentID).size()));
   }
 
 }
