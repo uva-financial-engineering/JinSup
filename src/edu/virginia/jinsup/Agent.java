@@ -254,4 +254,17 @@ public abstract class Agent {
   public int getLastTradePrice() {
     return matchingEngine.getLastTradePrice();
   }
+
+  public int getBestBuyPrice() {
+    return matchingEngine.getBestBid().getPrice();
+  }
+
+  public int getBestSellPrice() {
+    return matchingEngine.getBestAsk().getPrice();
+  }
+
+  public int getInventory() {
+    return inventory;
+  }
+
 }
