@@ -21,39 +21,39 @@ public class FundBuyerPoisson extends PoissonAgent {
     }
     // 2 tick of last trade price 11% of the time
     else if (probability < 0.52) {
-
+      createNewOrder(getLastTradePrice(), 2, true);
     }
     // 3 tick of last trade price 9% of the time
     else if (probability < 0.61) {
-
+      createNewOrder(getLastTradePrice(), 3, true);
     }
     // 4 tick of last trade price 7% of the time
     else if (probability < 0.68) {
-
+      createNewOrder(getLastTradePrice(), 4, true);
     }
     // 5 tick of last trade price 7% of the time
     else if (probability < 0.75) {
-
+      createNewOrder(getLastTradePrice(), 5, true);
     }
     // 6 tick of last trade price 7% of the time
     else if (probability < 0.82) {
-
+      createNewOrder(getLastTradePrice(), 6, true);
     }
     // 7 tick of last trade price 5% of the time
     else if (probability < 0.87) {
-
+      createNewOrder(getLastTradePrice(), 7, true);
     }
     // 8 tick of last trade price 5% of the time
     else if (probability < 0.92) {
-
+      createNewOrder(getLastTradePrice(), 8, true);
     }
     // 9 tick of last trade price 5% of the time
     else if (probability < 0.97) {
-
+      createNewOrder(getLastTradePrice(), 9, true);
     }
     // 10 tick of last trade price 3% of the time
     else {
-
+      createNewOrder(getLastTradePrice(), 10, true);
     }
   }
 }
