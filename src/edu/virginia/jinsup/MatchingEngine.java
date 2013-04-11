@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.TreeSet;
 
 /**
  * Class that handles order creation, modification, and cancellation. Also deals
@@ -39,12 +40,12 @@ public class MatchingEngine {
   /**
    * All the buy orders in the simulation, unsorted.
    */
-  private final ArrayList<Order> buyOrders;
+  private final TreeSet<Order> buyOrders;
 
   /**
    * All the sell orders in the simulation, unsorted.
    */
-  private final ArrayList<Order> sellOrders;
+  private final TreeSet<Order> sellOrders;
 
   /**
    * The volume of shares sold that were initiated by an aggressive buying agent
@@ -119,8 +120,8 @@ public class MatchingEngine {
    */
   public MatchingEngine(int buyPrice) {
     orderMap = new HashMap<Long, ArrayList<Order>>();
-    buyOrders = new ArrayList<Order>();
-    sellOrders = new ArrayList<Order>();
+    buyOrders = new TreeSet<Order>(Order.highestFirstComparator);
+    sellOrders = new TreeSet<Order>(Order.highestFirstComparator);
     agentMap = new HashMap<Long, Agent>();
     midpoints = new LinkedList<Integer>();
     lastAgVolumeBuySide = 0;
@@ -512,7 +513,7 @@ public class MatchingEngine {
     if (buyOrders.isEmpty()) {
       return null;
     } else {
-      return Collections.min(buyOrders, Order.highestFirstComparator);
+      return buyOrders.first();
     }
   }
 
@@ -523,7 +524,7 @@ public class MatchingEngine {
     if (sellOrders.isEmpty()) {
       return null;
     } else {
-      return Collections.max(sellOrders, Order.highestFirstComparator);
+      return sellOrders.last();
     }
   }
 
