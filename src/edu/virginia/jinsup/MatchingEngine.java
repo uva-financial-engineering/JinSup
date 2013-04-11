@@ -482,9 +482,22 @@ public class MatchingEngine {
       lastAgVolumeSellSide += volumeTraded;
     }
     // now get the agents (aggressor and non-aggressor) and notify them.
-    agentMap.get(order.getCreatorID()).setLastOrderTraded(true, volumeTraded);
+    int aggressorTrades;
+    int passiveTrades;
+    if (order.isBuyOrder()) {
+      lastAgVolumeBuySide += volumeTraded;
+      aggressorTrades = volumeTraded;
+      passiveTrades = -volumeTraded;
+    } else {
+      lastAgVolumeSellSide += volumeTraded;
+      aggressorTrades = -volumeTraded;
+      passiveTrades = volumeTraded;
+    }
+    // now get the agents (aggressor and non-aggressor) and notify them.
+    agentMap.get(order.getCreatorID())
+      .setLastOrderTraded(true, aggressorTrades);
     agentMap.get(orderToTrade.getCreatorID()).setLastOrderTraded(true,
-      volumeTraded);
+      passiveTrades);
 
     // System.out.print("LIMIT ORDER ");
     logTrade(order, price, volumeTraded);
