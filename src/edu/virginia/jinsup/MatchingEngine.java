@@ -109,7 +109,7 @@ public class MatchingEngine {
    */
   private int movingSum;
 
-  private final Random randomElementGenerator;
+  private final Random random;
 
   /**
    * Creates a matching engine with empty fields. Everything is initialized to
@@ -129,7 +129,7 @@ public class MatchingEngine {
     lastTradePrice = 0;
     startingPeriod = true;
     movingSum = 0;
-    randomElementGenerator = new Random();
+    random = new Random();
     this.buyPrice = buyPrice;
 
     // 2^19 lines before writing to file
@@ -234,23 +234,23 @@ public class MatchingEngine {
     int totalVolumeTraded = 0;
     int quantityToRid = order.getCurrentQuant();
     if (order.isBuyOrder()) {
-      ArrayList<Order> topSells = topSellOrders();
+      TreeSet<Order> topSells = topSellOrders();
       if (topSells.isEmpty()) {
         // nothing was traded. order will be cancelled.
         cancelOrder(order, true);
         return;
       }
       while (!topSells.isEmpty()) {
-        price = topSells.get(0).getPrice();
-        int currentVolumeTraded = trade(order, topSells.get(0));
+        price = topSells.first().getPrice();
+        int currentVolumeTraded = trade(order, topSells.first());
         totalVolumeTraded += currentVolumeTraded;
 
         // notify the non aggressor.
-        agentMap.get(topSells.get(0).getCreatorID()).setLastOrderTraded(true,
+        agentMap.get(topSells.first().getCreatorID()).setLastOrderTraded(true,
           -currentVolumeTraded);
 
         if (totalVolumeTraded < quantityToRid) {
-          topSells.remove(0);
+          topSells.pollFirst();
         } else {
           break;
         }
@@ -259,7 +259,7 @@ public class MatchingEngine {
       agentMap.get(aggressorID).setLastOrderTraded(true, totalVolumeTraded);
       lastAgVolumeBuySide += totalVolumeTraded;
     } else {
-      ArrayList<Order> topBuys = topBuyOrders();
+      TreeSet<Order> topBuys = topBuyOrders();
 
       if (topBuys.isEmpty()) {
         // nothing was traded. order will be cancelled.
@@ -267,16 +267,16 @@ public class MatchingEngine {
         return;
       }
       while (!topBuys.isEmpty()) {
-        price = topBuys.get(0).getPrice();
-        int currentVolumeTraded = trade(order, topBuys.get(0));
+        price = topBuys.first().getPrice();
+        int currentVolumeTraded = trade(order, topBuys.first());
         totalVolumeTraded += currentVolumeTraded;
 
         // notify the non aggressor.
-        agentMap.get(topBuys.get(0).getCreatorID()).setLastOrderTraded(true,
+        agentMap.get(topBuys.first().getCreatorID()).setLastOrderTraded(true,
           currentVolumeTraded);
 
         if (totalVolumeTraded < quantityToRid) {
-          topBuys.remove(0);
+          topBuys.pollFirst();
         } else {
           break;
         }
@@ -311,10 +311,16 @@ public class MatchingEngine {
     int volumeTraded;
     if (order1.getCurrentQuant() == order2.getCurrentQuant()) {
       volumeTraded = order1.getCurrentQuant();
-      buyOrders.remove(order1);
-      sellOrders.remove(order1);
-      buyOrders.remove(order2);
-      sellOrders.remove(order2);
+      if (order1.isBuyOrder()) {
+        buyOrders.remove(order1);
+      } else {
+        sellOrders.remove(order1);
+      }
+      if (order2.isBuyOrder()) {
+        buyOrders.remove(order2);
+      } else {
+        sellOrders.remove(order2);
+      }
       order1.setQuant(0);
       order2.setQuant(0);
       orderMap.get(order1.getCreatorID()).remove(order1);
@@ -323,15 +329,21 @@ public class MatchingEngine {
       // delete orderToTrade, decrease quantity of o
       volumeTraded = order1.getCurrentQuant() - order2.getCurrentQuant();
       order1.setQuant(volumeTraded);
-      buyOrders.remove(order2);
-      sellOrders.remove(order2);
+      if (order2.isBuyOrder()) {
+        buyOrders.remove(order2);
+      } else {
+        sellOrders.remove(order2);
+      }
       order2.setQuant(0);
       orderMap.get(order2.getCreatorID()).remove(order2);
     } else {
       volumeTraded = order2.getCurrentQuant() - order1.getCurrentQuant();
       order2.setQuant(volumeTraded);
-      buyOrders.remove(order1);
-      sellOrders.remove(order1);
+      if (order1.isBuyOrder()) {
+        buyOrders.remove(order1);
+      } else {
+        sellOrders.remove(order1);
+      }
       order1.setQuant(0);
       orderMap.get(order1.getCreatorID()).remove(order1);
     }
@@ -356,12 +368,11 @@ public class MatchingEngine {
    *          The new quantity the order should have.
    */
   public boolean modifyOrder(Order order, int newPrice, int newQuant) {
-    int priceDiff = newPrice - order.getPrice();
-    int quantDiff = newQuant - order.getCurrentQuant();
     order.setPrice(newPrice);
     order.setQuant(newQuant);
     // log the action
-    logOrder(order, 2, false, quantDiff, priceDiff);
+    logOrder(order, 2, false, newQuant - order.getCurrentQuant(), newPrice
+      - order.getPrice());
     // must then check if a trade can occur
     return trade(order, willTrade(order));
   }
@@ -379,15 +390,15 @@ public class MatchingEngine {
    * @return The top ten pending buy orders sorted by price (highest) and time
    *         of order creation (most recent).
    */
-  public ArrayList<Order> topBuyOrders() {
-    ArrayList<Order> topBuyOrders = new ArrayList<Order>();
+  public TreeSet<Order> topBuyOrders() {
+    TreeSet<Order> topBuyOrders =
+      new TreeSet<Order>(Order.highestFirstComparator);
     for (Order o : buyOrders) {
       if (topBuyOrders.size() < 10) {
         topBuyOrders.add(o);
-        Collections.sort(topBuyOrders, Order.highestFirstComparator);
-      } else if (o.compare(o, topBuyOrders.get(9)) < 0) {
-        topBuyOrders.set(9, o);
-        Collections.sort(topBuyOrders, Order.highestFirstComparator);
+      } else if (o.compare(o, topBuyOrders.last()) < 0) {
+        topBuyOrders.pollLast();
+        topBuyOrders.add(o);
       }
     }
     return topBuyOrders;
@@ -397,15 +408,15 @@ public class MatchingEngine {
    * @return The top ten sell orders sorted by price (lowest) and time of order
    *         creation (most recent).
    */
-  public ArrayList<Order> topSellOrders() {
-    ArrayList<Order> topSellOrders = new ArrayList<Order>();
-    for (Order a : sellOrders) {
+  public TreeSet<Order> topSellOrders() {
+    TreeSet<Order> topSellOrders =
+      new TreeSet<Order>(Order.lowestFirstComparator);
+    for (Order o : sellOrders) {
       if (topSellOrders.size() < 10) {
-        topSellOrders.add(a);
-        Collections.sort(topSellOrders, Order.lowestFirstComparator);
-      } else if (Order.lowestFirstComparator.compare(a, topSellOrders.get(9)) < 0) {
-        topSellOrders.set(9, a);
-        Collections.sort(topSellOrders, Order.lowestFirstComparator);
+        topSellOrders.add(o);
+      } else if (Order.lowestFirstComparator.compare(o, topSellOrders.last()) < 0) {
+        topSellOrders.pollLast();
+        topSellOrders.add(o);
       }
     }
     return topSellOrders;
@@ -476,12 +487,6 @@ public class MatchingEngine {
     // log the action and ID of trade, with System.currentTimeMillis()
     // and volume traded.
     // notify both agents that a trade has occurred.
-
-    if (order.isBuyOrder()) {
-      lastAgVolumeBuySide += volumeTraded;
-    } else {
-      lastAgVolumeSellSide += volumeTraded;
-    }
     // now get the agents (aggressor and non-aggressor) and notify them.
     int aggressorTrades;
     int passiveTrades;
@@ -527,13 +532,6 @@ public class MatchingEngine {
       return sellOrders.last();
     }
   }
-
-  /**
-   * @return All orders in the simulation.
-   */
-  // public ArrayList<Order> getAllOrders() {
-  // return allOrders;
-  // }
 
   /**
    * Sets the matching to allow or disallow trades to occur based on whether or
@@ -781,7 +779,7 @@ public class MatchingEngine {
    */
   public Order getRandomOrder(long agentID) {
     return orderMap.get(agentID).get(
-      randomElementGenerator.nextInt(orderMap.get(agentID).size()));
+      random.nextInt(orderMap.get(agentID).size()));
   }
 
   public void cancelAllSellOrders(long agentID) {
