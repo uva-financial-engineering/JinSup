@@ -6,8 +6,9 @@ public class SmallTrader extends PoissonAgent {
 
   private Random rand;
 
-  public SmallTrader(MatchingEngine matchEng, int lambdaOrder, int lambdaCancel) {
-    super(matchEng, lambdaOrder, lambdaCancel);
+  public SmallTrader(MatchingEngine matchEng, int lambdaOrder,
+    int lambdaCancel, long initialActTime) {
+    super(matchEng, lambdaOrder, lambdaCancel, initialActTime);
     rand = new Random();
   }
 

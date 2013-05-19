@@ -10,11 +10,18 @@ public abstract class PoissonAgent extends Agent {
 
   // lambda specified in seconds
   public PoissonAgent(MatchingEngine matchEng, double lambdaOrder,
-    double lambdaCancel) {
+    double lambdaCancel, long initialActTime) {
     super(matchEng);
     poissonGeneratorOrder = new PoissonDistribution(lambdaOrder * 1000);
     poissonGeneratorCancel = new PoissonDistribution(lambdaCancel * 1000);
+
+    // set agents to create an order before canceling one
     setNextAction(Action.ORDER);
+    setNextActTime(initialActTime);
+
+    // no need for poisson determined act times for initial actions
+    super.setNextOrderTime(initialActTime);
+    super.setNextCancelTime(initialActTime + 1000);
   }
 
   public void act() {
@@ -48,23 +55,23 @@ public abstract class PoissonAgent extends Agent {
       }
     }
 
+    // select the appropriate action to perform for the next act opportunity
     if (getNextCancelTime() > getNextOrderTime()) {
       setNextAction(Action.ORDER);
       setNextActTime(getNextOrderTime());
     } else {
       setNextAction(Action.CANCEL);
-      setNextActTime(getNextOrderTime());
+      setNextActTime(getNextCancelTime());
     }
     setWillAct(false);
   }
 
   protected void setNextOrderTime(long currOrderTime) {
     super.setNextOrderTime(currOrderTime + poissonGeneratorOrder.sample());
-
   }
 
   protected void setNextCancelTime(long currCancelTime) {
-    super.setNextOrderTime(currCancelTime + poissonGeneratorCancel.sample());
+    super.setNextCancelTime(currCancelTime + poissonGeneratorCancel.sample());
   }
 
   abstract void makeOrder();

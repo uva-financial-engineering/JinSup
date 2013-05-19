@@ -7,8 +7,8 @@ public class OpporStratPoisson extends PoissonAgent {
   private double currBuyProbability = 0.0;
 
   public OpporStratPoisson(MatchingEngine matchEng, int lambdaOrder,
-    int lambdaCancel, double initialBuyProbability) {
-    super(matchEng, lambdaOrder, lambdaCancel);
+    int lambdaCancel, double initialBuyProbability, long initialActTime) {
+    super(matchEng, lambdaOrder, lambdaCancel, initialActTime);
     currBuyProbability = initialBuyProbability;
   }
 

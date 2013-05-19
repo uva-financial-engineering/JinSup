@@ -126,7 +126,7 @@ public class MatchingEngine {
     midpoints = new LinkedList<Integer>();
     lastAgVolumeBuySide = 0;
     lastAgVolumeSellSide = 0;
-    lastTradePrice = 0;
+    lastTradePrice = buyPrice;
     startingPeriod = true;
     movingSum = 0;
     random = new Random();
@@ -208,7 +208,6 @@ public class MatchingEngine {
       logOrder(order, 1, false, 0, 0);
       return trade(order, willTrade(order));
     }
-    logOrder(order, 1, true, 0, 0);
     return false;
   }
 
@@ -237,6 +236,7 @@ public class MatchingEngine {
       TreeSet<Order> topSells = topSellOrders();
       if (topSells.isEmpty()) {
         // nothing was traded. order will be cancelled.
+        logOrder(order, 1, true, 0, price);
         cancelOrder(order, true);
         return;
       }
@@ -263,6 +263,7 @@ public class MatchingEngine {
 
       if (topBuys.isEmpty()) {
         // nothing was traded. order will be cancelled.
+        logOrder(order, 1, true, 0, price);
         cancelOrder(order, true);
         return;
       }
@@ -286,6 +287,7 @@ public class MatchingEngine {
       lastAgVolumeSellSide += totalVolumeTraded;
     }
     // System.out.print("Market ORDER ");
+    logOrder(order, 1, true, 0, price);
     lastTradePrice = price;
     logTrade(order, price, totalVolumeTraded);
     logAggressiveTrader(order, true, price, totalVolumeTraded);
@@ -779,7 +781,7 @@ public class MatchingEngine {
    */
   public Order getRandomOrder(long agentID) {
     // if agent does not have anything to trade
-    if (orderMap.get(agentID).size() < 1) {
+    if (orderMap.get(agentID) == null || orderMap.get(agentID).size() < 1) {
       return null;
     }
     return orderMap.get(agentID).get(

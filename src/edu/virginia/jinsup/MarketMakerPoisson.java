@@ -7,8 +7,8 @@ public class MarketMakerPoisson extends PoissonAgent {
   private Random rand;
 
   public MarketMakerPoisson(MatchingEngine matchEng, int lambdaOrder,
-    int lambdaCancel) {
-    super(matchEng, lambdaOrder, lambdaCancel);
+    int lambdaCancel, long initialActTime) {
+    super(matchEng, lambdaOrder, lambdaCancel, initialActTime);
     rand = new Random();
   }
 

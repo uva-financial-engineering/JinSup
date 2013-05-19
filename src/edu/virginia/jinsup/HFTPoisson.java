@@ -3,8 +3,8 @@ package edu.virginia.jinsup;
 public class HFTPoisson extends PoissonAgent {
 
   public HFTPoisson(MatchingEngine matchEng, double lambdaOrder,
-    double lambdaCancel) {
-    super(matchEng, lambdaOrder, lambdaCancel);
+    double lambdaCancel, long initialActTime) {
+    super(matchEng, lambdaOrder, lambdaCancel, initialActTime);
   }
 
   @Override
