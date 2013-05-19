@@ -1,8 +1,11 @@
 package edu.virginia.jinsup;
+
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.TreeSet;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -109,24 +112,26 @@ public class MatchingEngineTest {
 
   @Test
   public void testTopBuyOrders() {
-    ArrayList<Order> buyOrders = matchingEngine.topBuyOrders();
+    TreeSet<Order> buyOrders = matchingEngine.topBuyOrders();
     for (int i = 0; i < 10; i++) {
-      System.out.println(buyOrders.get(i).getPrice());
+      System.out.println(((List<Order>) buyOrders).get(i).getPrice());
     }
   }
 
   @Test
   public void testTopSellOrders() {
-    ArrayList<Order> sellOrders = matchingEngine.topSellOrders();
+    TreeSet<Order> sellOrders = matchingEngine.topSellOrders();
     for (int i = 0; i < 10; i++) {
-      System.out.println(sellOrders.get(i).getPrice());
+      System.out.println(((List<Order>) sellOrders).get(i).getPrice());
     }
   }
 
   @Test
   public void testCreateMarketOrder() {
     buyer.createMarketOrder(5, true);
-    assertEquals((double) 3, (double) matchingEngine.topSellOrders().get(0)
-      .getPrice(), 0.0001);
+    assertEquals(
+      (double) 3,
+      (double) ((List<Order>) matchingEngine.topSellOrders()).get(0).getPrice(),
+      0.0001);
   }
 }

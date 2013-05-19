@@ -26,6 +26,10 @@ public class Controller {
    */
   private static final int OPPOR_STRAT_COUNT = 40;
 
+  private static final int HFT_COUNT = 20;
+
+  private static final int SMALL_TRADER_COUNT = 10;
+
   /**
    * List of all agents in the simulator
    */
@@ -136,32 +140,47 @@ public class Controller {
 
     System.out.println("Creating agents...");
 
-    FundBuyer fundBuyer;
-    FundSeller fundSeller;
+    FundBuyerPoisson fundBuyerPoisson;
+    FundSellerPoisson fundSellerPoisson;
     for (int i = 0; i < FUND_BUYER_SELLER_COUNT; ++i) {
-      fundBuyer = new FundBuyer(matchingEngine);
-      fundBuyer.setNextActTime((long) (Math.random() * startupTime));
-      fundSeller = new FundSeller(matchingEngine);
-      fundSeller.setNextActTime((long) (Math.random() * startupTime));
-      agentList.add(fundBuyer);
-      agentList.add(fundSeller);
-      actQueue.add(fundBuyer);
-      actQueue.add(fundSeller);
+      fundBuyerPoisson = new FundBuyerPoisson(matchingEngine, 80, 60);
+      fundBuyerPoisson.setNextActTime((long) (Math.random() * startupTime));
+      fundSellerPoisson = new FundSellerPoisson(matchingEngine, 80, 60);
+      fundSellerPoisson.setNextActTime((long) (Math.random() * startupTime));
+      agentList.add(fundBuyerPoisson);
+      agentList.add(fundSellerPoisson);
+      actQueue.add(fundBuyerPoisson);
+      actQueue.add(fundSellerPoisson);
     }
 
-    MarketMaker marketMaker;
+    MarketMakerPoisson marketMakerPoisson;
     for (int i = 0; i < MARKET_MAKER_COUNT; ++i) {
-      marketMaker = new MarketMaker(matchingEngine);
-      marketMaker.setNextActTime((long) (Math.random() * startupTime));
-      actQueue.add(marketMaker);
+      marketMakerPoisson = new MarketMakerPoisson(matchingEngine, 6, 2);
+      marketMakerPoisson.setNextActTime((long) (Math.random() * startupTime));
+      actQueue.add(marketMakerPoisson);
     }
 
-    OpporStrat opporStrat;
+    OpporStratPoisson opporStratPoisson;
     for (int i = 0; i < OPPOR_STRAT_COUNT; ++i) {
-      opporStrat = new OpporStrat(matchingEngine);
-      opporStrat.setNextActTime((long) (Math.random() * startupTime));
-      actQueue.add(opporStrat);
+      opporStratPoisson = new OpporStratPoisson(matchingEngine, 60, 40, 0.50);
+      opporStratPoisson.setNextActTime((long) (Math.random() * startupTime));
+      actQueue.add(opporStratPoisson);
     }
+
+    HFTPoisson hftPoisson;
+    for (int i = 0; i < HFT_COUNT; ++i) {
+      hftPoisson = new HFTPoisson(matchingEngine, 0.60, 0.40);
+      hftPoisson.setNextActTime((long) (Math.random() * startupTime));
+      actQueue.add(hftPoisson);
+    }
+
+    SmallTrader smallTrader;
+    for (int i = 0; i < SMALL_TRADER_COUNT; ++i) {
+      smallTrader = new SmallTrader(matchingEngine, 3000, 1000);
+      smallTrader.setNextActTime((long) (Math.random() * startupTime));
+      actQueue.add(smallTrader);
+    }
+
     System.out.println("Done! Simulation has started");
 
     // run simulator until endTime is reached.
