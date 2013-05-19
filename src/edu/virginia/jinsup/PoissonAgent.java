@@ -14,14 +14,17 @@ public abstract class PoissonAgent extends Agent {
     super(matchEng);
     poissonGeneratorOrder = new PoissonDistribution(lambdaOrder * 1000);
     poissonGeneratorCancel = new PoissonDistribution(lambdaCancel * 1000);
+    setNextAction(Action.ORDER);
   }
 
   public void act() {
     long oldOrderTime = getNextOrderTime();
     switch (getNextAction()) {
       case CANCEL:
-        // cancel a random order
-        cancelOrder(getRandomOrder());
+        // cancel a random order, if there are any available
+        if (getRandomOrder() != null) {
+          cancelOrder(getRandomOrder());
+        }
         setNextCancelTime(getNextCancelTime());
         break;
       case ORDER:
@@ -52,15 +55,16 @@ public abstract class PoissonAgent extends Agent {
       setNextAction(Action.CANCEL);
       setNextActTime(getNextOrderTime());
     }
+    setWillAct(false);
   }
 
   protected void setNextOrderTime(long currOrderTime) {
-    setNextOrderTime(currOrderTime + poissonGeneratorOrder.sample());
+    super.setNextOrderTime(currOrderTime + poissonGeneratorOrder.sample());
 
   }
 
   protected void setNextCancelTime(long currCancelTime) {
-    setNextOrderTime(currCancelTime + poissonGeneratorCancel.sample());
+    super.setNextOrderTime(currCancelTime + poissonGeneratorCancel.sample());
   }
 
   abstract void makeOrder();

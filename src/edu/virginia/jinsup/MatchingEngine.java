@@ -778,6 +778,10 @@ public class MatchingEngine {
    * @return A random order that the agent made that has not been traded yet
    */
   public Order getRandomOrder(long agentID) {
+    // if agent does not have anything to trade
+    if (orderMap.get(agentID).size() < 1) {
+      return null;
+    }
     return orderMap.get(agentID).get(
       random.nextInt(orderMap.get(agentID).size()));
   }
