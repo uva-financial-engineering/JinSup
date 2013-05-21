@@ -160,6 +160,7 @@ public class Controller {
       marketMakerPoisson =
         new MarketMakerPoisson(matchingEngine, 6, 2,
           (long) (Math.random() * startupTime));
+      agentList.add(marketMakerPoisson);
       actQueue.add(marketMakerPoisson);
     }
 
@@ -168,6 +169,7 @@ public class Controller {
       opporStratPoisson =
         new OpporStratPoisson(matchingEngine, 60, 40, 0.50,
           (long) (Math.random() * startupTime));
+      agentList.add(opporStratPoisson);
       actQueue.add(opporStratPoisson);
     }
 
@@ -176,6 +178,7 @@ public class Controller {
       hftPoisson =
         new HFTPoisson(matchingEngine, 0.60, 0.40,
           (long) (Math.random() * startupTime));
+      agentList.add(hftPoisson);
       actQueue.add(hftPoisson);
     }
 
@@ -184,10 +187,18 @@ public class Controller {
       smallTrader =
         new SmallTrader(matchingEngine, 3000, 1000,
           (long) (Math.random() * startupTime));
+      agentList.add(smallTrader);
       actQueue.add(smallTrader);
     }
 
     System.out.println("Done! Simulation has started");
+
+    try {
+      Thread.sleep(5000);
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
 
     // run simulator until endTime is reached.
     long nextActTime = actQueue.peek().getNextActTime();
