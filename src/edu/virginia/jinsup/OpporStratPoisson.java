@@ -16,9 +16,15 @@ public class OpporStratPoisson extends PoissonAgent {
     boolean willBuy = (Math.random() < currBuyProbability);
     // calculate the probability for the next trade
     currBuyProbability =
-      currBuyProbability
-        + (new UniformRealDistribution(0.2 - currBuyProbability,
-          currBuyProbability - 0.8)).sample();
+      currBuyProbability + (new UniformRealDistribution(-0.2, 0.2)).sample();
+
+    // prevent the probability from going over the limit
+    if (currBuyProbability < 0.20) {
+      currBuyProbability = 0.20;
+    }
+    if (currBuyProbability > 0.80) {
+      currBuyProbability = 0.80;
+    }
     createPoissonOrder(willBuy, 0.35, 0.20, 0.05, 0.05, 0.05, 0.05, 0.07, 0.05,
       0.05, 0.06, 0.04);
   }

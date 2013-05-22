@@ -193,13 +193,6 @@ public class Controller {
 
     System.out.println("Done! Simulation has started");
 
-    try {
-      Thread.sleep(5000);
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-
     // run simulator until endTime is reached.
     long nextActTime = actQueue.peek().getNextActTime();
     // TODO Loop moveTime until nextActTime without testing whether nextActTime
