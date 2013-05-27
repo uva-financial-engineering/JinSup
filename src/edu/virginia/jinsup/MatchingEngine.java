@@ -789,7 +789,7 @@ public class MatchingEngine {
   }
 
   public void cancelAllSellOrders(long agentID) {
-    for (Order o : orderMap.get(agentMap)) {
+    for (Order o : orderMap.get(agentID)) {
       if (!o.isBuyOrder()) {
         cancelOrder(o, false);
       }
@@ -797,7 +797,7 @@ public class MatchingEngine {
   }
 
   public void cancelAllBuyOrders(long agentID) {
-    for (Order o : orderMap.get(agentMap)) {
+    for (Order o : orderMap.get(agentID)) {
       if (o.isBuyOrder()) {
         cancelOrder(o, false);
       }
