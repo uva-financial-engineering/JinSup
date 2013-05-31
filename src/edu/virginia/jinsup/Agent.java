@@ -275,6 +275,10 @@ public abstract class Agent implements Comparable<Agent> {
     matchingEngine.cancelAllBuyOrders(id);
   }
 
+  public int getStartupTime() {
+    return matchingEngine.getStartupTime();
+  }
+
   @Override
   public int compareTo(Agent a) {
     // TODO Auto-generated method stub

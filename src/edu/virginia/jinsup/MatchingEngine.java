@@ -109,6 +109,8 @@ public class MatchingEngine {
    */
   private int movingSum;
 
+  private final int startupTime;
+
   private final Random random;
 
   /**
@@ -117,8 +119,10 @@ public class MatchingEngine {
    * 
    * @param buyPrice
    *          The price (CENTS) that orders should be centered around.
+   * @param startupTime
+   *          The startup period in milliseconds.
    */
-  public MatchingEngine(int buyPrice) {
+  public MatchingEngine(int buyPrice, int startupTime) {
     orderMap = new HashMap<Long, ArrayList<Order>>();
     buyOrders = new TreeSet<Order>(Order.highestFirstComparator);
     sellOrders = new TreeSet<Order>(Order.highestFirstComparator);
@@ -129,6 +133,7 @@ public class MatchingEngine {
     lastTradePrice = buyPrice;
     startingPeriod = true;
     movingSum = 0;
+    this.startupTime = startupTime;
     random = new Random();
     this.buyPrice = buyPrice;
 
@@ -788,19 +793,45 @@ public class MatchingEngine {
       random.nextInt(orderMap.get(agentID).size()));
   }
 
+  /**
+   * @param agentID
+   *          Agent that wants to cancel all outstanding sell orders
+   */
   public void cancelAllSellOrders(long agentID) {
-    for (Order o : orderMap.get(agentID)) {
-      if (!o.isBuyOrder()) {
-        cancelOrder(o, false);
+    int currIndex = 0;
+    while (currIndex < orderMap.get(agentID).size()) {
+      // If a removal is needed, then cannot increment the index since it is
+      // possible that the next element (now placed at the current index after
+      // removal of current element) is
+      // also a sell order
+      if (!orderMap.get(agentID).get(currIndex).isBuyOrder()) {
+        cancelOrder(orderMap.get(agentID).get(currIndex), false);
+      } else {
+        currIndex++;
       }
     }
   }
 
+  /**
+   * @param agentID
+   *          Agent that wants to cancel all outstanding buy orders
+   */
   public void cancelAllBuyOrders(long agentID) {
-    for (Order o : orderMap.get(agentID)) {
-      if (o.isBuyOrder()) {
-        cancelOrder(o, false);
+    int currIndex = 0;
+    while (currIndex < orderMap.get(agentID).size()) {
+      // Same logic from cancelAllSellOrders applies
+      if (orderMap.get(agentID).get(currIndex).isBuyOrder()) {
+        cancelOrder(orderMap.get(agentID).get(currIndex), false);
+      } else {
+        currIndex++;
       }
     }
+  }
+
+  /**
+   * @return The startup period in milliseconds.
+   */
+  public int getStartupTime() {
+    return startupTime;
   }
 }

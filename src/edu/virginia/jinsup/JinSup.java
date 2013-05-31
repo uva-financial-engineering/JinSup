@@ -9,9 +9,14 @@ public class JinSup {
   public static void main(String[] args) {
     settings = new Settings();
     new JCommander(settings, args);
+
+    // Price in dollars
     int buyPrice;
+
+    // Time in seconds
     int startTime;
     int endTime;
+
     if (settings.isSet()) {
       Controller.graphFrame = new GraphFrame(true);
       buyPrice = (int) settings.getBuyPrice().doubleValue() * 100;
@@ -23,7 +28,8 @@ public class JinSup {
       startTime = Controller.graphFrame.getStartTime();
       endTime = Controller.graphFrame.getEndTime();
     }
-    MatchingEngine matchingEngine = new MatchingEngine(buyPrice);
+    MatchingEngine matchingEngine =
+      new MatchingEngine(buyPrice, startTime * 1000);
     Controller controller = new Controller(startTime, endTime, matchingEngine);
     System.out.println("Starting simulator...");
     long elapsedTime = System.nanoTime();

@@ -10,7 +10,7 @@ public class HFTPoisson extends PoissonAgent {
   @Override
   void makeOrder() {
     double factor =
-      getBestBuyPrice() / (getBestBuyPrice() + getBestSellPrice());
+      (double) getBestBuyPrice() / (getBestBuyPrice() + getBestSellPrice());
     boolean willBuy = true;
 
     // if shares own 20 cancel all buys and P(buy) = 0%

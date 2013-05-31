@@ -21,7 +21,7 @@ public abstract class PoissonAgent extends Agent {
 
     // no need for poisson determined act times for initial actions
     super.setNextOrderTime(initialActTime);
-    super.setNextCancelTime(initialActTime + 1000);
+    super.setNextCancelTime(getStartupTime() + poissonGeneratorCancel.sample());
   }
 
   public void act() {

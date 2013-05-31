@@ -67,6 +67,11 @@ public class Controller {
   private final PriorityQueue<Agent> actQueue;
 
   /**
+   * State of the simulation to be displayed on the title bar.
+   */
+  private String state = "Starting up period";
+
+  /**
    * Creates a controller with no agents.
    */
   public Controller(long startupTime, long endTime,
@@ -121,11 +126,12 @@ public class Controller {
     matchingEngine.reset();
     time += 1;
     if (time % 500 == 0) {
-      graphFrame.updateTitleBar(time);
+      graphFrame.updateTitleBar(time, state);
     }
     if (time == startupTime) {
       matchingEngine.setStartingPeriod(false);
       System.out.println("Trading Enabled!");
+      state = "Trading Period";
     }
   }
 
@@ -138,7 +144,7 @@ public class Controller {
 
     // Create agents
 
-    System.out.println("Creating agents...");
+    graphFrame.updateTitleBar(0, "Creating agents...");
 
     FundBuyerPoisson fundBuyerPoisson;
     FundSellerPoisson fundSellerPoisson;
@@ -207,5 +213,6 @@ public class Controller {
     matchingEngine.writeToLog();
 
     System.out.println("The simulation has ended.");
+    graphFrame.updateTitleBar(time, "Simulation Finished");
   }
 }

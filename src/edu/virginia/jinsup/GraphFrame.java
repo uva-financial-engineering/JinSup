@@ -310,7 +310,7 @@ public class GraphFrame extends JFrame {
     tradeXAxis.setRange(start / 1000.0, end / 1000.0);
   }
 
-  public void updateTitleBar(long newTime) {
-    this.setTitle("Time: " + String.valueOf(newTime) + " ms");
+  public void updateTitleBar(long newTime, String state) {
+    this.setTitle("Time: " + String.valueOf(newTime) + " ms - " + state);
   }
 }

@@ -38,7 +38,7 @@ public class MatchingEngineTest {
     ordersTime.add(o4);
     ordersTime.add(o3);
 
-    matchingEngine = new MatchingEngine(10000);
+    matchingEngine = new MatchingEngine(10000, 0);
     buyer = new FundBuyer(matchingEngine);
     seller = new FundSeller(matchingEngine);
     buyer.createNewOrder(20, 40, true);
