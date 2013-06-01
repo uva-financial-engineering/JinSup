@@ -108,16 +108,16 @@ public abstract class PoissonAgent extends Agent {
   void createPoissonOrder(boolean isBuying, double... probabilities) {
     // make sure the probabilities add up close to 1.0
     // TODO remove probability sum check after debugging for performance
-    double sum = 0.0;
-    for (double i : probabilities) {
-      sum += i;
-    }
-    if (sum < 0.9999999999) {
-      System.out
-        .println("The probabilities do not add up close enough to 1.0. The sum of probabilities supplied was "
-          + sum);
-      System.exit(1);
-    }
+    // double sum = 0.0;
+    // for (double i : probabilities) {
+    // sum += i;
+    // }
+    // if (sum < 0.9999999999) {
+    // System.out
+    // .println("The probabilities do not add up close enough to 1.0. The sum of probabilities supplied was "
+    // + sum);
+    // System.exit(1);
+    // }
 
     double probability = Math.random();
 

@@ -12,7 +12,7 @@ public class MarketMakerPoisson extends PoissonAgent {
   public void makeOrder() {
     // bestBuyOrder/(bestBuyOrder + bestSellOrder)
     double factor =
-      getBestBuyPrice() / (getBestBuyPrice() + getBestSellPrice());
+      (double) getBestBuyPrice() / (getBestBuyPrice() + getBestSellPrice());
     boolean willBuy = true;
 
     boolean override = false;
