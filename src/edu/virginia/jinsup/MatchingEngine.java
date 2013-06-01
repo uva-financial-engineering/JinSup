@@ -334,8 +334,8 @@ public class MatchingEngine {
       orderMap.get(order2.getCreatorID()).remove(order2);
     } else if (order1.getCurrentQuant() > order2.getCurrentQuant()) {
       // delete orderToTrade, decrease quantity of o
-      volumeTraded = order1.getCurrentQuant() - order2.getCurrentQuant();
-      order1.setQuant(volumeTraded);
+      volumeTraded = order2.getCurrentQuant();
+      order1.setQuant(order1.getCurrentQuant() - order2.getCurrentQuant());
       if (order2.isBuyOrder()) {
         buyOrders.remove(order2);
       } else {
@@ -344,8 +344,8 @@ public class MatchingEngine {
       order2.setQuant(0);
       orderMap.get(order2.getCreatorID()).remove(order2);
     } else {
-      volumeTraded = order2.getCurrentQuant() - order1.getCurrentQuant();
-      order2.setQuant(volumeTraded);
+      volumeTraded = order1.getCurrentQuant();
+      order2.setQuant(order2.getCurrentQuant() - order1.getCurrentQuant());
       if (order1.isBuyOrder()) {
         buyOrders.remove(order1);
       } else {
@@ -706,7 +706,6 @@ public class MatchingEngine {
       + (market ? "Market," : "Limit,") + agOrder.getCurrentQuant() + ","
       + tradePrice * 0.01 + "," + volume + ",Y," + System.currentTimeMillis()
       + "\n");
-
   }
 
   /**
@@ -739,7 +738,6 @@ public class MatchingEngine {
       + passOrder.getOriginalQuant() + "," + passOrder.getPrice() * 0.01
       + ",Limit," + passOrder.getCurrentQuant() + "," + tradePrice * 0.01 + ","
       + volume + ",N," + System.currentTimeMillis() + "\n");
-
   }
 
   /**
