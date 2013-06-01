@@ -8,7 +8,18 @@ public abstract class PoissonAgent extends Agent {
   private final PoissonDistribution poissonGeneratorCancel;
   private static final int TICK_SIZE = 25;
 
-  // lambda specified in seconds
+  /**
+   * Agent that implements a poisson trading distribution.
+   * 
+   * @param matchEng
+   *          Matching engine of simulation.
+   * @param lambdaOrder
+   *          Mean order rate in seconds.
+   * @param lambdaCancel
+   *          Mean cancel rate in seconds.
+   * @param initialActTime
+   *          Length of startup period in milliseconds.
+   */
   public PoissonAgent(MatchingEngine matchEng, double lambdaOrder,
     double lambdaCancel, long initialActTime) {
     super(matchEng);
@@ -74,6 +85,10 @@ public abstract class PoissonAgent extends Agent {
     super.setNextCancelTime(currCancelTime + poissonGeneratorCancel.sample());
   }
 
+  /**
+   * Manages the probabilities of creating orders. Implementations will differ
+   * depending on type of agent.
+   */
   abstract void makeOrder();
 
   /**
@@ -118,7 +133,7 @@ public abstract class PoissonAgent extends Agent {
         // create a limit order; if the agent is buying, then as the tick
         // increases, the lower the buy price
         createNewOrder(getLastTradePrice()
-          - ((isBuying ? -1 : 1) * TICK_SIZE * i), 1, isBuying);
+          - ((isBuying ? 1 : -1) * TICK_SIZE * i), 1, isBuying);
         return;
       }
       cumulativeProb += probabilities[i + 1];

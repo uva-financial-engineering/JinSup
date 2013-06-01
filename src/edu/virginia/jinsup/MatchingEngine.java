@@ -403,7 +403,7 @@ public class MatchingEngine {
     for (Order o : buyOrders) {
       if (topBuyOrders.size() < 10) {
         topBuyOrders.add(o);
-      } else if (o.compare(o, topBuyOrders.last()) < 0) {
+      } else if (Order.highestFirstComparator.compare(o, topBuyOrders.last()) < 0) {
         topBuyOrders.pollLast();
         topBuyOrders.add(o);
       }

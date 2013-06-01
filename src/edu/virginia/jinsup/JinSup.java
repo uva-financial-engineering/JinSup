@@ -17,6 +17,7 @@ public class JinSup {
     int startTime;
     int endTime;
 
+    // Time conversion from seconds to milliseconds
     if (settings.isSet()) {
       Controller.graphFrame = new GraphFrame(true);
       buyPrice = (int) settings.getBuyPrice().doubleValue() * 100;
@@ -28,8 +29,8 @@ public class JinSup {
       startTime = Controller.graphFrame.getStartTime();
       endTime = Controller.graphFrame.getEndTime();
     }
-    MatchingEngine matchingEngine =
-      new MatchingEngine(buyPrice, startTime * 1000);
+
+    MatchingEngine matchingEngine = new MatchingEngine(buyPrice, startTime);
     Controller controller = new Controller(startTime, endTime, matchingEngine);
     System.out.println("Starting simulator...");
     long elapsedTime = System.nanoTime();
