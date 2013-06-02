@@ -150,10 +150,10 @@ public class Controller {
     FundSellerPoisson fundSellerPoisson;
     for (int i = 0; i < FUND_BUYER_SELLER_COUNT; ++i) {
       fundBuyerPoisson =
-        new FundBuyerPoisson(matchingEngine, 80, 60,
+        new FundBuyerPoisson(matchingEngine, 40, 60,
           (long) (Math.random() * startupTime));
       fundSellerPoisson =
-        new FundSellerPoisson(matchingEngine, 80, 60,
+        new FundSellerPoisson(matchingEngine, 40, 60,
           (long) (Math.random() * startupTime));
       agentList.add(fundBuyerPoisson);
       agentList.add(fundSellerPoisson);
@@ -164,7 +164,7 @@ public class Controller {
     MarketMakerPoisson marketMakerPoisson;
     for (int i = 0; i < MARKET_MAKER_COUNT; ++i) {
       marketMakerPoisson =
-        new MarketMakerPoisson(matchingEngine, 6, 2,
+        new MarketMakerPoisson(matchingEngine, 3, 2,
           (long) (Math.random() * startupTime));
       agentList.add(marketMakerPoisson);
       actQueue.add(marketMakerPoisson);
@@ -173,7 +173,7 @@ public class Controller {
     OpporStratPoisson opporStratPoisson;
     for (int i = 0; i < OPPOR_STRAT_COUNT; ++i) {
       opporStratPoisson =
-        new OpporStratPoisson(matchingEngine, 60, 40, 0.50,
+        new OpporStratPoisson(matchingEngine, 30, 40, 0.50,
           (long) (Math.random() * startupTime));
       agentList.add(opporStratPoisson);
       actQueue.add(opporStratPoisson);
@@ -191,7 +191,7 @@ public class Controller {
     SmallTrader smallTrader;
     for (int i = 0; i < SMALL_TRADER_COUNT; ++i) {
       smallTrader =
-        new SmallTrader(matchingEngine, 3000, 1000,
+        new SmallTrader(matchingEngine, 1500, 1000,
           (long) (Math.random() * startupTime));
       agentList.add(smallTrader);
       actQueue.add(smallTrader);
