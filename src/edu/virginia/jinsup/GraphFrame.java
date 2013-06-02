@@ -1,5 +1,6 @@
 package edu.virginia.jinsup;
 
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.io.File;
 import java.util.Calendar;
@@ -29,7 +30,14 @@ import org.jfree.ui.RefineryUtilities;
 public class GraphFrame extends JFrame {
 
   private static final long serialVersionUID = 1L;
-
+  /**
+   * Color of buy bars in order book graph
+   */
+  private static final Color BUY_COLOR = Color.red;
+  /**
+   * Color of sell bars in order book graph
+   */
+  private static final Color SELL_COLOR = Color.blue;
   /**
    * Buy price in cents.
    */
@@ -46,6 +54,8 @@ public class GraphFrame extends JFrame {
    * Destination to write log file.
    */
   private String dest;
+
+  private final BarRenderer orderRenderer;
 
   private long counter = 0;
 
@@ -87,8 +97,7 @@ public class GraphFrame extends JFrame {
     orderXAxis.setCategoryMargin(0);
     orderXAxis.setLowerMargin(0.01);
     orderXAxis.setUpperMargin(0.01);
-    BarRenderer orderRenderer =
-      (BarRenderer) orderChart.getCategoryPlot().getRenderer();
+    orderRenderer = (BarRenderer) orderChart.getCategoryPlot().getRenderer();
     orderRenderer.setBarPainter(new StandardBarPainter());
     orderRenderer.setDrawBarOutline(false);
     ChartPanel orderPanel = new ChartPanel(orderChart);
@@ -251,6 +260,7 @@ public class GraphFrame extends JFrame {
     if (counter % 100 == 0) {
       // Rebuild data set
       orderDataset = new DefaultCategoryDataset();
+      boolean buyOrdersExist = false;
       String zeroPad;
       // TODO Ensure prices increase linearly, i.e. add gaps where buy = sell =
       // 0
@@ -259,6 +269,7 @@ public class GraphFrame extends JFrame {
         if (e.getValue()[0] > 0) {
           orderDataset.addValue(e.getValue()[0], "Buy", e.getKey() / 100.0
             + zeroPad);
+          buyOrdersExist = true;
         }
         if (e.getValue()[1] > 0) {
           orderDataset.addValue(e.getValue()[1], "Sell", e.getKey() / 100.0
@@ -266,6 +277,13 @@ public class GraphFrame extends JFrame {
         }
       }
       ((CategoryPlot) orderChart.getPlot()).setDataset(orderDataset);
+      // Color bar types (accounting for the case where no buy orders exist)
+      if (buyOrdersExist) {
+        orderRenderer.setSeriesPaint(0, BUY_COLOR);
+        orderRenderer.setSeriesPaint(1, SELL_COLOR);
+      } else {
+        orderRenderer.setSeriesPaint(0, SELL_COLOR);
+      }
     }
   }
 
