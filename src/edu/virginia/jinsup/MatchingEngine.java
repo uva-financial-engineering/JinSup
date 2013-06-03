@@ -165,7 +165,11 @@ public class MatchingEngine {
     buyOrders.remove(order);
     sellOrders.remove(order);
     orderMap.get(order.getCreatorID()).remove(order);
-    logOrder(order, 3, market, -order.getCurrentQuant(), 0);
+    if (market) {
+      logOrder(order, 3, market, -1, 0);
+    } else {
+      logOrder(order, 3, market, -order.getCurrentQuant(), 0);
+    }
     order.setQuant(0);
   }
 
@@ -226,11 +230,10 @@ public class MatchingEngine {
   public void tradeMarketOrder(Order order) {
     // have to add the order to the orderMap and all orders, otherwise the
     // trade method will not work.
-    createOrder(order, true);
     if (startingPeriod) {
-      cancelOrder(order, true);
       return;
     }
+    createOrder(order, true);
     // save price for logging at the end.
     int price = 0;
 
@@ -268,7 +271,7 @@ public class MatchingEngine {
 
       if (topBuys.isEmpty()) {
         // nothing was traded. order will be cancelled.
-        logOrder(order, 1, true, 0, price);
+        logOrder(order, 1, true, 1, price);
         cancelOrder(order, true);
         return;
       }
@@ -292,7 +295,7 @@ public class MatchingEngine {
       lastAgVolumeSellSide += totalVolumeTraded;
     }
     // System.out.print("Market ORDER ");
-    logOrder(order, 1, true, 0, price);
+    logOrder(order, 1, true, 1, price);
     lastTradePrice = price;
     logTrade(order, price, totalVolumeTraded);
     logAggressiveTrader(order, true, price, totalVolumeTraded);
@@ -637,6 +640,9 @@ public class MatchingEngine {
           System.exit(1);
           break;
       }
+    } else {
+      Controller.graphFrame.addOrder(order.isBuyOrder(), quantChanged,
+        priceChanged);
     }
 
     if (logBuffer.size() == LOG_BUFFER_SIZE) {
@@ -695,6 +701,7 @@ public class MatchingEngine {
     }
 
     Controller.graphFrame.addOrder(agOrder.isBuyOrder(), -volume, tradePrice);
+
     if (logBuffer.size() == LOG_BUFFER_SIZE) {
       // write the stuff to the file.
       // logging for the passive order
@@ -727,6 +734,7 @@ public class MatchingEngine {
     }
 
     Controller.graphFrame.addOrder(passOrder.isBuyOrder(), -volume, tradePrice);
+
     if (logBuffer.size() == LOG_BUFFER_SIZE) {
       // write the stuff to the file.
       // logging for the passive order

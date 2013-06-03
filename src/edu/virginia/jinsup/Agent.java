@@ -10,6 +10,11 @@ package edu.virginia.jinsup;
 public abstract class Agent implements Comparable<Agent> {
 
   /**
+   * The ID that should be assigned to the next agent created.
+   */
+  private static long nextAgentID = 0;
+
+  /**
    * ID of the agent. Used by the Order class to track agents.
    */
   private final long id;
@@ -50,17 +55,17 @@ public abstract class Agent implements Comparable<Agent> {
   private Action nextAction;
 
   /**
-   * Creates an agent object with the ID as a time stamp in milliseconds. Must
-   * pass in the MatchingEngine that is used for the simulation. Time is set to
-   * a negative value so that the agent is not automatically picked to act. The
-   * agent is also added automatically to the MatchingEngine's agentMap so that
-   * it can keep track of the agent.
+   * Must pass in the MatchingEngine that is used for the simulation. Time is
+   * set to a negative value so that the agent is not automatically picked to
+   * act. The agent is also added automatically to the MatchingEngine's agentMap
+   * so that it can keep track of the agent.
    * 
    * @param matchEng
    *          The MatchingEngine of the simulator.
    */
   public Agent(MatchingEngine matchEng) {
-    this.id = System.currentTimeMillis();
+    this.id = nextAgentID;
+    nextAgentID++;
     this.matchingEngine = matchEng;
     this.inventory = 0;
     this.nextActTime = -1;

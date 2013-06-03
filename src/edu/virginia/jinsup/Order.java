@@ -8,6 +8,11 @@ import java.util.Comparator;
 public class Order implements Comparator<Order> {
 
   /**
+   * The ID that should be assigned to the next order created.
+   */
+  private static long nextOrderID = 0;
+
+  /**
    * The price (CENTS) of the order. Can only be in increments of 0.25.
    */
   private int price;
@@ -37,8 +42,7 @@ public class Order implements Comparator<Order> {
   private final long agentID;
 
   /**
-   * Creates an order based on the parameters specified. The ID of the order is
-   * a timestamp.
+   * Creates an order based on the parameters specified.
    * 
    * @param agentID
    *          ID of the agent that initiated the order.
@@ -51,7 +55,8 @@ public class Order implements Comparator<Order> {
    *          False otherwise.
    */
   public Order(long agentID, int price, int originalQuant, boolean buyOrder) {
-    id = System.currentTimeMillis();
+    id = nextOrderID;
+    nextOrderID++;
     this.agentID = agentID;
     this.buyOrder = buyOrder;
     this.originalQuant = originalQuant;

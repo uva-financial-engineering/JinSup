@@ -1,7 +1,5 @@
 package edu.virginia.jinsup;
 
-import java.util.Random;
-
 public class MarketMakerPoisson extends PoissonAgent {
 
   public MarketMakerPoisson(MatchingEngine matchEng, int lambdaOrder,
