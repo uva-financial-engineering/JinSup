@@ -122,9 +122,11 @@ public class Controller {
    * after each time step.
    */
   public void moveTime() {
-    matchingEngine.storeMovingAverage();
+    // Moving average is not used for poisson trading.
+    // matchingEngine.storeMovingAverage();
     matchingEngine.reset();
-    time += 1;
+    time++;
+    matchingEngine.incrementTime();
     if (time % 500 == 0) {
       graphFrame.updateTitleBar(time, state);
     }

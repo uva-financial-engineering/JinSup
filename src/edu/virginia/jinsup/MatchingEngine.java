@@ -109,7 +109,16 @@ public class MatchingEngine {
    */
   private int movingSum;
 
+  /**
+   * Startup time of the simulation in milliseconds.
+   */
   private final int startupTime;
+
+  /**
+   * Time in milliseconds that an action occurs. This is kept in sync with the
+   * controller's time. Used as a time-stamp for the log.
+   */
+  private long time;
 
   private final Random random;
 
@@ -130,6 +139,7 @@ public class MatchingEngine {
     midpoints = new LinkedList<Integer>();
     lastAgVolumeBuySide = 0;
     lastAgVolumeSellSide = 0;
+    startupTime = 0;
     lastTradePrice = buyPrice;
     startingPeriod = true;
     movingSum = 0;
@@ -144,7 +154,7 @@ public class MatchingEngine {
     try {
       FileWriter writer = new FileWriter(Controller.graphFrame.getDest());
       writer
-        .append("Agent ID, Message, Buy/Sell, Order ID, Original Quantity, Price, Type, Leaves Quantity, Trade Price, Aggressor, Trade Match ID\n");
+        .append("Time, Agent ID, Message, Buy/Sell, Order ID, Original Quantity, Price, Type, Leaves Quantity, Trade Price, Aggressor, Trade Match ID\n");
       writer.flush();
       writer.close();
     } catch (IOException e) {
@@ -649,7 +659,7 @@ public class MatchingEngine {
       // write the stuff to the file.
       writeToLog();
     }
-    logBuffer.add(order.getCreatorID() + "," + messageType + ","
+    logBuffer.add(time + "," + order.getCreatorID() + "," + messageType + ","
       + (order.isBuyOrder() ? "1" : "2") + "," + order.getId() + ","
       + order.getOriginalQuant() + "," + order.getPrice() / 100.0 + ","
       + (market ? "Market" : "Limit") + "," + order.getCurrentQuant() + "\n");
@@ -707,7 +717,7 @@ public class MatchingEngine {
       // logging for the passive order
       writeToLog();
     }
-    logBuffer.add(agOrder.getCreatorID() + ",105,"
+    logBuffer.add(time + "," + agOrder.getCreatorID() + ",105,"
       + (agOrder.isBuyOrder() ? "1" : "2") + "," + agOrder.getId() + ","
       + agOrder.getOriginalQuant() + "," + agOrder.getPrice() * 0.01 + ","
       + (market ? "Market," : "Limit,") + agOrder.getCurrentQuant() + ","
@@ -741,7 +751,7 @@ public class MatchingEngine {
       writeToLog();
 
     }
-    logBuffer.add(passOrder.getCreatorID() + ",105,"
+    logBuffer.add(time + "," + passOrder.getCreatorID() + ",105,"
       + (passOrder.isBuyOrder() ? "1" : "2") + "," + passOrder.getId() + ","
       + passOrder.getOriginalQuant() + "," + passOrder.getPrice() * 0.01
       + ",Limit," + passOrder.getCurrentQuant() + "," + tradePrice * 0.01 + ","
@@ -839,5 +849,12 @@ public class MatchingEngine {
    */
   public int getStartupTime() {
     return startupTime;
+  }
+
+  /**
+   * Increments time; called from controller.
+   */
+  public void incrementTime() {
+    time++;
   }
 }

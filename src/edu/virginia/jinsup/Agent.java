@@ -227,59 +227,111 @@ public abstract class Agent implements Comparable<Agent> {
     return matchingEngine.getLastAgVolumeSellSide();
   }
 
+  /**
+   * @return The next time the agent will issue an order.
+   */
   protected long getNextOrderTime() {
     return nextOrderTime;
   }
 
+  /**
+   * @return The next time the agent will cancel an order.
+   */
   protected long getNextCancelTime() {
     return nextCancelTime;
   }
 
-  // should override these
+  /**
+   * Sets the agent's next order time. Should be overwritten depending on the
+   * behavior of the agent.
+   * 
+   * @param nextOrderTime
+   *          The next time the agent should issue an order.
+   */
   protected void setNextOrderTime(long nextOrderTime) {
     this.nextOrderTime = nextOrderTime;
   }
 
+  /**
+   * Sets the agent's next cancel time. Should be overwritten depending on the
+   * behavior of the agent.
+   * 
+   * @param nextCancelTime
+   *          The next time the agent should cancel an order.
+   */
   protected void setNextCancelTime(long nextCancelTime) {
     this.nextCancelTime = nextCancelTime;
   }
 
+  /**
+   * @return The next action the agent will perform.
+   */
   public Action getNextAction() {
     return nextAction;
   }
 
+  /**
+   * @param nextAction
+   *          The next action the agent will perform.
+   */
   public void setNextAction(Action nextAction) {
     this.nextAction = nextAction;
   }
 
+  /**
+   * @return Returns a random order from the agent's order book.
+   */
   public Order getRandomOrder() {
     return matchingEngine.getRandomOrder(this.id);
   }
 
+  /**
+   * @return The last price that a trade was made at.
+   */
   public int getLastTradePrice() {
     return matchingEngine.getLastTradePrice();
   }
 
+  /**
+   * @return The highest price an agent is willing to buy.
+   */
   public int getBestBuyPrice() {
     return matchingEngine.getBestBid().getPrice();
   }
 
+  /**
+   * @return The lowest price an agent is willing to sell.
+   */
   public int getBestSellPrice() {
     return matchingEngine.getBestAsk().getPrice();
   }
 
+  /**
+   * @return The number of shares an agent has bought/sold.
+   */
   public int getInventory() {
     return inventory;
   }
 
+  /**
+   * Cancels all sell orders in the agent's order book.
+   */
   public void cancelAllSellOrders() {
     matchingEngine.cancelAllSellOrders(id);
   }
 
+  /**
+   * Cancels all buy orders in the agent's order book.
+   */
   public void cancelAllBuyOrders() {
     matchingEngine.cancelAllBuyOrders(id);
   }
 
+  /**
+   * Gets the startup time in milliseconds from the matchingEngine.
+   * 
+   * @return The startup period of the simulation, in milliseconds.
+   */
   public int getStartupTime() {
     return matchingEngine.getStartupTime();
   }
