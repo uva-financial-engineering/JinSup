@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 
+import org.apache.commons.math3.distribution.PoissonDistribution;
+
 /**
  * Keeps track of simulation time and selects eligible agents so that they can
  * act during their alloted time.
@@ -29,6 +31,12 @@ public class Controller {
   private static final int HFT_COUNT = 6;
 
   private static final int SMALL_TRADER_COUNT = 421;
+
+  /**
+   * How often buy probabilities for poisson opportunistic traders should
+   * change, in seconds.
+   */
+  private static final int NEWS_FREQUENCY = 300;
 
   /**
    * List of all agents in the simulator
@@ -71,6 +79,18 @@ public class Controller {
    */
   private String state = "Starting up period";
 
+  // TODO Remove this and related material when done with poisson trading.
+  /**
+   * Poisson distribution used to space out calculation of buy probabilities for
+   * poisson opportunistic traders.
+   */
+  private final PoissonDistribution poissonGeneratorNews;
+
+  /**
+   * The last time the news was updated. Time in milliseconds.
+   */
+  private int lastNewsTime;
+
   /**
    * Creates a controller with no agents.
    */
@@ -84,6 +104,9 @@ public class Controller {
     this.actQueue =
       new PriorityQueue<Agent>(FUND_BUYER_SELLER_COUNT * 2 + MARKET_MAKER_COUNT
         + OPPOR_STRAT_COUNT);
+    poissonGeneratorNews = new PoissonDistribution(NEWS_FREQUENCY * 1000);
+    lastNewsTime = NEWS_FREQUENCY * 1000;
+    ;
   }
 
   /**
@@ -126,6 +149,7 @@ public class Controller {
     // matchingEngine.storeMovingAverage();
     matchingEngine.reset();
     time++;
+    triggerGroupEvent();
     matchingEngine.incrementTime();
     if (time % 500 == 0) {
       graphFrame.updateTitleBar(time, state);
@@ -134,6 +158,17 @@ public class Controller {
       matchingEngine.setStartingPeriod(false);
       System.out.println("Trading Enabled!");
       state = "Trading Period";
+    }
+  }
+
+  /**
+   * Updates a group of agents. Currently only updates the buy probabilities
+   * across all opportunistic traders.
+   */
+  public void triggerGroupEvent() {
+    if (time == lastNewsTime) {
+      OpporStratPoisson.calcNewBuyProbability();
+      lastNewsTime += poissonGeneratorNews.sample();
     }
   }
 

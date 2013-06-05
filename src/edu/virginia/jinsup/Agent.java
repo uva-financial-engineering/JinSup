@@ -338,7 +338,6 @@ public abstract class Agent implements Comparable<Agent> {
 
   @Override
   public int compareTo(Agent a) {
-    // TODO Auto-generated method stub
     return getNextActTime() > a.getNextActTime() ? 1 : getNextActTime() < a
       .getNextActTime() ? -1 : 0;
   }

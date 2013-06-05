@@ -158,8 +158,9 @@ public class MatchingEngine {
       writer.flush();
       writer.close();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
+      System.out.println("Failed to create log file.");
       e.printStackTrace();
+      System.exit(1);
     }
   }
 
@@ -772,8 +773,9 @@ public class MatchingEngine {
       writer.close();
 
     } catch (IOException e) {
-      // TODO Auto-generated catch block
+      System.out.println("Failed to update log.");
       e.printStackTrace();
+      System.exit(1);
     }
 
     logBuffer.clear();
