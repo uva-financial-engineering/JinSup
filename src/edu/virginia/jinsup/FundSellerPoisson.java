@@ -2,6 +2,18 @@ package edu.virginia.jinsup;
 
 public class FundSellerPoisson extends PoissonAgent {
 
+  /**
+   * Agent that only makes sell orders.
+   * 
+   * @param matchEng
+   *          Matching engine of the simulation.
+   * @param lambdaOrder
+   *          The mean order creation frequency.
+   * @param lambdaCancel
+   *          The mean order cancellation frequency.
+   * @param initialActTime
+   *          Startup time of the simulation.
+   */
   public FundSellerPoisson(MatchingEngine matchEng, int lambdaOrder,
     int lambdaCancel, long initialActTime) {
     super(matchEng, lambdaOrder, lambdaCancel, initialActTime);

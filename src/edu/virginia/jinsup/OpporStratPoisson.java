@@ -4,8 +4,26 @@ import org.apache.commons.math3.distribution.UniformRealDistribution;
 
 public class OpporStratPoisson extends PoissonAgent {
 
+  /**
+   * Global buy probability for all poisson opportunistic traders
+   */
   private static double currBuyProbability = 0.0;
 
+  /**
+   * Agent whose behavior depends on a global buy probability (acting as a news
+   * feed).
+   * 
+   * @param matchEng
+   *          Matching engine of the simulation.
+   * @param lambdaOrder
+   *          The mean order creation frequency.
+   * @param lambdaCancel
+   *          The mean order cancellation frequency.
+   * @param initialBuyProbability
+   *          Initial probability of making a buy order.
+   * @param initialActTime
+   *          Startup time of the simulation.
+   */
   public OpporStratPoisson(MatchingEngine matchEng, int lambdaOrder,
     int lambdaCancel, double initialBuyProbability, long initialActTime) {
     super(matchEng, lambdaOrder, lambdaCancel, initialActTime);
@@ -18,6 +36,9 @@ public class OpporStratPoisson extends PoissonAgent {
       0.05, 0.06, 0.04);
   }
 
+  /**
+   * Calculates the new global buy probability.
+   */
   static public void calcNewBuyProbability() {
     currBuyProbability =
       currBuyProbability + (new UniformRealDistribution(-0.2, 0.2)).sample();

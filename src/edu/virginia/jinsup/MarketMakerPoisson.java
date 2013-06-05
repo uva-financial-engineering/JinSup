@@ -2,6 +2,19 @@ package edu.virginia.jinsup;
 
 public class MarketMakerPoisson extends PoissonAgent {
 
+  /**
+   * Agent whose behavior depends on the current best bid/ask ratio and
+   * inventory.
+   * 
+   * @param matchEng
+   *          Matching engine of the simulation.
+   * @param lambdaOrder
+   *          The mean order creation frequency.
+   * @param lambdaCancel
+   *          The mean order cancellation frequency.
+   * @param initialActTime
+   *          Startup time of the simulation.
+   */
   public MarketMakerPoisson(MatchingEngine matchEng, int lambdaOrder,
     int lambdaCancel, long initialActTime) {
     super(matchEng, lambdaOrder, lambdaCancel, initialActTime);

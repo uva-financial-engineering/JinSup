@@ -6,6 +6,18 @@ public class SmallTrader extends PoissonAgent {
 
   private Random rand;
 
+  /**
+   * Simple agent who makes buy orders on a 50/50 chance.
+   * 
+   * @param matchEng
+   *          Matching engine of the simulation.
+   * @param lambdaOrder
+   *          The mean order creation frequency.
+   * @param lambdaCancel
+   *          The mean order cancellation frequency.
+   * @param initialActTime
+   *          Startup time of the simulation.
+   */
   public SmallTrader(MatchingEngine matchEng, int lambdaOrder,
     int lambdaCancel, long initialActTime) {
     super(matchEng, lambdaOrder, lambdaCancel, initialActTime);

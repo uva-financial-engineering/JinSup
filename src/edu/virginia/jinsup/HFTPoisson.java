@@ -2,6 +2,19 @@ package edu.virginia.jinsup;
 
 public class HFTPoisson extends PoissonAgent {
 
+  /**
+   * Agent whose behavior depends on the current best bid/ask ratio and
+   * inventory. Trades more frequently than market makers.
+   * 
+   * @param matchEng
+   *          Matching engine of the simulation.
+   * @param lambdaOrder
+   *          The mean order creation frequency.
+   * @param lambdaCancel
+   *          The mean order cancellation frequency.
+   * @param initialActTime
+   *          Startup time of the simulation.
+   */
   public HFTPoisson(MatchingEngine matchEng, double lambdaOrder,
     double lambdaCancel, long initialActTime) {
     super(matchEng, lambdaOrder, lambdaCancel, initialActTime);

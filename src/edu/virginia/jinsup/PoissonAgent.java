@@ -4,8 +4,19 @@ import org.apache.commons.math3.distribution.PoissonDistribution;
 
 public abstract class PoissonAgent extends Agent {
 
+  /**
+   * Poisson distribution generator for order frequency.
+   */
   private final PoissonDistribution poissonGeneratorOrder;
+
+  /**
+   * Poisson distribution generator for cancellation frequency.
+   */
   private final PoissonDistribution poissonGeneratorCancel;
+
+  /**
+   * Minimum price interval between orders.
+   */
   private static final int TICK_SIZE = 25;
 
   /**
@@ -35,6 +46,11 @@ public abstract class PoissonAgent extends Agent {
     super.setNextCancelTime(getStartupTime() + poissonGeneratorCancel.sample());
   }
 
+  /**
+   * Performs the agent's current action and then gets the next action time.
+   * Chooses the next action to perform depending on whether order or
+   * cancellation comes first in time.
+   */
   public void act() {
     long oldOrderTime = getNextOrderTime();
     switch (getNextAction()) {
@@ -77,10 +93,22 @@ public abstract class PoissonAgent extends Agent {
     setWillAct(false);
   }
 
+  /**
+   * Calculates the next order time via a poisson distribution.
+   * 
+   * @param currOrderTime
+   *          The current order time to add to.
+   */
   protected void setNextOrderTime(long currOrderTime) {
     super.setNextOrderTime(currOrderTime + poissonGeneratorOrder.sample());
   }
 
+  /**
+   * Calculates the next cancel time via a poisson distribution.
+   * 
+   * @param currCancelTime
+   *          The current cancel time to add to.
+   */
   protected void setNextCancelTime(long currCancelTime) {
     super.setNextCancelTime(currCancelTime + poissonGeneratorCancel.sample());
   }
@@ -94,7 +122,7 @@ public abstract class PoissonAgent extends Agent {
   /**
    * Deals with order creation given a list of probabilities. *** The first
    * probability supplied must be the probability of creating a market order
-   * ***.
+   * ***. See wiki for more details.
    * 
    * @param isBuying
    *          True if agent is issuing a buy order; false if issuing a sell

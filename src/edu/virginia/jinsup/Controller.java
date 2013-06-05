@@ -26,10 +26,16 @@ public class Controller {
   /**
    * Number of oppor strat traders
    */
-  private static final int OPPOR_STRAT_COUNT = 385;
+  private static final int OPPOR_STRAT_COUNT = 96;
 
+  /**
+   * Number of HFT traders
+   */
   private static final int HFT_COUNT = 6;
 
+  /**
+   * Number of small traders
+   */
   private static final int SMALL_TRADER_COUNT = 421;
 
   /**
