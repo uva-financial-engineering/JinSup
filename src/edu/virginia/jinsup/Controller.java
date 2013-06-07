@@ -26,7 +26,7 @@ public class Controller {
   /**
    * Number of oppor strat traders
    */
-  private static final int OPPOR_STRAT_COUNT = 96;
+  private static final int OPPOR_STRAT_COUNT = 75;
 
   /**
    * Number of HFT traders
@@ -217,7 +217,7 @@ public class Controller {
     for (int i = 0; i < OPPOR_STRAT_COUNT; ++i) {
       opporStratPoisson =
         new OpporStratPoisson(matchingEngine, 30, 40, 0.50,
-          (long) (Math.random() * startupTime * 1.05));
+          (long) (Math.random() * startupTime + startupTime * 1.05));
       agentList.add(opporStratPoisson);
       actQueue.add(opporStratPoisson);
     }
@@ -226,7 +226,7 @@ public class Controller {
     for (int i = 0; i < HFT_COUNT; ++i) {
       hftPoisson =
         new HFTPoisson(matchingEngine, 0.60, 0.40, (long) (Math.random()
-          * startupTime * 1.05));
+          * startupTime + startupTime * 1.05));
       agentList.add(hftPoisson);
       actQueue.add(hftPoisson);
     }

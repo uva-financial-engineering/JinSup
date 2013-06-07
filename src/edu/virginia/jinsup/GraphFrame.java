@@ -162,7 +162,7 @@ public class GraphFrame extends JFrame {
           if (input == null) {
             System.exit(0);
           }
-          buyPrice = startTime = 1000 * Integer.parseInt(input);
+          startTime = 1000 * Integer.parseInt(input);
           validInput = true;
         } catch (NumberFormatException e) {
           startTimeMsg = startTimeErrorMsg;
