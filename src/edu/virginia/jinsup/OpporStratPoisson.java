@@ -2,6 +2,10 @@ package edu.virginia.jinsup;
 
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 
+/**
+ * Agent whose behavior depends on a global buy probability (acting as a news
+ * feed).
+ */
 public class OpporStratPoisson extends PoissonAgent {
 
   /**
@@ -10,8 +14,7 @@ public class OpporStratPoisson extends PoissonAgent {
   private static double currBuyProbability = 0.0;
 
   /**
-   * Agent whose behavior depends on a global buy probability (acting as a news
-   * feed).
+   * Creates an opportunistic trader.
    * 
    * @param matchEng
    *          Matching engine of the simulation.

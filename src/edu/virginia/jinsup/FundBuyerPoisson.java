@@ -1,9 +1,12 @@
 package edu.virginia.jinsup;
 
+/**
+ * Agent that only makes buy orders.
+ */
 public class FundBuyerPoisson extends PoissonAgent {
 
   /**
-   * Agent that only makes buy orders.
+   * Creates a fundamental buyer.
    * 
    * @param matchEng
    *          Matching engine of the simulation.

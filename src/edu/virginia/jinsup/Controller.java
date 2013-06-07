@@ -217,7 +217,7 @@ public class Controller {
     for (int i = 0; i < OPPOR_STRAT_COUNT; ++i) {
       opporStratPoisson =
         new OpporStratPoisson(matchingEngine, 30, 40, 0.50,
-          (long) (Math.random() * startupTime));
+          (long) (Math.random() * startupTime * 1.05));
       agentList.add(opporStratPoisson);
       actQueue.add(opporStratPoisson);
     }
@@ -225,8 +225,8 @@ public class Controller {
     HFTPoisson hftPoisson;
     for (int i = 0; i < HFT_COUNT; ++i) {
       hftPoisson =
-        new HFTPoisson(matchingEngine, 0.60, 0.40,
-          (long) (Math.random() * startupTime));
+        new HFTPoisson(matchingEngine, 0.60, 0.40, (long) (Math.random()
+          * startupTime * 1.05));
       agentList.add(hftPoisson);
       actQueue.add(hftPoisson);
     }

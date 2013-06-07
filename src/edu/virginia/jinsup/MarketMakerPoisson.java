@@ -1,10 +1,12 @@
 package edu.virginia.jinsup;
 
+/**
+ * Agent whose behavior depends on the current best bid/ask ratio and inventory.
+ */
 public class MarketMakerPoisson extends PoissonAgent {
 
   /**
-   * Agent whose behavior depends on the current best bid/ask ratio and
-   * inventory.
+   * Creates a Market Maker.
    * 
    * @param matchEng
    *          Matching engine of the simulation.

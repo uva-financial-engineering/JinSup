@@ -2,12 +2,15 @@ package edu.virginia.jinsup;
 
 import java.util.Random;
 
+/**
+ * Simple agent who makes buy orders on a 50/50 chance.
+ */
 public class SmallTrader extends PoissonAgent {
 
   private Random rand;
 
   /**
-   * Simple agent who makes buy orders on a 50/50 chance.
+   * Creates a small trader.
    * 
    * @param matchEng
    *          Matching engine of the simulation.

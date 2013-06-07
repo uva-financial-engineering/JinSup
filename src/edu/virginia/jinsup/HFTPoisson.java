@@ -1,10 +1,13 @@
 package edu.virginia.jinsup;
 
+/**
+ * Agent whose behavior depends on the current best bid/ask ratio and inventory.
+ * Trades more frequently than market makers.
+ */
 public class HFTPoisson extends PoissonAgent {
 
   /**
-   * Agent whose behavior depends on the current best bid/ask ratio and
-   * inventory. Trades more frequently than market makers.
+   * Creates a HFTPoisson trader.
    * 
    * @param matchEng
    *          Matching engine of the simulation.

@@ -2,6 +2,9 @@ package edu.virginia.jinsup;
 
 import org.apache.commons.math3.distribution.PoissonDistribution;
 
+/**
+ * Agent that implements a poisson trading distribution.
+ */
 public abstract class PoissonAgent extends Agent {
 
   /**
@@ -20,7 +23,7 @@ public abstract class PoissonAgent extends Agent {
   private static final int TICK_SIZE = 25;
 
   /**
-   * Agent that implements a poisson trading distribution.
+   * Constructs a poisson trader (can only be called from a subclass).
    * 
    * @param matchEng
    *          Matching engine of simulation.
