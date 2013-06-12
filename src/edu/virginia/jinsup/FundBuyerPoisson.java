@@ -23,7 +23,8 @@ public class FundBuyerPoisson extends PoissonAgent {
   }
 
   public void makeOrder() {
-    createPoissonOrder(true, 0.14, 0.27, 0.11, 0.09, 0.07, 0.07, 0.07, 0.05,
-      0.05, 0.05, 0.03);
+    createPoissonOrder(true,
+      getOrderSize(0.55, 0.10, 0.05, 0.05, 0.15, 0.05, 0.05), 0.14, 0.27, 0.11,
+      0.09, 0.07, 0.07, 0.07, 0.05, 0.05, 0.05, 0.03);
   }
 }

@@ -35,8 +35,9 @@ public class OpporStratPoisson extends PoissonAgent {
 
   public void makeOrder() {
     boolean willBuy = (Math.random() < currBuyProbability);
-    createPoissonOrder(willBuy, 0.35, 0.20, 0.05, 0.05, 0.05, 0.05, 0.07, 0.05,
-      0.05, 0.06, 0.04);
+    createPoissonOrder(willBuy,
+      getOrderSize(0.66, 0.16, 0.05, 0.04, 0.03, 0.03, 0.03), 0.35, 0.20, 0.05,
+      0.05, 0.05, 0.05, 0.07, 0.05, 0.05, 0.06, 0.04);
   }
 
   /**

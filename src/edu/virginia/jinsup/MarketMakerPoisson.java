@@ -65,7 +65,7 @@ public class MarketMakerPoisson extends PoissonAgent {
         willBuy = (Math.random() < 0.9);
       }
     }
-    createPoissonOrder(willBuy, 0.30, 0.18, 0.12, 0.07, 0.06, 0.05, 0.04, 0.04,
-      0.04, 0.03, 0.07);
+    createPoissonOrder(willBuy, getOrderSize(0.76, 0.06, 0.06, 0.05, 0.07),
+      0.30, 0.18, 0.12, 0.07, 0.06, 0.05, 0.04, 0.04, 0.04, 0.03, 0.07);
   }
 }

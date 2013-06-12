@@ -69,6 +69,9 @@ public class HFTPoisson extends PoissonAgent {
         willBuy = (Math.random() < 0.9);
       }
     }
-    createPoissonOrder(willBuy, 0.02, 0.15, 0.20, 0.15, 0.15, 0.15, 0.13, 0.05);
+
+    // TODO Fix specs regarding order size probabilities for HFTs
+    createPoissonOrder(willBuy, 1, 0.02, 0.15, 0.20, 0.15, 0.15, 0.15, 0.13,
+      0.05);
   }
 }

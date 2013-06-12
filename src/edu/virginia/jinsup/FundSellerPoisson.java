@@ -24,7 +24,8 @@ public class FundSellerPoisson extends PoissonAgent {
 
   // probabilities are the same as in the fundamental buyer's method...for now
   public void makeOrder() {
-    createPoissonOrder(false, 0.14, 0.27, 0.11, 0.09, 0.07, 0.07, 0.07, 0.05,
-      0.05, 0.05, 0.03);
+    createPoissonOrder(false,
+      getOrderSize(0.55, 0.10, 0.05, 0.05, 0.15, 0.05, 0.05), 0.14, 0.27, 0.11,
+      0.09, 0.07, 0.07, 0.07, 0.05, 0.05, 0.05, 0.03);
   }
 }

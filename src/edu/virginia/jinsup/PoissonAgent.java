@@ -130,13 +130,16 @@ public abstract class PoissonAgent extends Agent {
    * @param isBuying
    *          True if agent is issuing a buy order; false if issuing a sell
    *          order.
+   * @param quantity
+   *          Number of shares to issue order for.
    * @param probabilities
    *          Probabilities of creating an order for a certain tick from the
    *          last trade price. The probabilities must be listed in ascending
    *          order with respect to the number of ticks of the last trade price,
    *          e.g. P[1 tick], P[2 tick], etc.
    */
-  void createPoissonOrder(boolean isBuying, double... probabilities) {
+  void createPoissonOrder(boolean isBuying, int quantity,
+    double... probabilities) {
     // make sure the probabilities add up close to 1.0
     // TODO remove probability sum check after debugging for performance
     // double sum = 0.0;
@@ -164,10 +167,35 @@ public abstract class PoissonAgent extends Agent {
         // create a limit order; if the agent is buying, then as the tick
         // increases, the lower the buy price
         createNewOrder(getLastTradePrice()
-          - ((isBuying ? 1 : -1) * TICK_SIZE * i), 1, isBuying);
+          - ((isBuying ? 1 : -1) * TICK_SIZE * i), quantity, isBuying);
         return;
       }
       cumulativeProb += probabilities[i + 1];
     }
+  }
+
+  /**
+   * Calculates the probability of issuing an order for a certain quantity. See
+   * PT Extension page for more details.
+   * 
+   * @param probabilities
+   *          Probabilities of creating an order of a certain quantity. The
+   *          probabilities must be listed in ascending order with respect to
+   *          the order quantity, e.g. P[Q=1], P[Q=2], etc.
+   * @return The quantity to issue an order for.
+   */
+  int getOrderSize(double... probabilities) {
+    double probability = Math.random();
+    double cumulativeProb = 0;
+    int i = 0;
+    do {
+      cumulativeProb += probabilities[i];
+      if (probability < cumulativeProb) {
+        return i + 1;
+      }
+      ++i;
+    } while (i < probabilities.length);
+    System.out.println("Order size probabilites do not add up to 1.0");
+    return 0;
   }
 }
