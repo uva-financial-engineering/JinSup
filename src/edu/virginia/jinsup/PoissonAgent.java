@@ -1,11 +1,19 @@
 package edu.virginia.jinsup;
 
+import java.util.HashMap;
+
 import org.apache.commons.math3.distribution.PoissonDistribution;
 
 /**
  * Agent that implements a poisson trading distribution.
  */
 public abstract class PoissonAgent extends Agent {
+
+  /**
+   * Stores previously created PoissonDistributions
+   */
+  private static HashMap<Double, PoissonDistribution> distCache =
+    new HashMap<Double, PoissonDistribution>();
 
   /**
    * Poisson distribution generator for order frequency.
@@ -37,8 +45,20 @@ public abstract class PoissonAgent extends Agent {
   public PoissonAgent(MatchingEngine matchEng, double lambdaOrder,
     double lambdaCancel, long initialActTime) {
     super(matchEng);
-    poissonGeneratorOrder = new PoissonDistribution(lambdaOrder * 1000);
-    poissonGeneratorCancel = new PoissonDistribution(lambdaCancel * 1000);
+
+    if (distCache.containsKey(lambdaOrder)) {
+      poissonGeneratorOrder = distCache.get(lambdaOrder);
+    } else {
+      poissonGeneratorOrder = new PoissonDistribution(lambdaOrder * 1000);
+      distCache.put(lambdaOrder, poissonGeneratorOrder);
+    }
+
+    if (distCache.containsKey(lambdaCancel)) {
+      poissonGeneratorCancel = distCache.get(lambdaCancel);
+    } else {
+      poissonGeneratorCancel = new PoissonDistribution(lambdaCancel * 1000);
+      distCache.put(lambdaCancel, poissonGeneratorCancel);
+    }
 
     // set agents to create an order before canceling one
     setNextAction(Action.ORDER);
@@ -54,6 +74,7 @@ public abstract class PoissonAgent extends Agent {
    * Chooses the next action to perform depending on whether order or
    * cancellation comes first in time.
    */
+  @Override
   public void act() {
     long oldOrderTime = getNextOrderTime();
     switch (getNextAction()) {
@@ -102,6 +123,7 @@ public abstract class PoissonAgent extends Agent {
    * @param currOrderTime
    *          The current order time to add to.
    */
+  @Override
   protected void setNextOrderTime(long currOrderTime) {
     super.setNextOrderTime(currOrderTime + poissonGeneratorOrder.sample());
   }
@@ -112,6 +134,7 @@ public abstract class PoissonAgent extends Agent {
    * @param currCancelTime
    *          The current cancel time to add to.
    */
+  @Override
   protected void setNextCancelTime(long currCancelTime) {
     super.setNextCancelTime(currCancelTime + poissonGeneratorCancel.sample());
   }
