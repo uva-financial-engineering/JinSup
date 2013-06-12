@@ -7,6 +7,17 @@ package edu.virginia.jinsup;
 public class HFTPoisson extends PoissonAgent {
 
   /**
+   * Limits the number of shares owned by the agent.
+   */
+  private static final int INVENTORY_LIMIT = 10;
+
+  /**
+   * Whether or not agent owns more shares than INVENTORY_LIMIT or has a deficit
+   * of more than -INVENTORY_LIMIT.
+   */
+  private boolean overLimit;
+
+  /**
    * Creates a HFTPoisson trader.
    * 
    * @param matchEng
@@ -21,6 +32,7 @@ public class HFTPoisson extends PoissonAgent {
   public HFTPoisson(MatchingEngine matchEng, double lambdaOrder,
     double lambdaCancel, long initialActTime) {
     super(matchEng, lambdaOrder, lambdaCancel, initialActTime);
+    overLimit = false;
   }
 
   @Override
@@ -30,18 +42,23 @@ public class HFTPoisson extends PoissonAgent {
     boolean willBuy = true;
 
     // Whether or not to skip factor checking
-    boolean override = false;
+    boolean override = true;
 
-    if (getInventory() > 19) {
-      // if shares own 20 cancel all buys and P(buy) = 0%
-      cancelAllBuyOrders();
+    if (getInventory() > INVENTORY_LIMIT) {
+      overLimit = true;
       willBuy = false;
-      override = true;
-    } else if (getInventory() < -19) {
-      // if shares own -20 cancel all sell and P(buy) = 100%
-      cancelAllSellOrders();
+      cancelAllBuyOrders();
+    } else if (getInventory() < -INVENTORY_LIMIT) {
+      overLimit = true;
       willBuy = true;
-      override = true;
+      cancelAllSellOrders();
+    } else if (getInventory() > INVENTORY_LIMIT / 2 && overLimit) {
+      willBuy = false;
+    } else if (getInventory() < -INVENTORY_LIMIT / 2 && overLimit) {
+      willBuy = true;
+    } else if (getInventory() < Math.abs(INVENTORY_LIMIT) / 2) {
+      overLimit = false;
+      override = false;
     }
 
     // determine buy probability from the trend

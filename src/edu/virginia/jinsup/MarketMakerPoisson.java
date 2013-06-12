@@ -6,6 +6,17 @@ package edu.virginia.jinsup;
 public class MarketMakerPoisson extends PoissonAgent {
 
   /**
+   * Limits the number of shares owned by the agent.
+   */
+  private static final int INVENTORY_LIMIT = 5;
+
+  /**
+   * Whether or not agent owns more shares than INVENTORY_LIMIT or has a deficit
+   * of more than -INVENTORY_LIMIT.
+   */
+  private boolean overLimit;
+
+  /**
    * Creates a Market Maker.
    * 
    * @param matchEng
@@ -20,6 +31,7 @@ public class MarketMakerPoisson extends PoissonAgent {
   public MarketMakerPoisson(MatchingEngine matchEng, int lambdaOrder,
     int lambdaCancel, long initialActTime) {
     super(matchEng, lambdaOrder, lambdaCancel, initialActTime);
+    overLimit = false;
   }
 
   @Override
@@ -29,19 +41,26 @@ public class MarketMakerPoisson extends PoissonAgent {
       (double) getBestBuyPrice() / (getBestBuyPrice() + getBestSellPrice());
     boolean willBuy = true;
 
-    boolean override = false;
-    if (getInventory() > 9) {
-      // if Shares own 10 cancel all buys and P(buy) = 0%
-      cancelAllBuyOrders();
+    // Whether or not to skip factor checking
+    boolean override = true;
+
+    if (getInventory() > INVENTORY_LIMIT) {
+      overLimit = true;
       willBuy = false;
-      override = true;
-    } else if (getInventory() < -9) {
-      // if shares own -10 cancel all sell and P(buy) = 100%
-      // cancel all sell orders
-      cancelAllSellOrders();
+      cancelAllBuyOrders();
+    } else if (getInventory() < -INVENTORY_LIMIT) {
+      overLimit = true;
       willBuy = true;
-      override = true;
+      cancelAllSellOrders();
+    } else if (getInventory() > INVENTORY_LIMIT / 2 && overLimit) {
+      willBuy = false;
+    } else if (getInventory() < -INVENTORY_LIMIT / 2 && overLimit) {
+      willBuy = true;
+    } else if (getInventory() < Math.abs(INVENTORY_LIMIT) / 2) {
+      overLimit = false;
+      override = false;
     }
+
     if (!override && factor < 0.9) {
       willBuy = 10 * Math.random() < ((int) (factor * 10 + 1));
     }
