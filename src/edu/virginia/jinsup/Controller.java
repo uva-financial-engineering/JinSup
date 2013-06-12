@@ -243,12 +243,8 @@ public class Controller {
     System.out.println("Done! Simulation has started");
 
     // run simulator until endTime is reached.
-    long nextActTime = actQueue.peek().getNextActTime();
-    // TODO Loop moveTime until nextActTime without testing whether nextActTime
-    // == time
     while (time < endTime) {
       selectActingAgent();
-      // activateAgent(actQueue.poll());
       moveTime();
     }
 
