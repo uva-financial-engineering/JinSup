@@ -37,8 +37,10 @@ public class HFTPoisson extends PoissonAgent {
 
   @Override
   void makeOrder() {
-    double factor =
-      (double) getBestBuyPrice() / (getBestBuyPrice() + getBestSellPrice());
+
+    // Fetch qBuy once only
+    double qBuy = getBestBidQuantity();
+    double factor = qBuy / (qBuy + getBestAskQuantity());
     boolean willBuy = true;
 
     // Whether or not to skip factor checking
@@ -66,8 +68,8 @@ public class HFTPoisson extends PoissonAgent {
       willBuy = 10 * Math.random() < ((int) (factor * 10 + 1));
     }
 
-    // TODO Fix specs regarding order size probabilities for HFTs
-    createPoissonOrder(willBuy, 1, 0.02, 0.15, 0.20, 0.15, 0.15, 0.15, 0.13,
-      0.05);
+    createPoissonOrder(willBuy,
+      getOrderSize(0.57, 0.19, 0.04, 0.05, 0.05, 0.05, 0.05), 0.02, 0.15, 0.20,
+      0.15, 0.15, 0.15, 0.13, 0.05);
   }
 }

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.TreeSet;
@@ -441,6 +442,42 @@ public class MatchingEngine {
       }
     }
     return topSellOrders;
+  }
+
+  /**
+   * @return The sum of quantities of all orders at the best bid price.
+   */
+  public int getBestBidQuantity() {
+    int bestBidPrice = getBestBid().getPrice();
+    // Move through buyOrders in ascending order until price changes
+    Iterator<Order> itr = buyOrders.iterator();
+    int quantity = 0;
+    while (itr.hasNext()) {
+      Order currOrder = itr.next();
+      if (currOrder.getPrice() != bestBidPrice) {
+        break;
+      }
+      quantity += currOrder.getCurrentQuant();
+    }
+    return quantity;
+  }
+
+  /**
+   * @return The sum of quantities of all orders at the best ask price.
+   */
+  public int getBestAskQuantity() {
+    int bestAskPrice = getBestAsk().getPrice();
+    // Move through sellOrders in reverse order until the price changes
+    Iterator<Order> reverseItr = sellOrders.descendingIterator();
+    int quantity = 0;
+    while (reverseItr.hasNext()) {
+      Order currOrder = reverseItr.next();
+      if (currOrder.getPrice() != bestAskPrice) {
+        break;
+      }
+      quantity += currOrder.getCurrentQuant();
+    }
+    return quantity;
   }
 
   /**

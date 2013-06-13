@@ -336,6 +336,20 @@ public abstract class Agent implements Comparable<Agent> {
     return matchingEngine.getStartupTime();
   }
 
+  /**
+   * @return The sum of quantities of all orders at the best bid price.
+   */
+  public int getBestBidQuantity() {
+    return matchingEngine.getBestBidQuantity();
+  }
+
+  /**
+   * @return The sum of quantities of all orders at the best ask price.
+   */
+  public int getBestAskQuantity() {
+    return matchingEngine.getBestAskQuantity();
+  }
+
   @Override
   public int compareTo(Agent a) {
     return getNextActTime() > a.getNextActTime() ? 1 : getNextActTime() < a

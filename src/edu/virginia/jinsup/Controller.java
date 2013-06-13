@@ -112,7 +112,6 @@ public class Controller {
         + OPPOR_STRAT_COUNT);
     poissonGeneratorNews = new PoissonDistribution(NEWS_FREQUENCY * 1000);
     lastNewsTime = NEWS_FREQUENCY * 1000;
-    ;
   }
 
   /**

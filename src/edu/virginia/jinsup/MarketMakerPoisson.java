@@ -37,8 +37,8 @@ public class MarketMakerPoisson extends PoissonAgent {
   @Override
   public void makeOrder() {
     // bestBuyOrder/(bestBuyOrder + bestSellOrder)
-    double factor =
-      (double) getBestBuyPrice() / (getBestBuyPrice() + getBestSellPrice());
+    double bestBuyPrice = getBestBuyPrice();
+    double factor = bestBuyPrice / (bestBuyPrice + getBestSellPrice());
     boolean willBuy = true;
 
     // Whether or not to skip factor checking
