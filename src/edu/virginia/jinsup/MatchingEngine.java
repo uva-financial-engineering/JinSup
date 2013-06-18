@@ -307,8 +307,10 @@ public class MatchingEngine {
       lastAgVolumeSellSide += totalVolumeTraded;
     }
     // System.out.print("Market ORDER ");
-    logOrder(order, 1, true, 1, price);
+    // Log market order creation
+    logOrder(order, 1, true, totalVolumeTraded, price);
     lastTradePrice = price;
+    // Log market order trade
     logTrade(order, price, totalVolumeTraded);
     logAggressiveTrader(order, true, price, totalVolumeTraded);
 

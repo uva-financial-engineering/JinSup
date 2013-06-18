@@ -166,7 +166,7 @@ public class Order implements Comparator<Order> {
         if (o1.price != o2.price) {
           return o2.price - o1.price;
         }
-        return (int) (o2.id - o1.id);
+        return (int) (o1.id - o2.id);
       }
     };
 
@@ -190,7 +190,7 @@ public class Order implements Comparator<Order> {
         if (o1.price != o2.price) {
           return o1.price - o2.price;
         }
-        return (int) (o2.id - o1.id);
+        return (int) (o1.id - o2.id);
       }
     };
 

@@ -180,7 +180,7 @@ public abstract class PoissonAgent extends Agent {
 
     if (probability < probabilities[0]) {
       // create a market order
-      createMarketOrder(1, isBuying);
+      createMarketOrder(quantity, isBuying);
       return;
     }
 
