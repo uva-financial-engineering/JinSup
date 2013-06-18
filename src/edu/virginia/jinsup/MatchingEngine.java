@@ -849,6 +849,37 @@ public class MatchingEngine {
   }
 
   /**
+   * Returns the oldest order in an agent's orderbook.
+   * 
+   * @param agentID
+   *          The agent that needs the oldest order.
+   * @return The oldest order in the agent's orderbook.
+   */
+  public Order getOldestOrder(long agentID) {
+    ArrayList<Order> orders = orderMap.get(agentID);
+    Order oldestOrder = null;
+    long oldest = time;
+    for (Order order : orders) {
+      if (order.getId() < oldest) {
+        oldestOrder = order;
+        oldest = order.getId();
+      }
+    }
+    return oldestOrder;
+  }
+
+  /**
+   * Check if an agent has orders.
+   * 
+   * @param agentID
+   *          The agent to check.
+   * @return True if agent has orders; false otherwise
+   */
+  public boolean agentHasOrders(long agentID) {
+    return !(orderMap.get(agentID) == null || orderMap.get(agentID).size() == 0);
+  }
+
+  /**
    * @param agentID
    *          Agent that wants to cancel all outstanding sell orders
    */

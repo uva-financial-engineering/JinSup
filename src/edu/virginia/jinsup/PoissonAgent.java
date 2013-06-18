@@ -79,9 +79,9 @@ public abstract class PoissonAgent extends Agent {
     long oldOrderTime = getNextOrderTime();
     switch (getNextAction()) {
       case CANCEL:
-        // cancel a random order, if there are any available
-        if (getRandomOrder() != null) {
-          cancelOrder(getRandomOrder());
+        // cancel the oldest order, if there are any available
+        if (agentHasOrders()) {
+          cancelOrder(getOldestOrder());
         }
         setNextCancelTime(getNextCancelTime());
         break;

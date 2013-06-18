@@ -350,6 +350,20 @@ public abstract class Agent implements Comparable<Agent> {
     return matchingEngine.getBestAskQuantity();
   }
 
+  /**
+   * @return The agent's oldest order.
+   */
+  public Order getOldestOrder() {
+    return matchingEngine.getOldestOrder(id);
+  }
+
+  /**
+   * @return True if the agent has orders; false otherwise.
+   */
+  public boolean agentHasOrders() {
+    return matchingEngine.agentHasOrders(id);
+  }
+
   @Override
   public int compareTo(Agent a) {
     return getNextActTime() > a.getNextActTime() ? 1 : getNextActTime() < a
