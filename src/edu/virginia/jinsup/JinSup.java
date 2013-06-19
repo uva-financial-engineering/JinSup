@@ -30,7 +30,8 @@ public class JinSup {
       endTime = Controller.graphFrame.getEndTime();
     }
 
-    MatchingEngine matchingEngine = new MatchingEngine(buyPrice, startTime);
+    MatchingEngine matchingEngine =
+      new MatchingEngine(buyPrice, startTime, false);
     Controller controller = new Controller(startTime, endTime, matchingEngine);
     System.out.println("Starting simulator...");
     long elapsedTime = System.nanoTime();

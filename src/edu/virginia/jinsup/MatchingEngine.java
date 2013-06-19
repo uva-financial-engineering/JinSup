@@ -124,6 +124,11 @@ public class MatchingEngine {
   private final Random random;
 
   /**
+   * If true, then no logging is done.
+   */
+  private boolean testing;
+
+  /**
    * Creates a matching engine with empty fields. Everything is initialized to
    * zero. Also initializes the log file.
    * 
@@ -131,8 +136,10 @@ public class MatchingEngine {
    *          The price (CENTS) that orders should be centered around.
    * @param startupTime
    *          The startup period in milliseconds.
+   * @param testing
+   *          If true, no logging will be done.
    */
-  public MatchingEngine(int buyPrice, int startupTime) {
+  public MatchingEngine(int buyPrice, int startupTime, boolean testing) {
     orderMap = new HashMap<Long, ArrayList<Order>>();
     buyOrders = new TreeSet<Order>(Order.highestFirstComparator);
     sellOrders = new TreeSet<Order>(Order.highestFirstComparator);
@@ -147,21 +154,24 @@ public class MatchingEngine {
     this.startupTime = startupTime;
     random = new Random();
     this.buyPrice = buyPrice;
+    this.testing = testing;
 
     // 2^19 lines before writing to file
     logBuffer = new ArrayList<String>(LOG_BUFFER_SIZE);
+    if (!testing) {
 
-    // create the CSV file
-    try {
-      FileWriter writer = new FileWriter(Controller.graphFrame.getDest());
-      writer
-        .append("Time, Agent ID, Message, Buy/Sell, Order ID, Original Quantity, Price, Type, Leaves Quantity, Trade Price, Aggressor, Trade Match ID\n");
-      writer.flush();
-      writer.close();
-    } catch (IOException e) {
-      System.out.println("Failed to create log file.");
-      e.printStackTrace();
-      System.exit(1);
+      // create the CSV file
+      try {
+        FileWriter writer = new FileWriter(Controller.graphFrame.getDest());
+        writer
+          .append("Time, Agent ID, Message, Buy/Sell, Order ID, Original Quantity, Price, Type, Leaves Quantity, Trade Price, Aggressor, Trade Match ID\n");
+        writer.flush();
+        writer.close();
+      } catch (IOException e) {
+        System.out.println("Failed to create log file.");
+        e.printStackTrace();
+        System.exit(1);
+      }
     }
   }
 
@@ -182,7 +192,6 @@ public class MatchingEngine {
     } else {
       logOrder(order, 3, market, -order.getCurrentQuant(), 0);
     }
-    order.setQuant(0);
   }
 
   /**
@@ -229,6 +238,7 @@ public class MatchingEngine {
       logOrder(order, 1, false, 0, 0);
       return trade(order, willTrade(order));
     }
+
     return false;
   }
 
@@ -256,13 +266,14 @@ public class MatchingEngine {
       TreeSet<Order> topSells = topSellOrders();
       if (topSells.isEmpty()) {
         // nothing was traded. order will be cancelled.
+        System.out.println("Warning: Sell orders depleted.");
         logOrder(order, 1, true, 0, price);
         cancelOrder(order, true);
         return;
       }
       while (!topSells.isEmpty()) {
         price = topSells.first().getPrice();
-        int currentVolumeTraded = trade(order, topSells.first());
+        int currentVolumeTraded = trade(order, topSells.first(), true);
         totalVolumeTraded += currentVolumeTraded;
 
         // notify the non aggressor.
@@ -283,13 +294,14 @@ public class MatchingEngine {
 
       if (topBuys.isEmpty()) {
         // nothing was traded. order will be cancelled.
+        System.out.println("Warning: Buy orders depleted.");
         logOrder(order, 1, true, 1, price);
         cancelOrder(order, true);
         return;
       }
       while (!topBuys.isEmpty()) {
         price = topBuys.first().getPrice();
-        int currentVolumeTraded = trade(order, topBuys.first());
+        int currentVolumeTraded = trade(order, topBuys.first(), true);
         totalVolumeTraded += currentVolumeTraded;
 
         // notify the non aggressor.
@@ -311,9 +323,8 @@ public class MatchingEngine {
     logOrder(order, 1, true, totalVolumeTraded, price);
     lastTradePrice = price;
     // Log market order trade
-    logTrade(order, price, totalVolumeTraded);
+    logTrade(price);
     logAggressiveTrader(order, true, price, totalVolumeTraded);
-
   }
 
   /**
@@ -321,61 +332,55 @@ public class MatchingEngine {
    * trade(Order, ArrayList) method. Takes care of filling the correct
    * quantities during a trade.
    * 
-   * @param order1
+   * @param agOrder
    *          Order of the aggressive agent.
-   * @param order2
+   * @param passOrder
    *          Order of the passive agent.
    * @return The volume that was traded between the two orders.
    */
-  private int trade(Order order1, Order order2) {
+  private int trade(Order agOrder, Order passOrder, boolean market) {
     // save price for logging at the end.
-    int price = order2.getPrice();
+    int price = passOrder.getPrice();
     lastTradePrice = price;
 
     int volumeTraded;
-    if (order1.getCurrentQuant() == order2.getCurrentQuant()) {
-      volumeTraded = order1.getCurrentQuant();
-      if (order1.isBuyOrder()) {
-        buyOrders.remove(order1);
+    if (agOrder.getCurrentQuant() == passOrder.getCurrentQuant()) {
+      volumeTraded = agOrder.getCurrentQuant();
+      if (agOrder.isBuyOrder()) {
+        buyOrders.remove(agOrder);
       } else {
-        sellOrders.remove(order1);
+        sellOrders.remove(agOrder);
       }
-      if (order2.isBuyOrder()) {
-        buyOrders.remove(order2);
+      if (passOrder.isBuyOrder()) {
+        buyOrders.remove(passOrder);
       } else {
-        sellOrders.remove(order2);
+        sellOrders.remove(passOrder);
       }
-      order1.setQuant(0);
-      order2.setQuant(0);
-      orderMap.get(order1.getCreatorID()).remove(order1);
-      orderMap.get(order2.getCreatorID()).remove(order2);
-    } else if (order1.getCurrentQuant() > order2.getCurrentQuant()) {
-      // delete orderToTrade, decrease quantity of o
-      volumeTraded = order2.getCurrentQuant();
-      order1.setQuant(order1.getCurrentQuant() - order2.getCurrentQuant());
-      if (order2.isBuyOrder()) {
-        buyOrders.remove(order2);
+      orderMap.get(agOrder.getCreatorID()).remove(agOrder);
+      orderMap.get(passOrder.getCreatorID()).remove(passOrder);
+    } else if (agOrder.getCurrentQuant() > passOrder.getCurrentQuant()) {
+      volumeTraded = passOrder.getCurrentQuant();
+      agOrder.setQuant(agOrder.getCurrentQuant() - passOrder.getCurrentQuant());
+      if (passOrder.isBuyOrder()) {
+        buyOrders.remove(passOrder);
       } else {
-        sellOrders.remove(order2);
+        sellOrders.remove(passOrder);
       }
-      order2.setQuant(0);
-      orderMap.get(order2.getCreatorID()).remove(order2);
+      orderMap.get(passOrder.getCreatorID()).remove(passOrder);
     } else {
-      volumeTraded = order1.getCurrentQuant();
-      order2.setQuant(order2.getCurrentQuant() - order1.getCurrentQuant());
-      if (order1.isBuyOrder()) {
-        buyOrders.remove(order1);
+      volumeTraded = agOrder.getCurrentQuant();
+      passOrder.setQuant(passOrder.getCurrentQuant()
+        - agOrder.getCurrentQuant());
+      if (agOrder.isBuyOrder()) {
+        buyOrders.remove(agOrder);
       } else {
-        sellOrders.remove(order1);
+        sellOrders.remove(agOrder);
       }
-      order1.setQuant(0);
-      orderMap.get(order1.getCreatorID()).remove(order1);
+      orderMap.get(agOrder.getCreatorID()).remove(agOrder);
     }
 
-    // NO LOGGING HERE! LOGGING IS DONE IN THE OTHER TWO TRADE METHODS!
-    // except for logging extras....
-
-    logExtraTrades(order2, price, volumeTraded);
+    logAggressiveTrader(agOrder, market, price, volumeTraded);
+    logExtraTrades(passOrder, price, volumeTraded);
 
     return volumeTraded;
   }
@@ -488,22 +493,20 @@ public class MatchingEngine {
    * @param order
    *          The order to check for a trade
    * @return Orders that have the same price, if a trade can be made. Otherwise,
-   *         null.
+   *         null. Returns only enough orders to satisfy a trade. The list is
+   *         sorted in descending order of priority.
    */
   public ArrayList<Order> willTrade(Order order) {
     ArrayList<Order> samePrice = new ArrayList<Order>();
-    if (order.isBuyOrder()) {
-      // check for sell orders at the same sell price
-      // must be sure to pick orders that were placed first.
-      for (Order o : sellOrders) {
-        if (o.getPrice() == order.getPrice()) {
-          samePrice.add(o);
-        }
-      }
-    } else {
-      for (Order o : buyOrders) {
-        if (o.getPrice() == order.getPrice()) {
-          samePrice.add(o);
+    int quantToRid = order.getCurrentQuant();
+    TreeSet<Order> interestedOrders =
+      order.isBuyOrder() ? sellOrders : buyOrders;
+    for (Order o : interestedOrders) {
+      if (o.getPrice() == order.getPrice()) {
+        samePrice.add(o);
+        quantToRid -= o.getCurrentQuant();
+        if (quantToRid <= 0) {
+          break;
         }
       }
     }
@@ -531,43 +534,35 @@ public class MatchingEngine {
     int price = order.getPrice();
 
     if (startingPeriod) {
-      cancelOrder(order, true);
+      cancelOrder(order, false);
       return false;
     }
 
     lastTradePrice = samePricedOrders.get(0).getPrice();
-
-    // now select the orders that were made first.
-    Collections.sort(samePricedOrders, Order.highestFirstComparator);
-
-    Order orderToTrade = samePricedOrders.get(0);
-
-    int volumeTraded = trade(order, orderToTrade);
+    int quantToRid = order.getCurrentQuant();
+    int orderIndex = 0;
+    int volumeTraded = 0;
+    while (quantToRid > 0 && orderIndex < samePricedOrders.size() - 1) {
+      volumeTraded += trade(order, samePricedOrders.get(orderIndex), false);
+      quantToRid -= volumeTraded;
+      orderIndex++;
+    }
 
     // log the action and ID of trade, with System.currentTimeMillis()
     // and volume traded.
     // notify both agents that a trade has occurred.
     // now get the agents (aggressor and non-aggressor) and notify them.
-    int aggressorTrades;
-    int passiveTrades;
-    if (order.isBuyOrder()) {
-      lastAgVolumeBuySide += volumeTraded;
-      aggressorTrades = volumeTraded;
-      passiveTrades = -volumeTraded;
-    } else {
-      lastAgVolumeSellSide += volumeTraded;
-      aggressorTrades = -volumeTraded;
-      passiveTrades = volumeTraded;
-    }
-    // now get the agents (aggressor and non-aggressor) and notify them.
-    agentMap.get(order.getCreatorID())
-      .setLastOrderTraded(true, aggressorTrades);
-    agentMap.get(orderToTrade.getCreatorID()).setLastOrderTraded(true,
-      passiveTrades);
 
-    // System.out.print("LIMIT ORDER ");
-    logTrade(order, price, volumeTraded);
-    logAggressiveTrader(order, false, price, volumeTraded);
+    // The below should be moved to trade(o1,o2) method.
+    // now get the agents (aggressor and non-aggressor) and notify them..
+    // agentMap.get(order.getCreatorID())
+    // .setLastOrderTraded(true, aggressorTrades);
+    // agentMap.get(orderToTrade.getCreatorID()).setLastOrderTraded(true,
+    // passiveTrades);
+
+    logTrade(price);
+    // Should be moved to the trade(o1,o2) method.
+    // logAggressiveTrader(order, false, price, volumeTraded);
     return true;
   }
 
@@ -663,69 +658,64 @@ public class MatchingEngine {
    */
   public void logOrder(Order order, int messageType, boolean market,
     int quantChanged, int priceChanged) {
-
-    if (!market) {
-      switch (messageType) {
-        case 1:
-          Controller.graphFrame.addOrder(order.isBuyOrder(),
-            order.getCurrentQuant(), order.getPrice());
-          break;
-        case 2:
-          if (priceChanged != 0) {
-            // delete all orders from the old price point
+    if (!testing) {
+      if (!market) {
+        switch (messageType) {
+          case 1:
             Controller.graphFrame.addOrder(order.isBuyOrder(),
-              -order.getCurrentQuant(), order.getPrice() - priceChanged);
-            // re-add the orders to the new price point
-          } else {
+              order.getCurrentQuant(), order.getPrice());
+            break;
+          case 2:
+            if (priceChanged != 0) {
+              // delete all orders from the old price point
+              Controller.graphFrame.addOrder(order.isBuyOrder(),
+                -order.getCurrentQuant(), order.getPrice() - priceChanged);
+              // re-add the orders to the new price point
+            } else {
+              Controller.graphFrame.addOrder(order.isBuyOrder(), quantChanged,
+                order.getPrice());
+            }
+            break;
+          case 3:
             Controller.graphFrame.addOrder(order.isBuyOrder(), quantChanged,
               order.getPrice());
-          }
-          break;
-        case 3:
-          Controller.graphFrame.addOrder(order.isBuyOrder(), quantChanged,
-            order.getPrice());
-          break;
-        default:
-          System.out.println("Message type " + messageType + " is invalid.");
-          System.exit(1);
-          break;
+            break;
+          default:
+            System.out.println("Message type " + messageType + " is invalid.");
+            System.exit(1);
+            break;
+        }
+      } else {
+        Controller.graphFrame.addOrder(order.isBuyOrder(), quantChanged,
+          priceChanged);
       }
-    } else {
-      Controller.graphFrame.addOrder(order.isBuyOrder(), quantChanged,
-        priceChanged);
-    }
 
-    if (logBuffer.size() == LOG_BUFFER_SIZE) {
-      // write the stuff to the file.
-      writeToLog();
+      if (logBuffer.size() == LOG_BUFFER_SIZE) {
+        // write the stuff to the file.
+        writeToLog();
+      }
+      logBuffer.add(time + "," + order.getCreatorID() + "," + messageType + ","
+        + (order.isBuyOrder() ? "1" : "2") + "," + order.getId() + ","
+        + order.getOriginalQuant() + "," + order.getPrice() / 100.0 + ","
+        + (market ? "Market" : "Limit") + "," + order.getCurrentQuant() + "\n");
     }
-    logBuffer.add(time + "," + order.getCreatorID() + "," + messageType + ","
-      + (order.isBuyOrder() ? "1" : "2") + "," + order.getId() + ","
-      + order.getOriginalQuant() + "," + order.getPrice() / 100.0 + ","
-      + (market ? "Market" : "Limit") + "," + order.getCurrentQuant() + "\n");
   }
 
   /**
-   * Logs all the required information into the orderbook and updates graph if
-   * trade occurs. In addition to the fields above, this method will also add
-   * fields for Price of Trade, Quantity Filled, Aggressor Indicator (Y/N), and
-   * Trade ID. Calls updateGraph() if needed.
+   * Updates trade price graph.
    * 
-   * @param agOrder
-   *          The order of the aggressive agent.
    * @param tradePrice
    *          The price that the trade occurred at.
-   * @param volume
-   *          The volume that was traded.
    */
-  public void logTrade(Order agOrder, int tradePrice, int volume) {
+  public void logTrade(int tradePrice) {
     // TODO when a market order occurs, what is the last trade price that we
     // log? There is a case when a market order depletes a price point
     // TODO (optimization) if logTrade only updates the graph now, we can just
     // call addTrade in the trade methods every time we want to update the
     // trade price
-
-    Controller.graphFrame.addTrade(Controller.time * 0.001, tradePrice);
+    if (!testing) {
+      Controller.graphFrame.addTrade(Controller.time * 0.001, tradePrice);
+    }
   }
 
   /**
@@ -743,26 +733,27 @@ public class MatchingEngine {
    */
   public void logAggressiveTrader(Order agOrder, boolean market,
     int tradePrice, int volume) {
+    if (!testing) {
+      if (agOrder.isBuyOrder()) {
+        currAgVolumeBuySide += volume;
+      } else {
+        currAgVolumeSellSide += volume;
+      }
 
-    if (agOrder.isBuyOrder()) {
-      currAgVolumeBuySide += volume;
-    } else {
-      currAgVolumeSellSide += volume;
+      Controller.graphFrame.addOrder(agOrder.isBuyOrder(), -volume, tradePrice);
+
+      if (logBuffer.size() == LOG_BUFFER_SIZE) {
+        // write the stuff to the file.
+        // logging for the passive order
+        writeToLog();
+      }
+      logBuffer.add(time + "," + agOrder.getCreatorID() + ",105,"
+        + (agOrder.isBuyOrder() ? "1" : "2") + "," + agOrder.getId() + ","
+        + agOrder.getOriginalQuant() + "," + agOrder.getPrice() * 0.01 + ","
+        + (market ? "Market," : "Limit,") + agOrder.getCurrentQuant() + ","
+        + tradePrice * 0.01 + "," + volume + ",Y," + System.currentTimeMillis()
+        + "\n");
     }
-
-    Controller.graphFrame.addOrder(agOrder.isBuyOrder(), -volume, tradePrice);
-
-    if (logBuffer.size() == LOG_BUFFER_SIZE) {
-      // write the stuff to the file.
-      // logging for the passive order
-      writeToLog();
-    }
-    logBuffer.add(time + "," + agOrder.getCreatorID() + ",105,"
-      + (agOrder.isBuyOrder() ? "1" : "2") + "," + agOrder.getId() + ","
-      + agOrder.getOriginalQuant() + "," + agOrder.getPrice() * 0.01 + ","
-      + (market ? "Market," : "Limit,") + agOrder.getCurrentQuant() + ","
-      + tradePrice * 0.01 + "," + volume + ",Y," + System.currentTimeMillis()
-      + "\n");
   }
 
   /**
@@ -777,25 +768,28 @@ public class MatchingEngine {
    *          The volume that was traded on this order.
    */
   public void logExtraTrades(Order passOrder, int tradePrice, int volume) {
-    if (passOrder.isBuyOrder()) {
-      currAgVolumeBuySide += volume;
-    } else {
-      currAgVolumeSellSide += volume;
+    if (!testing) {
+      if (passOrder.isBuyOrder()) {
+        currAgVolumeBuySide += volume;
+      } else {
+        currAgVolumeSellSide += volume;
+      }
+
+      Controller.graphFrame.addOrder(passOrder.isBuyOrder(), -volume,
+        tradePrice);
+
+      if (logBuffer.size() == LOG_BUFFER_SIZE) {
+        // write the stuff to the file.
+        // logging for the passive order
+        writeToLog();
+
+      }
+      logBuffer.add(time + "," + passOrder.getCreatorID() + ",105,"
+        + (passOrder.isBuyOrder() ? "1" : "2") + "," + passOrder.getId() + ","
+        + passOrder.getOriginalQuant() + "," + passOrder.getPrice() * 0.01
+        + ",Limit," + passOrder.getCurrentQuant() + "," + tradePrice * 0.01
+        + "," + volume + ",N," + System.currentTimeMillis() + "\n");
     }
-
-    Controller.graphFrame.addOrder(passOrder.isBuyOrder(), -volume, tradePrice);
-
-    if (logBuffer.size() == LOG_BUFFER_SIZE) {
-      // write the stuff to the file.
-      // logging for the passive order
-      writeToLog();
-
-    }
-    logBuffer.add(time + "," + passOrder.getCreatorID() + ",105,"
-      + (passOrder.isBuyOrder() ? "1" : "2") + "," + passOrder.getId() + ","
-      + passOrder.getOriginalQuant() + "," + passOrder.getPrice() * 0.01
-      + ",Limit," + passOrder.getCurrentQuant() + "," + tradePrice * 0.01 + ","
-      + volume + ",N," + System.currentTimeMillis() + "\n");
   }
 
   /**
@@ -928,5 +922,23 @@ public class MatchingEngine {
    */
   public void incrementTime() {
     time++;
+  }
+
+  /**
+   * @return Sell orders as an ArrayList.
+   */
+  public ArrayList<Order> getSellOrdersAsArrayList() {
+    ArrayList<Order> sellArrayList = new ArrayList<Order>();
+    sellArrayList.addAll(sellOrders);
+    return sellArrayList;
+  }
+
+  /**
+   * @return Buy orders as an ArrayList.
+   */
+  public ArrayList<Order> getBuyOrdersAsArrayList() {
+    ArrayList<Order> buyArrayList = new ArrayList<Order>();
+    buyArrayList.addAll(buyOrders);
+    return buyArrayList;
   }
 }
