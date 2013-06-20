@@ -81,13 +81,53 @@ public class MatchingEngineTest {
   }
 
   @Test
-  public void tradeLimitOrdersTest() {
+  public void tradeLimitOrdersTest_leavesOrder() {
+    tradeLimitOrderSetup();
+    assertEquals(1, matchingEngine.getSellOrdersAsArrayList().size());
+  }
+
+  @Test
+  public void tradeLimitOrderTest_leavesQuant() {
+    tradeLimitOrderSetup();
+    assertEquals(1, matchingEngine.getSellOrdersAsArrayList().get(0)
+      .getCurrentQuant());
+  }
+
+  @Test
+  public void tradeLimitOrderTest_mutualDepletion() {
+    tradeLimitOrderSetup();
+    fundBuyer.createNewOrder(TRADE_PRICE + TICK_SIZE * 2, 1, true);
+    assertEquals(0, matchingEngine.getSellOrdersAsArrayList().size());
+  }
+
+  @Test
+  public void tradeLimitOrderTest_shortageSellSide() {
+    tradeLimitOrderSetup();
+    fundBuyer.createNewOrder(TRADE_PRICE + TICK_SIZE * 2, 2, true);
+    assertEquals(0, matchingEngine.getSellOrdersAsArrayList().size());
+  }
+
+  @Test
+  public void tradeLimitOrderTest_shortageBuySide() {
+    tradeLimitOrderSetup();
+    fundBuyer.createNewOrder(TRADE_PRICE + TICK_SIZE * 2, 2, true);
+    assertEquals(1, matchingEngine.getBuyOrdersAsArrayList().size());
+  }
+
+  @Test
+  public void tradeLimitOrderTest_shortageBuySideLeavesQuant() {
+    tradeLimitOrderSetup();
+    fundBuyer.createNewOrder(TRADE_PRICE + TICK_SIZE * 2, 2, true);
+    assertEquals(1, matchingEngine.getBuyOrdersAsArrayList().get(0)
+      .getCurrentQuant());
+  }
+
+  public void tradeLimitOrderSetup() {
     int orderedQuantities[] = new int[] {1, 2};
     for (int i : orderedQuantities) {
       fundSeller.createNewOrder(TRADE_PRICE + TICK_SIZE * 2, i, false);
     }
     fundBuyer.createNewOrder(TRADE_PRICE + TICK_SIZE * 2, 2, true);
-    assertEquals(1, matchingEngine.getSellOrdersAsArrayList().size());
   }
 
   public int[] arrayListToArray(ArrayList<Integer> arrayList) {

@@ -541,10 +541,8 @@ public class MatchingEngine {
     lastTradePrice = samePricedOrders.get(0).getPrice();
     int quantToRid = order.getCurrentQuant();
     int orderIndex = 0;
-    int volumeTraded = 0;
-    while (quantToRid > 0 && orderIndex < samePricedOrders.size() - 1) {
-      volumeTraded += trade(order, samePricedOrders.get(orderIndex), false);
-      quantToRid -= volumeTraded;
+    while (quantToRid > 0 && orderIndex < samePricedOrders.size()) {
+      quantToRid -= trade(order, samePricedOrders.get(orderIndex), false);
       orderIndex++;
     }
 
