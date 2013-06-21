@@ -42,6 +42,11 @@ public class Order implements Comparator<Order> {
   private final long agentID;
 
   /**
+   * Is true if this is a market order; false otherwise.
+   */
+  private final boolean marketOrder;
+
+  /**
    * Creates an order based on the parameters specified.
    * 
    * @param agentID
@@ -53,14 +58,18 @@ public class Order implements Comparator<Order> {
    * @param buyOrder
    *          Is true if the agent wants to initiate an order to buy shares.
    *          False otherwise.
+   * @param marketOrder
+   *          Is true if this is a market order; false otherwise.
    */
-  public Order(long agentID, int price, int originalQuant, boolean buyOrder) {
+  public Order(long agentID, int price, int originalQuant, boolean buyOrder,
+    boolean marketOrder) {
     id = nextOrderID;
     nextOrderID++;
     this.agentID = agentID;
     this.buyOrder = buyOrder;
     this.originalQuant = originalQuant;
     this.price = price;
+    this.marketOrder = marketOrder;
     currentQuant = originalQuant;
   }
 
@@ -120,6 +129,13 @@ public class Order implements Comparator<Order> {
    */
   public long getCreatorID() {
     return agentID;
+  }
+
+  /**
+   * @return True if the order is a market order; false otherwise.
+   */
+  public boolean isMarketOrder() {
+    return marketOrder;
   }
 
   /**

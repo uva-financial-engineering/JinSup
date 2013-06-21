@@ -34,7 +34,8 @@ public class MatchingEngineTest {
     for (int i : orderedQuantities) {
       fundSeller.createNewOrder(TRADE_PRICE + TICK_SIZE, i, false);
     }
-    Order buyOrder = new Order(SOME_AGENT_ID, TRADE_PRICE + TICK_SIZE, 4, true);
+    Order buyOrder =
+      new Order(SOME_AGENT_ID, TRADE_PRICE + TICK_SIZE, 4, true, false);
     ArrayList<Order> toTrade = matchingEngine.willTrade(buyOrder);
     ArrayList<Integer> resultList = new ArrayList<Integer>();
 
@@ -52,7 +53,8 @@ public class MatchingEngineTest {
     for (int i : orderedQuantities) {
       fundSeller.createNewOrder(TRADE_PRICE + TICK_SIZE, i, false);
     }
-    Order buyOrder = new Order(SOME_AGENT_ID, TRADE_PRICE + TICK_SIZE, 4, true);
+    Order buyOrder =
+      new Order(SOME_AGENT_ID, TRADE_PRICE + TICK_SIZE, 4, true, false);
     ArrayList<Order> toTrade = matchingEngine.willTrade(buyOrder);
     ArrayList<Integer> resultList = new ArrayList<Integer>();
 
@@ -69,7 +71,8 @@ public class MatchingEngineTest {
     for (int i : orderedQuantities) {
       fundSeller.createNewOrder(TRADE_PRICE + TICK_SIZE, i, false);
     }
-    Order buyOrder = new Order(SOME_AGENT_ID, TRADE_PRICE + TICK_SIZE, 4, true);
+    Order buyOrder =
+      new Order(SOME_AGENT_ID, TRADE_PRICE + TICK_SIZE, 4, true, false);
     ArrayList<Order> toTrade = matchingEngine.willTrade(buyOrder);
     ArrayList<Integer> resultList = new ArrayList<Integer>();
 
@@ -120,6 +123,97 @@ public class MatchingEngineTest {
     fundBuyer.createNewOrder(TRADE_PRICE + TICK_SIZE * 2, 2, true);
     assertEquals(1, matchingEngine.getBuyOrdersAsArrayList().get(0)
       .getCurrentQuant());
+  }
+
+  @Test
+  public void tradeLimitOrderTest_inventoryBuySide() {
+    tradeLimitOrderSetup();
+    fundBuyer.createNewOrder(TRADE_PRICE + TICK_SIZE * 2, 1, true);
+    assertEquals(3, fundBuyer.getInventory());
+  }
+
+  @Test
+  public void tradeLimitOrderTest_inventorySellSide() {
+    tradeLimitOrderSetup();
+    assertEquals(-2, fundSeller.getInventory());
+  }
+
+  @Test
+  public void tradeMarketOrderTest_simpleOneVsOne() {
+    fundBuyer.createNewOrder(TRADE_PRICE, 1, true);
+    fundSeller.createMarketOrder(1, false);
+    assertEquals(0, matchingEngine.getBestAskQuantity());
+  }
+
+  @Test
+  public void tradeMarketOrderTest_simpleOneVsOneBuySideInventory() {
+    fundBuyer.createNewOrder(TRADE_PRICE, 1, true);
+    fundSeller.createMarketOrder(1, false);
+    assertEquals(1, fundBuyer.getInventory());
+  }
+
+  @Test
+  public void tradeMarketOrderTest_simpleOneVsOneSellSideInventory() {
+    fundBuyer.createNewOrder(TRADE_PRICE, 1, true);
+    fundSeller.createMarketOrder(1, false);
+    assertEquals(-1, fundSeller.getInventory());
+  }
+
+  @Test
+  public void tradeMarketOrderTest_quantityDepletionBuySide() {
+    fundBuyer.createNewOrder(TRADE_PRICE, 3, true);
+    fundBuyer.createNewOrder(TRADE_PRICE, 2, true);
+    fundSeller.createMarketOrder(4, false);
+    assertEquals(1, matchingEngine.getBestBidQuantity());
+  }
+
+  @Test
+  public void tradeMarketOrderTest_quantityDepletionSellSide() {
+    fundBuyer.createNewOrder(TRADE_PRICE, 3, true);
+    fundBuyer.createNewOrder(TRADE_PRICE, 2, true);
+    fundSeller.createMarketOrder(4, false);
+    assertEquals(0, matchingEngine.getBestAskQuantity());
+  }
+
+  @Test
+  public void tradeMarketOrderTest_singlePriceDepletionBuySideLeavesQuant() {
+    fundBuyer.createNewOrder(TRADE_PRICE, 3, true);
+    fundBuyer.createNewOrder(TRADE_PRICE - TICK_SIZE, 2, true);
+    fundSeller.createMarketOrder(4, false);
+    assertEquals(1, matchingEngine.getBestBidQuantity());
+  }
+
+  @Test
+  public void tradeMarketOrderTest_singlePriceDepletionBuySideLeavesPrice() {
+    fundBuyer.createNewOrder(TRADE_PRICE, 3, true);
+    fundBuyer.createNewOrder(TRADE_PRICE - TICK_SIZE, 2, true);
+    fundSeller.createMarketOrder(4, false);
+    assertEquals(TRADE_PRICE - TICK_SIZE, matchingEngine.getBestBid()
+      .getPrice());
+  }
+
+  @Test
+  public void tradeMarketOrderTest_singlePriceDepletionSellSideLeavesQuant() {
+    fundBuyer.createNewOrder(TRADE_PRICE, 3, true);
+    fundBuyer.createNewOrder(TRADE_PRICE - TICK_SIZE, 2, true);
+    fundSeller.createMarketOrder(4, false);
+    assertEquals(0, matchingEngine.getBestAskQuantity());
+  }
+
+  @Test
+  public void tradeMarketOrderTest_singlePriceDepletionBuySideInventory() {
+    fundBuyer.createNewOrder(TRADE_PRICE, 3, true);
+    fundBuyer.createNewOrder(TRADE_PRICE - TICK_SIZE, 2, true);
+    fundSeller.createMarketOrder(4, false);
+    assertEquals(4, fundBuyer.getInventory());
+  }
+
+  @Test
+  public void tradeMarketOrderTest_singlePriceDepletionSellSideInventory() {
+    fundBuyer.createNewOrder(TRADE_PRICE, 3, true);
+    fundBuyer.createNewOrder(TRADE_PRICE - TICK_SIZE, 2, true);
+    fundSeller.createMarketOrder(4, false);
+    assertEquals(-4, fundSeller.getInventory());
   }
 
   public void tradeLimitOrderSetup() {

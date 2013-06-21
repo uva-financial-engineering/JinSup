@@ -138,7 +138,7 @@ public abstract class Agent implements Comparable<Agent> {
    */
   public boolean createNewOrder(int price, int initialQuant, boolean buyOrder) {
     return matchingEngine.createOrder(new Order(this.id, price, initialQuant,
-      buyOrder), false);
+      buyOrder, false));
   }
 
   /**
@@ -153,8 +153,7 @@ public abstract class Agent implements Comparable<Agent> {
    *          order.
    */
   public void createMarketOrder(int initialQuant, boolean buyOrder) {
-    matchingEngine.tradeMarketOrder(new Order(this.id, 0, initialQuant,
-      buyOrder));
+    matchingEngine.tradeMarketOrder(this.id, initialQuant, buyOrder);
   }
 
   /**
