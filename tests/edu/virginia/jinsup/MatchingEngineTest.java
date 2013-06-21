@@ -216,6 +216,58 @@ public class MatchingEngineTest {
     assertEquals(-4, fundSeller.getInventory());
   }
 
+  @Test
+  public void tradeMarketOrderTest_singlePriceDepletionManyToFewInventory() {
+    fundBuyer.createNewOrder(TRADE_PRICE, 3, true);
+    fundBuyer.createNewOrder(TRADE_PRICE, 5, true);
+    fundBuyer.createNewOrder(TRADE_PRICE - TICK_SIZE, 2, true);
+    fundSeller.createMarketOrder(9, false);
+    assertEquals(-9, fundSeller.getInventory());
+  }
+
+  @Test
+  public void tradeMarketOrderTest_singlePriceDepletionManyToFewQuantity() {
+    fundBuyer.createNewOrder(TRADE_PRICE, 3, true);
+    fundBuyer.createNewOrder(TRADE_PRICE, 5, true);
+    fundBuyer.createNewOrder(TRADE_PRICE - TICK_SIZE, 2, true);
+    fundSeller.createMarketOrder(9, false);
+    assertEquals(0, matchingEngine.getBestAskQuantity());
+  }
+
+  @Test
+  public void tradeMarketOrderTest_multiplePriceDepletionFewToMany() {
+    fundBuyer.createNewOrder(TRADE_PRICE, 3, true);
+    fundBuyer.createNewOrder(TRADE_PRICE, 5, true);
+    fundBuyer.createNewOrder(TRADE_PRICE - TICK_SIZE, 2, true);
+    fundBuyer.createNewOrder(TRADE_PRICE - TICK_SIZE, 4, true);
+    fundBuyer.createNewOrder(TRADE_PRICE - TICK_SIZE * 2, 10, true);
+    fundSeller.createMarketOrder(20, false);
+    assertEquals(4, matchingEngine.getBestBidQuantity());
+  }
+
+  @Test
+  public void tradeMarketOrderTest_multiplePriceDepletionFewToManyPrice() {
+    fundBuyer.createNewOrder(TRADE_PRICE, 3, true);
+    fundBuyer.createNewOrder(TRADE_PRICE, 5, true);
+    fundBuyer.createNewOrder(TRADE_PRICE - TICK_SIZE, 2, true);
+    fundBuyer.createNewOrder(TRADE_PRICE - TICK_SIZE, 4, true);
+    fundBuyer.createNewOrder(TRADE_PRICE - TICK_SIZE * 2, 10, true);
+    fundSeller.createMarketOrder(20, false);
+    assertEquals(TRADE_PRICE - TICK_SIZE * 2, matchingEngine.getBestBid()
+      .getPrice());
+  }
+
+  @Test
+  public void tradeMarketOrderTest_multiplePriceDepletionFewToManyInventory() {
+    fundBuyer.createNewOrder(TRADE_PRICE, 3, true);
+    fundBuyer.createNewOrder(TRADE_PRICE, 5, true);
+    fundBuyer.createNewOrder(TRADE_PRICE - TICK_SIZE, 2, true);
+    fundBuyer.createNewOrder(TRADE_PRICE - TICK_SIZE, 4, true);
+    fundBuyer.createNewOrder(TRADE_PRICE - TICK_SIZE * 2, 10, true);
+    fundSeller.createMarketOrder(20, false);
+    assertEquals(-20, fundSeller.getInventory());
+  }
+
   public void tradeLimitOrderSetup() {
     int orderedQuantities[] = new int[] {1, 2};
     for (int i : orderedQuantities) {

@@ -121,7 +121,7 @@ public abstract class Agent implements Comparable<Agent> {
    * 
    */
   public void cancelOrder(Order order) {
-    matchingEngine.cancelOrder(order, false);
+    matchingEngine.cancelOrder(order);
   }
 
   /**

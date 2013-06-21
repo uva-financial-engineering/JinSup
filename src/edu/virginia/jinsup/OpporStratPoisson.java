@@ -77,7 +77,7 @@ public class OpporStratPoisson extends PoissonAgent {
   /**
    * Calculates the new global buy probability.
    */
-  static public void calcNewBuyProbability() {
+  public static void calcNewBuyProbability() {
     currBuyProbability =
       currBuyProbability + (new UniformRealDistribution(-0.2, 0.2)).sample();
 
@@ -90,4 +90,9 @@ public class OpporStratPoisson extends PoissonAgent {
     }
     System.out.println(currBuyProbability);
   }
+
+  public static double getCurrBuyProbability() {
+    return currBuyProbability;
+  }
+
 }

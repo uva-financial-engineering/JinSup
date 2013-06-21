@@ -61,12 +61,12 @@ public class Controller {
 
   /**
    * The time when the simulation should end the startup period and allow agents
-   * to trade.
+   * to trade in ms.
    */
   private final long startupTime;
 
   /**
-   * The time to stop the simulator.
+   * The time to stop the simulator in ms.
    */
   private final long endTime;
 

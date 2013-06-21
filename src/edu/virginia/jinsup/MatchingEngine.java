@@ -163,8 +163,9 @@ public class MatchingEngine {
       // create the CSV file
       try {
         FileWriter writer = new FileWriter(Controller.graphFrame.getDest());
-        writer
-          .append("Time, Agent ID, Message, Buy/Sell, Order ID, Original Quantity, Price, Type, Leaves Quantity, Trade Price, Aggressor, Trade Match ID\n");
+        writer.append("Time, Agent ID, Message, Buy/Sell, Order ID, "
+          + "Original Quantity, Price, Type, Leaves Quantity, Trade Price, "
+          + "Aggressor, Trade Match ID\n");
         writer.flush();
         writer.close();
       } catch (IOException e) {
@@ -183,15 +184,12 @@ public class MatchingEngine {
    * @param agentID
    *          ID of the agent whose order is to be removed.
    */
-  public void cancelOrder(Order order, boolean market) {
+  public void cancelOrder(Order order) {
     buyOrders.remove(order);
     sellOrders.remove(order);
     orderMap.get(order.getCreatorID()).remove(order);
-    if (market) {
-      logOrder(order, 3, market, -1, 0);
-    } else {
-      logOrder(order, 3, market, -order.getCurrentQuant(), 0);
-    }
+
+    logOrder(order, 3, false, -order.getCurrentQuant(), 0);
   }
 
   /**
@@ -250,8 +248,6 @@ public class MatchingEngine {
     if (startingPeriod) {
       return;
     }
-    // save price for logging at the end.
-    int price = 0;
     int quantToRid = initialQuant;
 
     TreeSet<Order> interestedOrders =
@@ -276,6 +272,7 @@ public class MatchingEngine {
             + interestedOrders.first().getCurrentQuant());
         } else {
           quantities.set(priceIndex, quantities.get(priceIndex) + quantToRid);
+          quantToRid = 0;
           break;
         }
       } else {
@@ -286,12 +283,18 @@ public class MatchingEngine {
           quantities.add(interestedOrders.first().getCurrentQuant());
         } else {
           quantities.add(quantToRid);
+          quantToRid = 0;
           break;
         }
 
       }
       quantToRid -= interestedOrders.first().getCurrentQuant();
       interestedOrders.pollFirst();
+    }
+
+    if (quantToRid > 0) {
+      System.out.println("Not enough orders to satisfy market order.");
+      System.exit(1);
     }
 
     int i = 0;
@@ -301,7 +304,7 @@ public class MatchingEngine {
       ++i;
     }
 
-    logTrade(price);
+    // Last trade price logging is done in the trade(order, arrlist) method.
   }
 
   /**
@@ -490,19 +493,29 @@ public class MatchingEngine {
    */
   public ArrayList<Order> willTrade(Order order) {
     ArrayList<Order> samePrice = new ArrayList<Order>();
+    ArrayList<Order> toTrade = new ArrayList<Order>();
     int quantToRid = order.getCurrentQuant();
     TreeSet<Order> interestedOrders =
       order.isBuyOrder() ? sellOrders : buyOrders;
     for (Order o : interestedOrders) {
       if (o.getPrice() == order.getPrice()) {
         samePrice.add(o);
-        quantToRid -= o.getCurrentQuant();
-        if (quantToRid <= 0) {
-          break;
-        }
       }
     }
-    return (samePrice.isEmpty()) ? null : samePrice;
+
+    // Does not matter which comparator; prices are the same. Just want orders
+    // that have been made first to get the highest trading priority.
+    Collections.sort(samePrice, Order.highestFirstComparator);
+
+    for (Order o : samePrice) {
+      toTrade.add(o);
+      quantToRid -= o.getCurrentQuant();
+      if (quantToRid <= 0) {
+        break;
+      }
+    }
+
+    return (toTrade.isEmpty()) ? null : samePrice;
   }
 
   /**
@@ -526,7 +539,7 @@ public class MatchingEngine {
     int price = order.getPrice();
 
     if (startingPeriod) {
-      cancelOrder(order, false);
+      cancelOrder(order);
       return false;
     }
 
@@ -858,7 +871,7 @@ public class MatchingEngine {
       // removal of current element) is
       // also a sell order
       if (!orderMap.get(agentID).get(currIndex).isBuyOrder()) {
-        cancelOrder(orderMap.get(agentID).get(currIndex), false);
+        cancelOrder(orderMap.get(agentID).get(currIndex));
       } else {
         currIndex++;
       }
@@ -874,7 +887,7 @@ public class MatchingEngine {
     while (currIndex < orderMap.get(agentID).size()) {
       // Same logic from cancelAllSellOrders applies
       if (orderMap.get(agentID).get(currIndex).isBuyOrder()) {
-        cancelOrder(orderMap.get(agentID).get(currIndex), false);
+        cancelOrder(orderMap.get(agentID).get(currIndex));
       } else {
         currIndex++;
       }
