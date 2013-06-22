@@ -336,6 +336,10 @@ public class MatchingEngine {
       } else {
         sellOrders.remove(passOrder);
       }
+      // Setting quantities to new values is necessary for correct logging of
+      // leaves quantity.
+      agOrder.setQuant(0);
+      passOrder.setQuant(0);
       orderMap.get(agOrder.getCreatorID()).remove(agOrder);
       orderMap.get(passOrder.getCreatorID()).remove(passOrder);
     } else if (agOrder.getCurrentQuant() > passOrder.getCurrentQuant()) {
@@ -346,6 +350,7 @@ public class MatchingEngine {
       } else {
         sellOrders.remove(passOrder);
       }
+      passOrder.setQuant(0);
       orderMap.get(passOrder.getCreatorID()).remove(passOrder);
     } else {
       volumeTraded = agOrder.getCurrentQuant();
@@ -356,6 +361,7 @@ public class MatchingEngine {
       } else {
         sellOrders.remove(agOrder);
       }
+      agOrder.setQuant(0);
       orderMap.get(agOrder.getCreatorID()).remove(agOrder);
     }
 
@@ -735,8 +741,7 @@ public class MatchingEngine {
         + (agOrder.isBuyOrder() ? "1" : "2") + "," + agOrder.getId() + ","
         + agOrder.getOriginalQuant() + "," + agOrder.getPrice() * 0.01 + ","
         + (market ? "Market," : "Limit,") + agOrder.getCurrentQuant() + ","
-        + tradePrice * 0.01 + "," + volume + ",Y," + System.currentTimeMillis()
-        + "\n");
+        + tradePrice * 0.01 + "," + volume + ",Y\n");
     }
   }
 
@@ -772,7 +777,7 @@ public class MatchingEngine {
         + (passOrder.isBuyOrder() ? "1" : "2") + "," + passOrder.getId() + ","
         + passOrder.getOriginalQuant() + "," + passOrder.getPrice() * 0.01
         + ",Limit," + passOrder.getCurrentQuant() + "," + tradePrice * 0.01
-        + "," + volume + ",N," + System.currentTimeMillis() + "\n");
+        + "," + volume + ",N\n");
     }
   }
 
