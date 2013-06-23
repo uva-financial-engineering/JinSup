@@ -363,6 +363,13 @@ public abstract class Agent implements Comparable<Agent> {
     return matchingEngine.agentHasOrders(id);
   }
 
+  /**
+   * @return The ID of the agent.
+   */
+  public long getID() {
+    return id;
+  }
+
   @Override
   public int compareTo(Agent a) {
     return getNextActTime() > a.getNextActTime() ? 1 : getNextActTime() < a

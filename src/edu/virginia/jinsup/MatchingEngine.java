@@ -147,7 +147,6 @@ public class MatchingEngine {
     midpoints = new LinkedList<Integer>();
     lastAgVolumeBuySide = 0;
     lastAgVolumeSellSide = 0;
-    startupTime = 0;
     lastTradePrice = buyPrice;
     startingPeriod = true;
     movingSum = 0;

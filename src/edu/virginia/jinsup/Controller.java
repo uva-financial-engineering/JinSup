@@ -109,7 +109,7 @@ public class Controller {
     this.matchingEngine = matchingEngine;
     this.actQueue =
       new PriorityQueue<Agent>(FUND_BUYER_SELLER_COUNT * 2 + MARKET_MAKER_COUNT
-        + OPPOR_STRAT_COUNT);
+        + OPPOR_STRAT_COUNT + HFT_COUNT + SMALL_TRADER_COUNT);
     poissonGeneratorNews = new PoissonDistribution(NEWS_FREQUENCY * 1000);
     lastNewsTime = NEWS_FREQUENCY * 1000;
   }
@@ -203,6 +203,8 @@ public class Controller {
       actQueue.add(fundSellerPoisson);
     }
 
+    // TODO Find a better way to prevent possible null pointer exceptions
+    // without messing up initial cancel times
     MarketMakerPoisson marketMakerPoisson;
     for (int i = 0; i < MARKET_MAKER_COUNT; ++i) {
       marketMakerPoisson =
@@ -216,7 +218,7 @@ public class Controller {
     for (int i = 0; i < OPPOR_STRAT_COUNT; ++i) {
       opporStratPoisson =
         new OpporStratPoisson(matchingEngine, 30, 40, 0.50,
-          (long) (Math.random() * startupTime + startupTime * 1.05));
+          (long) (Math.random() * startupTime));
       agentList.add(opporStratPoisson);
       actQueue.add(opporStratPoisson);
     }
@@ -224,8 +226,8 @@ public class Controller {
     HFTPoisson hftPoisson;
     for (int i = 0; i < HFT_COUNT; ++i) {
       hftPoisson =
-        new HFTPoisson(matchingEngine, 0.60, 0.40, (long) (Math.random()
-          * startupTime + startupTime * 1.05));
+        new HFTPoisson(matchingEngine, 0.60, 0.40,
+          (long) (Math.random() * startupTime));
       agentList.add(hftPoisson);
       actQueue.add(hftPoisson);
     }
