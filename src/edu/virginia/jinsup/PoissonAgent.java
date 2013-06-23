@@ -26,11 +26,6 @@ public abstract class PoissonAgent extends Agent {
   private final PoissonDistribution poissonGeneratorCancel;
 
   /**
-   * Minimum price interval between orders.
-   */
-  private static final int TICK_SIZE = 25;
-
-  /**
    * Constructs a poisson trader (can only be called from a subclass).
    * 
    * @param matchEng

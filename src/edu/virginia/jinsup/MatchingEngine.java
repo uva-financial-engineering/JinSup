@@ -594,6 +594,10 @@ public class MatchingEngine {
     startingPeriod = isStartingPeriod;
   }
 
+  public boolean isStartingPeriod() {
+    return startingPeriod;
+  }
+
   /**
    * @return The buy price for a share.
    */

@@ -38,6 +38,27 @@ public class Controller {
    */
   private static final int SMALL_TRADER_COUNT = 421;
 
+  // Specify the lambdas here in seconds
+  private static final int FUND_BUYER_SELLER_LAMBDA_ORDER = 40;
+
+  private static final int FUND_BUYER_SELLER_LAMBDA_CANCEL = 60;
+
+  private static final int MARKET_MAKER_LAMBDA_ORDER = 3;
+
+  private static final int MARKET_MAKER_LAMBDA_CANCEL = 2;
+
+  private static final int OPPOR_STRAT_LAMBDA_ORDER = 30;
+
+  private static final int OPPOR_STRAT_LAMBDA_CANCEL = 40;
+
+  private static final double HFT_LAMBDA_ORDER = 0.6;
+
+  private static final double HFT_LAMBDA_CANCEL = 0.4;
+
+  private static final int SMALL_TRADER_LAMBDA_ORDER = 1500;
+
+  private static final int SMALL_TRADER_LAMBDA_CANCEL = 1000;
+
   /**
    * How often buy probabilities for poisson opportunistic traders should
    * change, in seconds.
@@ -192,11 +213,11 @@ public class Controller {
     FundSellerPoisson fundSellerPoisson;
     for (int i = 0; i < FUND_BUYER_SELLER_COUNT; ++i) {
       fundBuyerPoisson =
-        new FundBuyerPoisson(matchingEngine, 40, 60,
-          (long) (Math.random() * startupTime));
+        new FundBuyerPoisson(matchingEngine, FUND_BUYER_SELLER_LAMBDA_ORDER,
+          FUND_BUYER_SELLER_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
       fundSellerPoisson =
-        new FundSellerPoisson(matchingEngine, 40, 60,
-          (long) (Math.random() * startupTime));
+        new FundSellerPoisson(matchingEngine, FUND_BUYER_SELLER_LAMBDA_ORDER,
+          FUND_BUYER_SELLER_LAMBDA_ORDER, (long) (Math.random() * startupTime));
       agentList.add(fundBuyerPoisson);
       agentList.add(fundSellerPoisson);
       actQueue.add(fundBuyerPoisson);
@@ -208,8 +229,8 @@ public class Controller {
     MarketMakerPoisson marketMakerPoisson;
     for (int i = 0; i < MARKET_MAKER_COUNT; ++i) {
       marketMakerPoisson =
-        new MarketMakerPoisson(matchingEngine, 3, 2,
-          (long) (Math.random() * startupTime));
+        new MarketMakerPoisson(matchingEngine, MARKET_MAKER_LAMBDA_ORDER,
+          MARKET_MAKER_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
       agentList.add(marketMakerPoisson);
       actQueue.add(marketMakerPoisson);
     }
@@ -217,8 +238,8 @@ public class Controller {
     OpporStratPoisson opporStratPoisson;
     for (int i = 0; i < OPPOR_STRAT_COUNT; ++i) {
       opporStratPoisson =
-        new OpporStratPoisson(matchingEngine, 30, 40, 0.50,
-          (long) (Math.random() * startupTime));
+        new OpporStratPoisson(matchingEngine, OPPOR_STRAT_LAMBDA_ORDER,
+          OPPOR_STRAT_LAMBDA_CANCEL, 0.50, (long) (Math.random() * startupTime));
       agentList.add(opporStratPoisson);
       actQueue.add(opporStratPoisson);
     }
@@ -226,7 +247,7 @@ public class Controller {
     HFTPoisson hftPoisson;
     for (int i = 0; i < HFT_COUNT; ++i) {
       hftPoisson =
-        new HFTPoisson(matchingEngine, 0.60, 0.40,
+        new HFTPoisson(matchingEngine, HFT_LAMBDA_ORDER, HFT_LAMBDA_CANCEL,
           (long) (Math.random() * startupTime));
       agentList.add(hftPoisson);
       actQueue.add(hftPoisson);
@@ -235,8 +256,8 @@ public class Controller {
     SmallTrader smallTrader;
     for (int i = 0; i < SMALL_TRADER_COUNT; ++i) {
       smallTrader =
-        new SmallTrader(matchingEngine, 1500, 1000,
-          (long) (Math.random() * startupTime));
+        new SmallTrader(matchingEngine, SMALL_TRADER_LAMBDA_ORDER,
+          SMALL_TRADER_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
       agentList.add(smallTrader);
       actQueue.add(smallTrader);
     }

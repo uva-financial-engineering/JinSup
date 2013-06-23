@@ -1,5 +1,7 @@
 package edu.virginia.jinsup;
 
+import sun.nio.cs.ext.MacHebrew;
+
 /**
  * Holds implementation of a generic agent's acting procedures. All new agents
  * should inherit from this class since act() is not implemented, i.e. there is
@@ -43,6 +45,11 @@ public abstract class Agent implements Comparable<Agent> {
    * the agent's orders. False otherwise.
    */
   private boolean lastOrderTraded;
+
+  /**
+   * Minimum price interval between orders.
+   */
+  protected static final int TICK_SIZE = 25;
 
   private long nextOrderTime;
 
@@ -295,6 +302,9 @@ public abstract class Agent implements Comparable<Agent> {
    * @return The highest price an agent is willing to buy.
    */
   public int getBestBuyPrice() {
+    if (matchingEngine.isStartingPeriod()) {
+      return matchingEngine.getBuyPrice() - TICK_SIZE;
+    }
     return matchingEngine.getBestBid().getPrice();
   }
 
@@ -302,6 +312,9 @@ public abstract class Agent implements Comparable<Agent> {
    * @return The lowest price an agent is willing to sell.
    */
   public int getBestSellPrice() {
+    if (matchingEngine.isStartingPeriod()) {
+      return matchingEngine.getBuyPrice() + TICK_SIZE;
+    }
     return matchingEngine.getBestAsk().getPrice();
   }
 
