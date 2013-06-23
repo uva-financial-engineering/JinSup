@@ -180,7 +180,7 @@ public abstract class PoissonAgent extends Agent {
     }
 
     double cumulativeProb = probabilities[0] + probabilities[1];
-    for (int i = 1; i < probabilities.length - 1; ++i) {
+    for (int i = 1; i < probabilities.length; ++i) {
       if (probability < cumulativeProb) {
         // create a limit order; if the agent is buying, then as the tick
         // increases, the lower the buy price
