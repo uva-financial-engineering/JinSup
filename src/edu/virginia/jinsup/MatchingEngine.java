@@ -453,15 +453,10 @@ public class MatchingEngine {
       return quantity;
     }
     int bestBidPrice = getBestBid().getPrice();
-    // Move through buyOrders in ascending order until price changes
-    Iterator<Order> itr = buyOrders.iterator();
-
-    while (itr.hasNext()) {
-      Order currOrder = itr.next();
-      if (currOrder.getPrice() != bestBidPrice) {
-        break;
+    for (Order o : buyOrders) {
+      if (o.getPrice() == bestBidPrice) {
+        quantity += o.getCurrentQuant();
       }
-      quantity += currOrder.getCurrentQuant();
     }
     return quantity;
   }
@@ -475,14 +470,10 @@ public class MatchingEngine {
       return quantity;
     }
     int bestAskPrice = getBestAsk().getPrice();
-    // Move through sellOrders in reverse order until the price changes
-    Iterator<Order> reverseItr = sellOrders.descendingIterator();
-    while (reverseItr.hasNext()) {
-      Order currOrder = reverseItr.next();
-      if (currOrder.getPrice() != bestAskPrice) {
-        break;
+    for (Order o : sellOrders) {
+      if (o.getPrice() == bestAskPrice) {
+        quantity += o.getCurrentQuant();
       }
-      quantity += currOrder.getCurrentQuant();
     }
     return quantity;
   }
