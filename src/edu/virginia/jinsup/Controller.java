@@ -26,7 +26,7 @@ public class Controller {
   /**
    * Number of oppor strat traders
    */
-  private static final int OPPOR_STRAT_COUNT = 75;
+  private static final int OPPOR_STRAT_COUNT = 96;
 
   /**
    * Number of HFT traders
@@ -217,15 +217,13 @@ public class Controller {
           FUND_BUYER_SELLER_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
       fundSellerPoisson =
         new FundSellerPoisson(matchingEngine, FUND_BUYER_SELLER_LAMBDA_ORDER,
-          FUND_BUYER_SELLER_LAMBDA_ORDER, (long) (Math.random() * startupTime));
+          FUND_BUYER_SELLER_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
       agentList.add(fundBuyerPoisson);
       agentList.add(fundSellerPoisson);
       actQueue.add(fundBuyerPoisson);
       actQueue.add(fundSellerPoisson);
     }
 
-    // TODO Find a better way to prevent possible null pointer exceptions
-    // without messing up initial cancel times
     MarketMakerPoisson marketMakerPoisson;
     for (int i = 0; i < MARKET_MAKER_COUNT; ++i) {
       marketMakerPoisson =
