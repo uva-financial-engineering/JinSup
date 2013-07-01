@@ -234,10 +234,12 @@ public class Controller {
     }
 
     OpporStratPoisson opporStratPoisson;
+    // Explicitly set global buy probability.
+    OpporStratPoisson.setBuyProbability(0.50);
     for (int i = 0; i < OPPOR_STRAT_COUNT; ++i) {
       opporStratPoisson =
         new OpporStratPoisson(matchingEngine, OPPOR_STRAT_LAMBDA_ORDER,
-          OPPOR_STRAT_LAMBDA_CANCEL, 0.50, (long) (Math.random() * startupTime));
+          OPPOR_STRAT_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
       agentList.add(opporStratPoisson);
       actQueue.add(opporStratPoisson);
     }

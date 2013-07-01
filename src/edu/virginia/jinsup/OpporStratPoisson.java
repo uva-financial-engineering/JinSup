@@ -20,9 +20,10 @@ public class OpporStratPoisson extends PoissonAgent {
   private boolean overLimit;
 
   /**
-   * Global buy probability for all poisson opportunistic traders
+   * Global buy probability for all poisson opportunistic traders. Initially set
+   * at 50 %.
    */
-  private static double currBuyProbability = 0.0;
+  private static double currBuyProbability = 0.50;
 
   /**
    * Creates an opportunistic trader.
@@ -39,9 +40,8 @@ public class OpporStratPoisson extends PoissonAgent {
    *          Startup time of the simulation.
    */
   public OpporStratPoisson(MatchingEngine matchEng, int lambdaOrder,
-    int lambdaCancel, double initialBuyProbability, long initialActTime) {
+    int lambdaCancel, long initialActTime) {
     super(matchEng, lambdaOrder, lambdaCancel, initialActTime);
-    currBuyProbability = initialBuyProbability;
     overLimit = false;
   }
 
@@ -69,6 +69,7 @@ public class OpporStratPoisson extends PoissonAgent {
     if (!override) {
       willBuy = (Math.random() < currBuyProbability);
     }
+
     createPoissonOrder(willBuy,
       getOrderSize(0.66, 0.16, 0.05, 0.04, 0.03, 0.03, 0.03), 0.35, 0.20, 0.05,
       0.05, 0.05, 0.05, 0.07, 0.05, 0.05, 0.06, 0.04);
@@ -89,6 +90,16 @@ public class OpporStratPoisson extends PoissonAgent {
       currBuyProbability = 0.80;
     }
     System.out.println(currBuyProbability);
+  }
+
+  /**
+   * Manually set the global buy probability.
+   * 
+   * @param buyProbability
+   *          The probability of making a buy order.
+   */
+  public static void setBuyProbability(double buyProbability) {
+    currBuyProbability = buyProbability;
   }
 
   public static double getCurrBuyProbability() {
