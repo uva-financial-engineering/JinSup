@@ -38,6 +38,11 @@ public class Controller {
    */
   private static final int SMALL_TRADER_COUNT = 421;
 
+  /**
+   * Number of intelligent agents
+   */
+  private static final int INTELLIGENT_AGENT_COUNT = 0;
+
   // Specify the lambdas here in seconds
   private static final int FUND_BUYER_SELLER_LAMBDA_ORDER = 40;
 
@@ -64,6 +69,12 @@ public class Controller {
    * change, in seconds.
    */
   private static final int NEWS_FREQUENCY = 300;
+
+  // Specify parameters for intelligent agents here
+
+  private static final int INTELLIGENT_AGENT_DELAY = 500;
+
+  private static final int INTELLIGENT_AGENT_THRESHOLD = 200;
 
   /**
    * List of all agents in the simulator
@@ -101,6 +112,8 @@ public class Controller {
    */
   private final PriorityQueue<Agent> actQueue;
 
+  private IntelligentAgentHelper intelligentAgentHelper;
+
   /**
    * State of the simulation to be displayed on the title bar.
    */
@@ -130,7 +143,8 @@ public class Controller {
     this.matchingEngine = matchingEngine;
     this.actQueue =
       new PriorityQueue<Agent>(FUND_BUYER_SELLER_COUNT * 2 + MARKET_MAKER_COUNT
-        + OPPOR_STRAT_COUNT + HFT_COUNT + SMALL_TRADER_COUNT);
+        + OPPOR_STRAT_COUNT + HFT_COUNT + SMALL_TRADER_COUNT
+        + INTELLIGENT_AGENT_COUNT);
     poissonGeneratorNews = new PoissonDistribution(NEWS_FREQUENCY * 1000);
     lastNewsTime = NEWS_FREQUENCY * 1000;
   }
@@ -176,6 +190,7 @@ public class Controller {
     matchingEngine.reset();
     time++;
     triggerGroupEvent();
+    triggerHelperEvent();
     matchingEngine.incrementTime();
     if (time % 500 == 0) {
       graphFrame.updateTitleBar(time, state);
@@ -184,6 +199,18 @@ public class Controller {
       matchingEngine.setStartingPeriod(false);
       System.out.println("Trading Enabled!");
       state = "Trading Period";
+    }
+  }
+
+  /**
+   * Update the delay data for intelligent agents. A positive number means that
+   * there are more buy orders than sell orders at the best bid/ask.
+   */
+  public void triggerHelperEvent() {
+    if (time > (startupTime - INTELLIGENT_AGENT_DELAY)) {
+      intelligentAgentHelper.addData(matchingEngine.getBestBidQuantity()
+        - matchingEngine.getBestAskQuantity(),
+        matchingEngine.getLastTradePrice());
     }
   }
 
@@ -260,6 +287,20 @@ public class Controller {
           SMALL_TRADER_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
       agentList.add(smallTrader);
       actQueue.add(smallTrader);
+    }
+
+    intelligentAgentHelper =
+      new IntelligentAgentHelper(INTELLIGENT_AGENT_DELAY);
+
+    IntelligentAgent intelligentAgent;
+    // Explicitly set delay, threshold, and helper.
+    IntelligentAgent.setDelay(INTELLIGENT_AGENT_DELAY);
+    IntelligentAgent.setThreshold(INTELLIGENT_AGENT_THRESHOLD);
+    IntelligentAgent.setIntelligentAgentHelper(intelligentAgentHelper);
+    for (int i = 0; i < INTELLIGENT_AGENT_COUNT; ++i) {
+      intelligentAgent = new IntelligentAgent(matchingEngine);
+      agentList.add(intelligentAgent);
+      actQueue.add(intelligentAgent);
     }
 
     System.out.println("Done! Simulation has started");

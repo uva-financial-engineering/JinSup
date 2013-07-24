@@ -26,12 +26,15 @@ public class IntelligentAgent extends Agent {
    * Maximum difference between the total volume at the best bid/ask allowed
    * before additional actions are taken.
    */
-  private int threshold;
+  private static int threshold = 200;
 
   /**
-   * How long in the past the agent should look for market information.
+   * How long in the past the agent should look for market information, in
+   * milliseconds.
    */
-  private int delay;
+  private static int delay = 500;
+
+  private static IntelligentAgentHelper intelligentAgentHelper;
 
   /**
    * Constructs an Intelligent Agent and initializes its order book so that
@@ -46,22 +49,48 @@ public class IntelligentAgent extends Agent {
    *          Maximum difference between the total volume at the best bid/ask
    *          allowed before additional actions are taken.
    */
-  public IntelligentAgent(MatchingEngine matchEng, int delay, int threshold) {
+  public IntelligentAgent(MatchingEngine matchEng) {
     super(matchEng);
-    this.delay = delay;
-    this.threshold = threshold;
 
     for (int i = 0; i < HALF_TICK_WIDTH; i++) {
       createNewOrder(matchEng.getBuyPrice() - ((i + 1) * TICK_SIZE),
         ORDER_SIZE, true);
-      createNewOrder(matchEng.getBestAskQuantity() + (i + 1) * TICK_SIZE,
+      createNewOrder(matchEng.getBuyPrice() + ((i + 1) * TICK_SIZE),
         ORDER_SIZE, false);
+
+      // Do not act until the market opens.
+      setNextActTime(matchEng.getStartupTime());
     }
   }
 
   @Override
   void act() {
-    // TODO Ensure that the order book is maintained
+    int bidAskDifference = intelligentAgentHelper.getOldVolumeDifferenceData();
+    if (Math.abs(bidAskDifference) < threshold) {
+      // Ensure that all tick levels have orders.
+    } else {
+      // Deal with threshold crossing.
+    }
     setNextActTime(getNextActTime() + INTERVAL);
+  }
+
+  public static int getDelay() {
+    return delay;
+  }
+
+  public static void setDelay(int delay) {
+    IntelligentAgent.delay = delay;
+  }
+
+  public static int getThreshold() {
+    return threshold;
+  }
+
+  public static void setThreshold(int threshold) {
+    IntelligentAgent.threshold = threshold;
+  }
+
+  public static void setIntelligentAgentHelper(IntelligentAgentHelper iah) {
+    intelligentAgentHelper = iah;
   }
 }
