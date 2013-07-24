@@ -107,11 +107,6 @@ public class Controller {
    */
   private final MatchingEngine matchingEngine;
 
-  /**
-   * Queue of agents scheduled to act
-   */
-  private final PriorityQueue<Agent> actQueue;
-
   private IntelligentAgentHelper intelligentAgentHelper;
 
   /**
@@ -141,10 +136,6 @@ public class Controller {
     this.startupTime = startupTime;
     this.endTime = endTime;
     this.matchingEngine = matchingEngine;
-    this.actQueue =
-      new PriorityQueue<Agent>(FUND_BUYER_SELLER_COUNT * 2 + MARKET_MAKER_COUNT
-        + OPPOR_STRAT_COUNT + HFT_COUNT + SMALL_TRADER_COUNT
-        + INTELLIGENT_AGENT_COUNT);
     poissonGeneratorNews = new PoissonDistribution(NEWS_FREQUENCY * 1000);
     lastNewsTime = NEWS_FREQUENCY * 1000;
   }
@@ -247,8 +238,6 @@ public class Controller {
           FUND_BUYER_SELLER_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
       agentList.add(fundBuyerPoisson);
       agentList.add(fundSellerPoisson);
-      actQueue.add(fundBuyerPoisson);
-      actQueue.add(fundSellerPoisson);
     }
 
     MarketMakerPoisson marketMakerPoisson;
@@ -257,7 +246,6 @@ public class Controller {
         new MarketMakerPoisson(matchingEngine, MARKET_MAKER_LAMBDA_ORDER,
           MARKET_MAKER_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
       agentList.add(marketMakerPoisson);
-      actQueue.add(marketMakerPoisson);
     }
 
     OpporStratPoisson opporStratPoisson;
@@ -268,7 +256,6 @@ public class Controller {
         new OpporStratPoisson(matchingEngine, OPPOR_STRAT_LAMBDA_ORDER,
           OPPOR_STRAT_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
       agentList.add(opporStratPoisson);
-      actQueue.add(opporStratPoisson);
     }
 
     HFTPoisson hftPoisson;
@@ -277,7 +264,6 @@ public class Controller {
         new HFTPoisson(matchingEngine, HFT_LAMBDA_ORDER, HFT_LAMBDA_CANCEL,
           (long) (Math.random() * startupTime));
       agentList.add(hftPoisson);
-      actQueue.add(hftPoisson);
     }
 
     SmallTrader smallTrader;
@@ -286,7 +272,6 @@ public class Controller {
         new SmallTrader(matchingEngine, SMALL_TRADER_LAMBDA_ORDER,
           SMALL_TRADER_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
       agentList.add(smallTrader);
-      actQueue.add(smallTrader);
     }
 
     intelligentAgentHelper =
@@ -300,7 +285,6 @@ public class Controller {
     for (int i = 0; i < INTELLIGENT_AGENT_COUNT; ++i) {
       intelligentAgent = new IntelligentAgent(matchingEngine);
       agentList.add(intelligentAgent);
-      actQueue.add(intelligentAgent);
     }
 
     System.out.println("Done! Simulation has started");
