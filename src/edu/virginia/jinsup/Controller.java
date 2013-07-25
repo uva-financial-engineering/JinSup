@@ -203,6 +203,8 @@ public class Controller {
         - matchingEngine.getBestAskQuantity(),
         matchingEngine.getLastTradePrice());
     }
+    IntelligentAgent.updateThresholdState(intelligentAgentHelper
+      .getCurrentThresholdState());
   }
 
   /**
@@ -275,7 +277,8 @@ public class Controller {
     }
 
     intelligentAgentHelper =
-      new IntelligentAgentHelper(INTELLIGENT_AGENT_DELAY);
+      new IntelligentAgentHelper(INTELLIGENT_AGENT_DELAY,
+        INTELLIGENT_AGENT_THRESHOLD);
 
     IntelligentAgent intelligentAgent;
     // Explicitly set delay, threshold, and helper.
