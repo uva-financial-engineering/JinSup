@@ -2,6 +2,8 @@ package edu.virginia.jinsup;
 
 import java.util.ArrayList;
 
+import com.sun.xml.internal.ws.api.pipe.NextAction;
+
 import edu.virginia.jinsup.IntelligentAgentHelper.ThresholdState;
 
 /**
@@ -57,6 +59,11 @@ public class IntelligentAgent extends Agent {
   private ArrayList<ArrayList<Integer>> potentialOrdersToCover;
 
   /**
+   * Holds the list of orders to cover at time t = now - delay.
+   */
+  private ArrayList<Integer> orderBuffer;
+
+  /**
    * Constructs an Intelligent Agent and initializes its order book so that
    * there is a single order with ORDER_SIZE quantity at each tick above and
    * below the buy price.
@@ -92,14 +99,31 @@ public class IntelligentAgent extends Agent {
   void act() {
     // Deal with orders at the best bid/ask
     // TODO Refactor this nightmare without breaking anything.
+    ArrayList<Integer> interestedList =
+      potentialOrdersToCover.get(intelligentAgentHelper.getOldestIndex());
+    int oldTradePrice = intelligentAgentHelper.getOldTradePriceData();
+    Integer bestBidPrice = oldTradePrice - TICK_SIZE;
+    Integer bestAskPrice = oldTradePrice + TICK_SIZE;
+
     switch (previousThresholdState) {
       case BELOW_THRESHOLD:
         switch (currentThresholdState) {
           case BELOW_THRESHOLD:
             // Make sure best bid/ask are covered.
+            if (interestedList.remove(bestBidPrice)) {
+              createNewOrder(bestBidPrice, ORDER_SIZE, true);
+            }
+
+            if (interestedList.remove(bestAskPrice)) {
+              createNewOrder(bestAskPrice, ORDER_SIZE, false);
+            }
+
             break;
           case BUY_ORDER_SURPLUS:
             // Cancel best ask if it exists.
+            if (!interestedList.remove(bestAskPrice)) {
+              cancelOrder(bestAskPrice);
+            }
             break;
           case SELL_ORDER_SURPLUS:
             // Cancel best bid if it exists.
@@ -162,7 +186,32 @@ public class IntelligentAgent extends Agent {
     // TODO Make sure that requested order is neither best bid/ask nor edge
     // otherwise we will process it twice. (Should remove from list first)
 
+    // Load buffer to the main array and clear it
+    interestedList.clear();
+    interestedList.addAll(orderBuffer);
+    orderBuffer.clear();
+
     setNextActTime(getNextActTime() + INTERVAL);
+  }
+
+  /**
+   * Notifies the agent that one of its orders has been traded.
+   * 
+   * @param arguments
+   *          The first argument shall be the price of the order traded. The
+   *          second argument shall be the time the order was traded.
+   * 
+   */
+  public void notify(Object... arguments) {
+    int timeOfTrade = (Integer) arguments[1];
+    int priceOfOrderTraded = (Integer) arguments[0];
+    // Check if acted yet
+    if (getNextActTime() <= timeOfTrade) {
+      orderBuffer.add(priceOfOrderTraded);
+    } else {
+      potentialOrdersToCover.get(intelligentAgentHelper.getOldestIndex()).add(
+        priceOfOrderTraded);
+    }
   }
 
   public static int getDelay() {

@@ -192,6 +192,20 @@ public class MatchingEngine {
   }
 
   /**
+   * Deletes all orders of an agent for a certain price from the simulation.
+   * 
+   * @param price
+   *          The price of the order to remove.
+   */
+  public void cancelOrder(long agentID, int price) {
+    for (Order o : orderMap.get(agentID)) {
+      if (o.getPrice() == price) {
+        cancelOrder(o);
+      }
+    }
+  }
+
+  /**
    * Inserts the agent into the MatchingEngine's agentMap so that it can keep
    * track of it. This is called every time a new agent is constructed so it
    * should not have to be explicitly called.
@@ -375,7 +389,21 @@ public class MatchingEngine {
     agentMap.get(passOrder.getCreatorID()).setLastOrderTraded(true,
       -inventoryChange);
 
+    checkIntelligentAgentOrder(passOrder);
+
     return volumeTraded;
+  }
+
+  /**
+   * Checks if the order belongs to an intelligent agent. If so, then notify the
+   * agent that the order has been traded.
+   * 
+   * @param order
+   */
+  private void checkIntelligentAgentOrder(Order order) {
+    if (agentMap.get(order.getCreatorID()) instanceof IntelligentAgent) {
+      agentMap.get(order.getCreatorID()).notify(order.getPrice());
+    }
   }
 
   /**
@@ -479,7 +507,7 @@ public class MatchingEngine {
   }
 
   /**
-   * Checks if an order will make cause a trade.
+   * Checks if an order will cause a trade.
    * 
    * @param order
    *          The order to check for a trade

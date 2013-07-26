@@ -71,6 +71,13 @@ public class IntelligentAgentHelper {
       getPreviousOldTradePriceData() - getOldTradePriceData();
   }
 
+  /**
+   * Determines the threshold state from the sum of orders at the best bid/ask.
+   * 
+   * @param volumeDifference
+   *          Total volume at best bid - total volume at best ask.
+   * @return The ThresholdState.
+   */
   private ThresholdState computeThresholdState(int volumeDifference) {
     if (Math.abs(volumeDifference) < threshold) {
       return ThresholdState.BELOW_THRESHOLD;

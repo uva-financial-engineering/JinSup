@@ -89,6 +89,17 @@ public abstract class Agent implements Comparable<Agent> {
   abstract void act();
 
   /**
+   * Method used by some classes to allow messages to be passed from
+   * MatchingEngine to agent. Should be overridden.
+   * 
+   * @param arguments
+   *          The list of required arguments.
+   */
+  public void notify(Object... arguments) {
+    return;
+  }
+
+  /**
    * @return The next time the agent needs to act. This is determined by the
    *         act() method.
    */
@@ -129,6 +140,17 @@ public abstract class Agent implements Comparable<Agent> {
    */
   public void cancelOrder(Order order) {
     matchingEngine.cancelOrder(order);
+  }
+
+  /**
+   * Calls the MatchingEngine to cancel the all of the agent's orders at a
+   * certain price.
+   * 
+   * @param price
+   *          The price to wipe all orders out.
+   */
+  public void cancelOrder(int price) {
+    matchingEngine.cancelOrder(this.id, price);
   }
 
   /**
