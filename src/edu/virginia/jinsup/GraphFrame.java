@@ -269,8 +269,9 @@ public class GraphFrame extends JFrame {
       nextRefreshTime = System.currentTimeMillis() - 1;
     }
     // Repaint order graph at fixed refresh rate
-    if (System.currentTimeMillis() > nextRefreshTime) {
-      nextRefreshTime += ORDER_REFRESH_INTERVAL;
+    long now = System.currentTimeMillis();
+    if (now > nextRefreshTime) {
+      nextRefreshTime = now + ORDER_REFRESH_INTERVAL;
 
       // Rebuild data set
       orderDataset = new DefaultCategoryDataset();
