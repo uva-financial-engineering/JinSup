@@ -2,8 +2,6 @@ package edu.virginia.jinsup;
 
 import java.util.ArrayList;
 
-import com.sun.xml.internal.ws.api.pipe.NextAction;
-
 import edu.virginia.jinsup.IntelligentAgentHelper.ThresholdState;
 
 /**
@@ -53,7 +51,7 @@ public class IntelligentAgent extends Agent {
    * List of order prices over time that were traded that may need to be covered
    * by the agent.
    */
-  private ArrayList<ArrayList<Integer>> potentialOrdersToCover;
+  private final ArrayList<ArrayList<Integer>> potentialOrdersToCover;
 
   /**
    * Holds the list of orders to cover at time t = now - delay.
@@ -156,8 +154,8 @@ public class IntelligentAgent extends Agent {
       }
     } else if (currentTradePriceDifference > 0) {
       // Price decreased, create more buy orders and remove sell orders.
-      int startOrderIndex = (interestedList.remove(buyEdgePrice) ? 0 : 1);
-      int startCancelIndex = (!interestedList.remove(sellEdgePrice) ? 0 : 1);
+      int startOrderIndex = (interestedList.remove(buyEdgePrice)) ? 0 : 1;
+      int startCancelIndex = (!interestedList.remove(sellEdgePrice)) ? 0 : 1;
       for (int i = startOrderIndex; i < currentTradePriceDifference; i++) {
         createNewOrder(buyEdgePrice - (i * TICK_SIZE), ORDER_SIZE, true);
       }
@@ -178,7 +176,7 @@ public class IntelligentAgent extends Agent {
 
     // Deal with all other orders
     for (Integer i : interestedList) {
-      createNewOrder(i, ORDER_SIZE, (i < oldTradePrice ? true : false));
+      createNewOrder(i, ORDER_SIZE, i < oldTradePrice);
     }
 
     // Load buffer to the main array and clear it
@@ -197,6 +195,7 @@ public class IntelligentAgent extends Agent {
    *          second argument shall be the time the order was traded.
    * 
    */
+  @Override
   public void notify(Object... arguments) {
     int timeOfTrade = (Integer) arguments[1];
     int priceOfOrderTraded = (Integer) arguments[0];
