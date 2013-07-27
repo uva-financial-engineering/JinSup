@@ -187,7 +187,6 @@ public class MatchingEngine {
     buyOrders.remove(order);
     sellOrders.remove(order);
     orderMap.get(order.getCreatorID()).remove(order);
-
     logOrder(order, 3, false, -order.getCurrentQuant(), 0);
   }
 
@@ -198,10 +197,15 @@ public class MatchingEngine {
    *          The price of the order to remove.
    */
   public void cancelOrder(long agentID, int price) {
+    ArrayList<Order> cancelList = new ArrayList<Order>();
     for (Order o : orderMap.get(agentID)) {
       if (o.getPrice() == price) {
-        cancelOrder(o);
+        // Cannot remove order while iterating.
+        cancelList.add(o);
       }
+    }
+    for (Order o : cancelList) {
+      cancelOrder(o);
     }
   }
 
@@ -402,7 +406,7 @@ public class MatchingEngine {
    */
   private void checkIntelligentAgentOrder(Order order) {
     if (agentMap.get(order.getCreatorID()) instanceof IntelligentAgent) {
-      agentMap.get(order.getCreatorID()).notify(order.getPrice());
+      agentMap.get(order.getCreatorID()).notify(order.getPrice(), time);
     }
   }
 

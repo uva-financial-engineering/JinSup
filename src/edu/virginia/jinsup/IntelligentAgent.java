@@ -79,6 +79,8 @@ public class IntelligentAgent extends Agent {
       potentialOrdersToCover.add(new ArrayList<Integer>());
     }
 
+    orderBuffer = new ArrayList<Integer>();
+
     for (int i = 0; i < HALF_TICK_WIDTH; i++) {
       createNewOrder(matchEng.getBuyPrice() - ((i + 1) * TICK_SIZE),
         ORDER_SIZE, true);
@@ -167,7 +169,6 @@ public class IntelligentAgent extends Agent {
         if (!interestedList.remove(innerLoopPrice)) {
           cancelOrder(innerLoopPrice);
         }
-
       }
     } else {
       // Price increased, create more sell orders and remove buy orders.
@@ -191,13 +192,7 @@ public class IntelligentAgent extends Agent {
     }
 
     // Load buffer to the main array and clear it.
-    // TODO Interested list should have been cleared completely. Remove after
-    // debugging.
-    if (!interestedList.isEmpty()) {
-      System.err
-        .println("Error: An intelligent did not deal with all traded orders...exiting");
-      System.exit(1);
-    }
+    interestedList.clear();
     interestedList.addAll(orderBuffer);
     orderBuffer.clear();
 
@@ -215,7 +210,7 @@ public class IntelligentAgent extends Agent {
    */
   @Override
   public void notify(Object... arguments) {
-    int timeOfTrade = (Integer) arguments[1];
+    long timeOfTrade = (Long) arguments[1];
     int priceOfOrderTraded = (Integer) arguments[0];
     // Check if acted yet
     if (getNextActTime() <= timeOfTrade) {

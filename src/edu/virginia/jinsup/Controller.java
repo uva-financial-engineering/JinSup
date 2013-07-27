@@ -41,7 +41,7 @@ public class Controller {
   /**
    * Number of intelligent agents
    */
-  private static final int INTELLIGENT_AGENT_COUNT = 0;
+  private static final int INTELLIGENT_AGENT_COUNT = 10;
 
   // Specify parameters for intelligent agents here
   private static final int INTELLIGENT_AGENT_DELAY = 500;
