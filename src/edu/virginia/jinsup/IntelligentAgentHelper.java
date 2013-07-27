@@ -1,5 +1,7 @@
 package edu.virginia.jinsup;
 
+import java.util.Arrays;
+
 /**
  * Keeps track of delay data for Intelligent Agents without cluttering
  * MatchingEngine.
@@ -19,10 +21,12 @@ public class IntelligentAgentHelper {
 
   private ThresholdState currentThresholdState;
 
-  public IntelligentAgentHelper(int delayLength, int threshold) {
+  public IntelligentAgentHelper(int delayLength, int threshold,
+    int initialTradePrice) {
     this.delayLength = delayLength;
     volumeDifferenceData = new int[delayLength];
     tradePriceData = new int[delayLength];
+    Arrays.fill(tradePriceData, initialTradePrice);
     oldestIndex = 0;
     this.threshold = threshold;
     currentThresholdState = ThresholdState.BELOW_THRESHOLD;
@@ -40,7 +44,7 @@ public class IntelligentAgentHelper {
   }
 
   /**
-   * Get the oldest tradePrice data. Must ensure this is called first before
+   * Get the oldest trade price data. Must ensure this is called first before
    * adding new data otherwise it will be overwritten.
    * 
    * @return The oldest data so far.
@@ -49,17 +53,13 @@ public class IntelligentAgentHelper {
     return tradePriceData[oldestIndex];
   }
 
-  public int getPreviousOldTradePriceData() {
-    return (oldestIndex == 0 ? tradePriceData[delayLength - 1]
-      : tradePriceData[oldestIndex - 1]);
-  }
-
   /**
    * Adds new data. Wraps around the array if necessary.
    * 
    * @param newData
    */
   public void addData(int newVolumeDifference, int newTradePrice) {
+    int previousOldTradePrice = tradePriceData[oldestIndex];
     volumeDifferenceData[oldestIndex] = newVolumeDifference;
     tradePriceData[oldestIndex] = newTradePrice;
     currentThresholdState = computeThresholdState(newVolumeDifference);
@@ -68,7 +68,7 @@ public class IntelligentAgentHelper {
       oldestIndex = 0;
     }
     currentTradePriceDifference =
-      getPreviousOldTradePriceData() - getOldTradePriceData();
+      previousOldTradePrice - getOldTradePriceData();
   }
 
   /**

@@ -177,12 +177,13 @@ public class Controller {
     // Moving average is not used for poisson trading.
     // matchingEngine.storeMovingAverage();
     matchingEngine.reset();
-    time++;
-    triggerGroupEvent();
     if (INTELLIGENT_AGENT_COUNT != 0) {
       triggerHelperEvent();
     }
+    time++;
     matchingEngine.incrementTime();
+    triggerGroupEvent();
+
     if (time % 500 == 0) {
       graphFrame.updateTitleBar(time, state);
     }
@@ -279,7 +280,7 @@ public class Controller {
     if (INTELLIGENT_AGENT_COUNT != 0) {
       intelligentAgentHelper =
         new IntelligentAgentHelper(INTELLIGENT_AGENT_DELAY,
-          INTELLIGENT_AGENT_THRESHOLD);
+          INTELLIGENT_AGENT_THRESHOLD, matchingEngine.getLastTradePrice());
 
       IntelligentAgent intelligentAgent;
       // Explicitly set delay, threshold, and helper.
