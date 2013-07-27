@@ -1,29 +1,30 @@
 package edu.virginia.jinsup;
 
-import java.util.HashMap;
-
-import org.apache.commons.math3.distribution.PoissonDistribution;
+import org.apache.commons.math3.distribution.ExponentialDistribution;
 
 /**
  * Agent that implements a poisson trading distribution.
  */
 public abstract class PoissonAgent extends Agent {
+  /**
+   * Mean time between orders.
+   */
+  private final double lambdaOrder;
 
   /**
-   * Stores previously created PoissonDistributions
+   * Mean time between cancellations.
    */
-  private static HashMap<Double, PoissonDistribution> distCache =
-    new HashMap<Double, PoissonDistribution>();
+  private final double lambdaCancel;
 
   /**
-   * Poisson distribution generator for order frequency.
+   * Exponential distribution with mean 1 / lambdaOrder.
    */
-  private final PoissonDistribution poissonGeneratorOrder;
+  private final ExponentialDistribution orderDist;
 
   /**
-   * Poisson distribution generator for cancellation frequency.
+   * Exponential distribution with mean 1 / lambdaCancel.
    */
-  private final PoissonDistribution poissonGeneratorCancel;
+  private final ExponentialDistribution cancelDist;
 
   /**
    * Constructs a poisson trader (can only be called from a subclass).
@@ -41,19 +42,11 @@ public abstract class PoissonAgent extends Agent {
     double lambdaCancel, long initialActTime) {
     super(matchEng);
 
-    if (distCache.containsKey(lambdaOrder)) {
-      poissonGeneratorOrder = distCache.get(lambdaOrder);
-    } else {
-      poissonGeneratorOrder = new PoissonDistribution(lambdaOrder * 1000);
-      distCache.put(lambdaOrder, poissonGeneratorOrder);
-    }
+    this.lambdaOrder = lambdaOrder * 1000;
+    this.lambdaCancel = lambdaCancel * 1000;
 
-    if (distCache.containsKey(lambdaCancel)) {
-      poissonGeneratorCancel = distCache.get(lambdaCancel);
-    } else {
-      poissonGeneratorCancel = new PoissonDistribution(lambdaCancel * 1000);
-      distCache.put(lambdaCancel, poissonGeneratorCancel);
-    }
+    this.orderDist = new ExponentialDistribution(1 / this.lambdaOrder);
+    this.cancelDist = new ExponentialDistribution(1 / this.lambdaCancel);
 
     // set agents to create an order before canceling one
     setNextAction(Action.ORDER);
@@ -61,7 +54,8 @@ public abstract class PoissonAgent extends Agent {
 
     // no need for poisson determined act times for initial actions
     super.setNextOrderTime(initialActTime);
-    super.setNextCancelTime(getStartupTime() + poissonGeneratorCancel.sample());
+    super.setNextCancelTime((long) (getStartupTime() + 1.0 - this.lambdaCancel
+      * (cancelDist.sample() - 1.0)));
   }
 
   /**
@@ -120,7 +114,8 @@ public abstract class PoissonAgent extends Agent {
    */
   @Override
   protected void setNextOrderTime(long currOrderTime) {
-    super.setNextOrderTime(currOrderTime + poissonGeneratorOrder.sample());
+    super.setNextOrderTime((long) (currOrderTime + 1.0 - lambdaOrder
+      * (orderDist.sample() - 1.0)));
   }
 
   /**
@@ -131,7 +126,8 @@ public abstract class PoissonAgent extends Agent {
    */
   @Override
   protected void setNextCancelTime(long currCancelTime) {
-    super.setNextCancelTime(currCancelTime + poissonGeneratorCancel.sample());
+    super.setNextCancelTime((long) (currCancelTime + 1.0 - lambdaCancel
+      * (cancelDist.sample() - 1.0)));
   }
 
   /**
