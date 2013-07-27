@@ -2,7 +2,6 @@ package edu.virginia.jinsup;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.PriorityQueue;
 
 import org.apache.commons.math3.distribution.PoissonDistribution;
 

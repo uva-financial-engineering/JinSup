@@ -264,10 +264,6 @@ public class GraphFrame extends JFrame {
       orderMap.put(price, priceVolume);
     }
 
-    // Set initial value
-    if (nextRefreshTime == 0) {
-      nextRefreshTime = System.currentTimeMillis() - 1;
-    }
     // Repaint order graph at fixed refresh rate
     long now = System.currentTimeMillis();
     if (now > nextRefreshTime) {
@@ -276,21 +272,19 @@ public class GraphFrame extends JFrame {
       // Rebuild data set
       orderDataset = new DefaultCategoryDataset();
       boolean buyOrdersExist = false;
-      String zeroPad;
       /**
        * TODO Ensure prices increase linearly, i.e. add gaps where buy = sell =
        * 0
        */
       for (Map.Entry<Integer, Integer[]> e : orderMap.entrySet()) {
-        zeroPad = ((e.getKey() % 50) > 0) ? "" : "0";
         if (e.getValue()[0] > 0) {
-          orderDataset.addValue(e.getValue()[0], "Buy", e.getKey() / 100.0
-            + zeroPad);
+          orderDataset.addValue(e.getValue()[0], "Buy",
+            String.format("%.2f", e.getKey() * 0.01));
           buyOrdersExist = true;
         }
         if (e.getValue()[1] > 0) {
-          orderDataset.addValue(e.getValue()[1], "Sell", e.getKey() / 100.0
-            + zeroPad);
+          orderDataset.addValue(e.getValue()[1], "Sell",
+            String.format("%.2f", e.getKey() * 0.01));
         }
       }
       ((CategoryPlot) orderChart.getPlot()).setDataset(orderDataset);
@@ -325,11 +319,11 @@ public class GraphFrame extends JFrame {
       needResize = true;
     }
     if (needResize) {
-      tradeVerticalMargin = (maxTradePrice - minTradePrice + 25.0) / 10.0;
-      tradeYAxis.setRange((minTradePrice - tradeVerticalMargin) / 100.0,
-        (maxTradePrice + tradeVerticalMargin) / 100.0);
+      tradeVerticalMargin = (maxTradePrice - minTradePrice + 25.0) * 0.1;
+      tradeYAxis.setRange((minTradePrice - tradeVerticalMargin) * 0.01,
+        (maxTradePrice + tradeVerticalMargin) * 0.01);
     }
-    priceCollection.add(seconds, price / 100.0);
+    priceCollection.add(seconds, price * 0.01);
   }
 
   /**
@@ -342,7 +336,7 @@ public class GraphFrame extends JFrame {
    *          Simulation end time in milliseconds.
    */
   public void setTradePeriod(long start, long end) {
-    tradeXAxis.setRange(start / 1000.0, end / 1000.0);
+    tradeXAxis.setRange(start * 0.001, end * 0.001);
   }
 
   public void updateTitleBar(long newTime, String state) {

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.TreeSet;
@@ -126,7 +125,7 @@ public class MatchingEngine {
   /**
    * If true, then no logging is done.
    */
-  private boolean testing;
+  private final boolean testing;
 
   /**
    * Creates a matching engine with empty fields. Everything is initialized to

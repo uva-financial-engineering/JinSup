@@ -1,7 +1,5 @@
 package edu.virginia.jinsup;
 
-import sun.nio.cs.ext.MacHebrew;
-
 /**
  * Holds implementation of a generic agent's acting procedures. All new agents
  * should inherit from this class since act() is not implemented, i.e. there is
@@ -44,7 +42,7 @@ public abstract class Agent implements Comparable<Agent> {
    * Is true if an order in the last millisecond resulted in a trade with one of
    * the agent's orders. False otherwise.
    */
-  private boolean lastOrderTraded;
+  // private boolean lastOrderTraded;
 
   /**
    * Minimum price interval between orders.
@@ -211,7 +209,7 @@ public abstract class Agent implements Comparable<Agent> {
    *          Volume that was traded
    */
   public void setLastOrderTraded(boolean traded, int volume) {
-    lastOrderTraded = traded;
+    // lastOrderTraded = traded;
     inventory += volume;
   }
 
