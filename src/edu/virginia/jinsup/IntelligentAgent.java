@@ -145,7 +145,7 @@ public class IntelligentAgent extends Agent {
 
     // Deal with orders at the edge
     int currentTradePriceDifference =
-      intelligentAgentHelper.getTradePriceDifference();
+      intelligentAgentHelper.getTradePriceDifference() / TICK_SIZE;
     Integer innerLoopPrice;
     if (currentTradePriceDifference == 0) {
       // Make sure edges are filled.

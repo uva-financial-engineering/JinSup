@@ -198,13 +198,13 @@ public class Controller {
    * there are more buy orders than sell orders at the best bid/ask.
    */
   public void triggerHelperEvent() {
-    if (time > (startupTime - INTELLIGENT_AGENT_DELAY)) {
+    if (time >= (startupTime - INTELLIGENT_AGENT_DELAY)) {
       intelligentAgentHelper.addData(matchingEngine.getBestBidQuantity()
         - matchingEngine.getBestAskQuantity(),
         matchingEngine.getLastTradePrice());
+      IntelligentAgent.updateThresholdState(intelligentAgentHelper
+        .getCurrentThresholdState());
     }
-    IntelligentAgent.updateThresholdState(intelligentAgentHelper
-      .getCurrentThresholdState());
   }
 
   /**

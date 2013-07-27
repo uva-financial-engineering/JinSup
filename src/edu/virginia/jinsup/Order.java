@@ -210,4 +210,13 @@ public class Order implements Comparator<Order> {
       }
     };
 
+  public String toString() {
+    return "ID: " + this.id + " Creator: " + this.agentID + " Price: "
+      + this.price + " Current Quantity: " + this.currentQuant + " Buy Order: "
+      + this.buyOrder;
+  }
+
+  public static long getNextOrderID() {
+    return nextOrderID;
+  }
 }

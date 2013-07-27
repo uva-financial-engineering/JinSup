@@ -233,6 +233,7 @@ public class MatchingEngine {
    *          ID of the agent that initiated the order.
    */
   public boolean createOrder(Order order) {
+
     if (order.isBuyOrder()) {
       buyOrders.add(order);
     } else {
@@ -868,7 +869,7 @@ public class MatchingEngine {
   public Order getOldestOrder(long agentID) {
     ArrayList<Order> orders = orderMap.get(agentID);
     Order oldestOrder = null;
-    long oldest = time;
+    long oldest = Order.getNextOrderID();
     for (Order order : orders) {
       if (order.getId() < oldest) {
         oldestOrder = order;
