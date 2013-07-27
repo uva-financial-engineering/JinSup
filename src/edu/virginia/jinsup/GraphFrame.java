@@ -39,6 +39,10 @@ public class GraphFrame extends JFrame {
    */
   private static final Color SELL_COLOR = Color.blue;
   /**
+   * Minimum number of ms to wait before allowing order graph to be refreshed.
+   */
+  private static long ORDER_REFRESH_INTERVAL = 50;
+  /**
    * Buy price in cents.
    */
   private int buyPrice;
@@ -57,7 +61,10 @@ public class GraphFrame extends JFrame {
 
   private final BarRenderer orderRenderer;
 
-  private final long counter = 0;
+  /**
+   * Next time to repaint graph.
+   */
+  private long nextRefreshTime = 0;
 
   /**
    * First element of array is buy volume at the given price; second element is
@@ -256,40 +263,44 @@ public class GraphFrame extends JFrame {
       priceVolume[(isBuy) ? 0 : 1] = volume;
       orderMap.put(price, priceVolume);
     }
-    /**
-     * TODO Instead of hard-coded "100", use command-line option or dynamically
-     * calculated value to control responsiveness
-     */
-    // counter += 1;
-    // if (counter % 100 == 0) {
-    // Rebuild data set
-    orderDataset = new DefaultCategoryDataset();
-    boolean buyOrdersExist = false;
-    String zeroPad;
-    /**
-     * TODO Ensure prices increase linearly, i.e. add gaps where buy = sell = 0
-     */
-    for (Map.Entry<Integer, Integer[]> e : orderMap.entrySet()) {
-      zeroPad = ((e.getKey() % 50) > 0) ? "" : "0";
-      if (e.getValue()[0] > 0) {
-        orderDataset.addValue(e.getValue()[0], "Buy", e.getKey() / 100.0
-          + zeroPad);
-        buyOrdersExist = true;
+
+    // Set initial value
+    if (nextRefreshTime == 0) {
+      nextRefreshTime = System.currentTimeMillis() - 1;
+    }
+    // Repaint order graph at fixed refresh rate
+    if (System.currentTimeMillis() > nextRefreshTime) {
+      nextRefreshTime += ORDER_REFRESH_INTERVAL;
+
+      // Rebuild data set
+      orderDataset = new DefaultCategoryDataset();
+      boolean buyOrdersExist = false;
+      String zeroPad;
+      /**
+       * TODO Ensure prices increase linearly, i.e. add gaps where buy = sell =
+       * 0
+       */
+      for (Map.Entry<Integer, Integer[]> e : orderMap.entrySet()) {
+        zeroPad = ((e.getKey() % 50) > 0) ? "" : "0";
+        if (e.getValue()[0] > 0) {
+          orderDataset.addValue(e.getValue()[0], "Buy", e.getKey() / 100.0
+            + zeroPad);
+          buyOrdersExist = true;
+        }
+        if (e.getValue()[1] > 0) {
+          orderDataset.addValue(e.getValue()[1], "Sell", e.getKey() / 100.0
+            + zeroPad);
+        }
       }
-      if (e.getValue()[1] > 0) {
-        orderDataset.addValue(e.getValue()[1], "Sell", e.getKey() / 100.0
-          + zeroPad);
+      ((CategoryPlot) orderChart.getPlot()).setDataset(orderDataset);
+      // Color bar types (accounting for the case where no buy orders exist)
+      if (buyOrdersExist) {
+        orderRenderer.setSeriesPaint(0, BUY_COLOR);
+        orderRenderer.setSeriesPaint(1, SELL_COLOR);
+      } else {
+        orderRenderer.setSeriesPaint(0, SELL_COLOR);
       }
     }
-    ((CategoryPlot) orderChart.getPlot()).setDataset(orderDataset);
-    // Color bar types (accounting for the case where no buy orders exist)
-    if (buyOrdersExist) {
-      orderRenderer.setSeriesPaint(0, BUY_COLOR);
-      orderRenderer.setSeriesPaint(1, SELL_COLOR);
-    } else {
-      orderRenderer.setSeriesPaint(0, SELL_COLOR);
-    }
-    // }
   }
 
   /**
