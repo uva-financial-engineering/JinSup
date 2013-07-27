@@ -42,9 +42,6 @@ public class IntelligentAgent extends Agent {
 
   private static IntelligentAgentHelper intelligentAgentHelper;
 
-  private static ThresholdState previousThresholdState =
-    ThresholdState.BELOW_THRESHOLD;
-
   private static ThresholdState currentThresholdState =
     ThresholdState.BELOW_THRESHOLD;
 
@@ -104,65 +101,41 @@ public class IntelligentAgent extends Agent {
     int oldTradePrice = intelligentAgentHelper.getOldTradePriceData();
     Integer bestBidPrice = oldTradePrice - TICK_SIZE;
     Integer bestAskPrice = oldTradePrice + TICK_SIZE;
+    Integer buyEdgePrice = oldTradePrice - (HALF_TICK_WIDTH * TICK_SIZE);
+    Integer sellEdgePrice = oldTradePrice + (HALF_TICK_WIDTH * TICK_SIZE);
 
-    switch (previousThresholdState) {
+    switch (currentThresholdState) {
       case BELOW_THRESHOLD:
-        switch (currentThresholdState) {
-          case BELOW_THRESHOLD:
-            // Make sure best bid/ask are covered.
-            if (interestedList.remove(bestBidPrice)) {
-              createNewOrder(bestBidPrice, ORDER_SIZE, true);
-            }
-
-            if (interestedList.remove(bestAskPrice)) {
-              createNewOrder(bestAskPrice, ORDER_SIZE, false);
-            }
-
-            break;
-          case BUY_ORDER_SURPLUS:
-            // Cancel best ask if it exists.
-            if (!interestedList.remove(bestAskPrice)) {
-              cancelOrder(bestAskPrice);
-            }
-            break;
-          case SELL_ORDER_SURPLUS:
-            // Cancel best bid if it exists.
-            break;
-          default:
-            System.out.println("Error: Invalid threshold state...exiting.");
-            System.exit(1);
+        // Make sure best bid/ask are covered.
+        if (interestedList.remove(bestBidPrice)) {
+          createNewOrder(bestBidPrice, ORDER_SIZE, true);
         }
+
+        if (interestedList.remove(bestAskPrice)) {
+          createNewOrder(bestAskPrice, ORDER_SIZE, false);
+        }
+
         break;
       case BUY_ORDER_SURPLUS:
-        switch (currentThresholdState) {
-          case BELOW_THRESHOLD:
-            // Create best ask.
-            break;
-          case BUY_ORDER_SURPLUS:
-            // Leave best ask alone and check that best bid is covered.
-            break;
-          case SELL_ORDER_SURPLUS:
-            // Leave best bid alone and check that best ask is covered.
-            break;
-          default:
-            System.out.println("Error: Invalid threshold state...exiting.");
-            System.exit(1);
+        // Cancel best ask if it exists.
+        if (!interestedList.remove(bestAskPrice)) {
+          cancelOrder(bestAskPrice);
+        }
+
+        // Make sure best bid is still covered.
+        if (interestedList.remove(bestBidPrice)) {
+          createNewOrder(bestBidPrice, ORDER_SIZE, true);
         }
         break;
       case SELL_ORDER_SURPLUS:
-        switch (currentThresholdState) {
-          case BELOW_THRESHOLD:
-            // Create best bid.
-            break;
-          case BUY_ORDER_SURPLUS:
-            // Leave best ask alone and check that best bid is covered.
-            break;
-          case SELL_ORDER_SURPLUS:
-            // Leave best bid alone and check that best ask is covered.
-            break;
-          default:
-            System.out.println("Error: Invalid threshold state...exiting.");
-            System.exit(1);
+        // Cancel best bid if it exists.
+        if (!interestedList.remove(bestBidPrice)) {
+          cancelOrder(bestBidPrice);
+        }
+
+        // Make sure best ask is still covered.
+        if (interestedList.remove(bestAskPrice)) {
+          createNewOrder(bestAskPrice, ORDER_SIZE, false);
         }
         break;
       default:
@@ -175,16 +148,38 @@ public class IntelligentAgent extends Agent {
       intelligentAgentHelper.getTradePriceDifference();
     if (currentTradePriceDifference == 0) {
       // Make sure edges are filled.
-
+      if (interestedList.remove(sellEdgePrice)) {
+        createNewOrder(sellEdgePrice, ORDER_SIZE, false);
+      }
+      if (interestedList.remove(buyEdgePrice)) {
+        createNewOrder(buyEdgePrice, ORDER_SIZE, true);
+      }
     } else if (currentTradePriceDifference > 0) {
       // Price decreased, create more buy orders and remove sell orders.
+      int startOrderIndex = (interestedList.remove(buyEdgePrice) ? 0 : 1);
+      int startCancelIndex = (!interestedList.remove(sellEdgePrice) ? 0 : 1);
+      for (int i = startOrderIndex; i < currentTradePriceDifference; i++) {
+        createNewOrder(buyEdgePrice - (i * TICK_SIZE), ORDER_SIZE, true);
+      }
+      for (int i = startCancelIndex; i < currentTradePriceDifference; i++) {
+        cancelOrder(sellEdgePrice + (i * TICK_SIZE));
+      }
     } else {
       // Price increased, create more sell orders and remove buy orders.
+      int startOrderIndex = (interestedList.remove(sellEdgePrice) ? 0 : 1);
+      int startCancelIndex = (!interestedList.remove(buyEdgePrice) ? 0 : 1);
+      for (int i = startOrderIndex; i < Math.abs(currentTradePriceDifference); i++) {
+        createNewOrder(sellEdgePrice + (i * TICK_SIZE), ORDER_SIZE, false);
+      }
+      for (int i = startCancelIndex; i < Math.abs(currentTradePriceDifference); i++) {
+        cancelOrder(buyEdgePrice - (i * TICK_SIZE));
+      }
     }
 
     // Deal with all other orders
-    // TODO Make sure that requested order is neither best bid/ask nor edge
-    // otherwise we will process it twice. (Should remove from list first)
+    for (Integer i : interestedList) {
+      createNewOrder(i, ORDER_SIZE, (i < oldTradePrice ? true : false));
+    }
 
     // Load buffer to the main array and clear it
     interestedList.clear();
@@ -235,7 +230,6 @@ public class IntelligentAgent extends Agent {
   }
 
   public static void updateThresholdState(ThresholdState newState) {
-    previousThresholdState = currentThresholdState;
     currentThresholdState = newState;
   }
 
