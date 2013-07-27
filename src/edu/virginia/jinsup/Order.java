@@ -154,8 +154,8 @@ public class Order implements Comparator<Order> {
    */
   @Override
   public int compare(Order o1, Order o2) {
-    if (o1.price != o2.price) {
-      return o2.price - o1.price;
+    if (o1.getPrice() != o2.getPrice()) {
+      return o2.getPrice() - o1.getPrice();
     }
     // Prices equal
     return (int) (o2.id - o1.id);
@@ -179,8 +179,8 @@ public class Order implements Comparator<Order> {
     new Comparator<Order>() {
       @Override
       public int compare(Order o1, Order o2) {
-        if (o1.price != o2.price) {
-          return o2.price - o1.price;
+        if (o1.getPrice() != o2.getPrice()) {
+          return o2.getPrice() - o1.getPrice();
         }
         return (int) (o1.id - o2.id);
       }
@@ -203,8 +203,8 @@ public class Order implements Comparator<Order> {
     new Comparator<Order>() {
       @Override
       public int compare(Order o1, Order o2) {
-        if (o1.price != o2.price) {
-          return o1.price - o2.price;
+        if (o1.getPrice() != o2.getPrice()) {
+          return o1.getPrice() - o2.getPrice();
         }
         return (int) (o1.id - o2.id);
       }
