@@ -79,11 +79,11 @@ public abstract class PoissonAgent extends Agent {
         setNextOrderTime(getNextOrderTime());
         break;
       case NULL:
-        System.out.println("Warning: NULL action type...have all agents been"
+        System.err.println("Warning: NULL action type...have all agents been"
           + "  properly initialized?");
         break;
       default:
-        System.out.println("Fatal Error: Undefined action enum type...exiting");
+        System.err.println("Fatal Error: Undefined action enum type...exiting");
         System.exit(1);
         break;
     }
@@ -154,19 +154,6 @@ public abstract class PoissonAgent extends Agent {
    */
   void createPoissonOrder(boolean isBuying, int quantity,
     double... probabilities) {
-    // make sure the probabilities add up close to 1.0
-    // TODO remove probability sum check after debugging for performance
-    // double sum = 0.0;
-    // for (double i : probabilities) {
-    // sum += i;
-    // }
-    // if (sum < 0.9999999999) {
-    // System.out
-    // .println("The probabilities do not add up close enough to 1.0. The sum of probabilities supplied was "
-    // + sum);
-    // System.exit(1);
-    // }
-
     double probability = Math.random();
 
     if (probability < probabilities[0]) {
@@ -209,7 +196,8 @@ public abstract class PoissonAgent extends Agent {
       }
       ++i;
     } while (i < probabilities.length);
-    System.out.println("Order size probabilites do not add up to 1.0");
+    System.err
+      .println("Order size probabilites do not add up to 1.0 for poisson agent");
     return 0;
   }
 }

@@ -168,7 +168,7 @@ public class MatchingEngine {
         writer.flush();
         writer.close();
       } catch (IOException e) {
-        System.out.println("Failed to create log file.");
+        System.err.println("Error: Failed to create log file.");
         e.printStackTrace();
         System.exit(1);
       }
@@ -267,7 +267,7 @@ public class MatchingEngine {
       (buyOrder ? topSellOrders() : topBuyOrders());
 
     if (interestedOrders.isEmpty()) {
-      System.out.println("Error: Sell / Buy orders depleted.");
+      System.err.println("Error: Sell / Buy orders depleted.");
       System.exit(1);
     }
 
@@ -306,7 +306,7 @@ public class MatchingEngine {
     }
 
     if (quantToRid > 0) {
-      System.out.println("Not enough orders to satisfy market order.");
+      System.err.println("Error: Not enough orders to satisfy market order.");
       System.exit(1);
     }
 
@@ -817,7 +817,7 @@ public class MatchingEngine {
       writer.close();
 
     } catch (IOException e) {
-      System.out.println("Failed to update log.");
+      System.err.println("Error: Failed to update log.");
       e.printStackTrace();
       System.exit(1);
     }

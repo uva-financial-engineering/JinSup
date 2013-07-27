@@ -43,6 +43,11 @@ public class Controller {
    */
   private static final int INTELLIGENT_AGENT_COUNT = 0;
 
+  // Specify parameters for intelligent agents here
+  private static final int INTELLIGENT_AGENT_DELAY = 500;
+
+  private static final int INTELLIGENT_AGENT_THRESHOLD = 200;
+
   // Specify the lambdas here in seconds
   private static final int FUND_BUYER_SELLER_LAMBDA_ORDER = 40;
 
@@ -69,12 +74,6 @@ public class Controller {
    * change, in seconds.
    */
   private static final int NEWS_FREQUENCY = 300;
-
-  // Specify parameters for intelligent agents here
-
-  private static final int INTELLIGENT_AGENT_DELAY = 500;
-
-  private static final int INTELLIGENT_AGENT_THRESHOLD = 200;
 
   /**
    * List of all agents in the simulator
@@ -181,7 +180,9 @@ public class Controller {
     matchingEngine.reset();
     time++;
     triggerGroupEvent();
-    triggerHelperEvent();
+    if (INTELLIGENT_AGENT_COUNT != 0) {
+      triggerHelperEvent();
+    }
     matchingEngine.incrementTime();
     if (time % 500 == 0) {
       graphFrame.updateTitleBar(time, state);
@@ -276,18 +277,20 @@ public class Controller {
       agentList.add(smallTrader);
     }
 
-    intelligentAgentHelper =
-      new IntelligentAgentHelper(INTELLIGENT_AGENT_DELAY,
-        INTELLIGENT_AGENT_THRESHOLD);
+    if (INTELLIGENT_AGENT_COUNT != 0) {
+      intelligentAgentHelper =
+        new IntelligentAgentHelper(INTELLIGENT_AGENT_DELAY,
+          INTELLIGENT_AGENT_THRESHOLD);
 
-    IntelligentAgent intelligentAgent;
-    // Explicitly set delay, threshold, and helper.
-    IntelligentAgent.setDelay(INTELLIGENT_AGENT_DELAY);
-    IntelligentAgent.setThreshold(INTELLIGENT_AGENT_THRESHOLD);
-    IntelligentAgent.setIntelligentAgentHelper(intelligentAgentHelper);
-    for (int i = 0; i < INTELLIGENT_AGENT_COUNT; ++i) {
-      intelligentAgent = new IntelligentAgent(matchingEngine);
-      agentList.add(intelligentAgent);
+      IntelligentAgent intelligentAgent;
+      // Explicitly set delay, threshold, and helper.
+      IntelligentAgent.setDelay(INTELLIGENT_AGENT_DELAY);
+      IntelligentAgent.setThreshold(INTELLIGENT_AGENT_THRESHOLD);
+      IntelligentAgent.setIntelligentAgentHelper(intelligentAgentHelper);
+      for (int i = 0; i < INTELLIGENT_AGENT_COUNT; ++i) {
+        intelligentAgent = new IntelligentAgent(matchingEngine);
+        agentList.add(intelligentAgent);
+      }
     }
 
     System.out.println("Done! Simulation has started");

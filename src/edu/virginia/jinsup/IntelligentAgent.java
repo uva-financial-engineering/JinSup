@@ -137,13 +137,14 @@ public class IntelligentAgent extends Agent {
         }
         break;
       default:
-        System.out.println("Error: Invalid threshold state...exiting.");
+        System.err.println("Error: Invalid threshold state...exiting.");
         System.exit(1);
     }
 
     // Deal with orders at the edge
     int currentTradePriceDifference =
       intelligentAgentHelper.getTradePriceDifference();
+    Integer innerLoopPrice;
     if (currentTradePriceDifference == 0) {
       // Make sure edges are filled.
       if (interestedList.remove(sellEdgePrice)) {
@@ -154,13 +155,19 @@ public class IntelligentAgent extends Agent {
       }
     } else if (currentTradePriceDifference > 0) {
       // Price decreased, create more buy orders and remove sell orders.
+
       int startOrderIndex = (interestedList.remove(buyEdgePrice)) ? 0 : 1;
       int startCancelIndex = (!interestedList.remove(sellEdgePrice)) ? 0 : 1;
       for (int i = startOrderIndex; i < currentTradePriceDifference; i++) {
         createNewOrder(buyEdgePrice - (i * TICK_SIZE), ORDER_SIZE, true);
       }
       for (int i = startCancelIndex; i < currentTradePriceDifference; i++) {
-        cancelOrder(sellEdgePrice + (i * TICK_SIZE));
+        innerLoopPrice = sellEdgePrice + (i * TICK_SIZE);
+        // Prevent null pointer exceptions
+        if (!interestedList.remove(innerLoopPrice)) {
+          cancelOrder(innerLoopPrice);
+        }
+
       }
     } else {
       // Price increased, create more sell orders and remove buy orders.
@@ -170,7 +177,11 @@ public class IntelligentAgent extends Agent {
         createNewOrder(sellEdgePrice + (i * TICK_SIZE), ORDER_SIZE, false);
       }
       for (int i = startCancelIndex; i < Math.abs(currentTradePriceDifference); i++) {
-        cancelOrder(buyEdgePrice - (i * TICK_SIZE));
+        innerLoopPrice = buyEdgePrice - (i * TICK_SIZE);
+        // Prevent null pointer exceptions
+        if (!interestedList.remove(innerLoopPrice)) {
+          cancelOrder(innerLoopPrice);
+        }
       }
     }
 
@@ -179,12 +190,19 @@ public class IntelligentAgent extends Agent {
       createNewOrder(i, ORDER_SIZE, i < oldTradePrice);
     }
 
-    // Load buffer to the main array and clear it
-    interestedList.clear();
+    // Load buffer to the main array and clear it.
+    // TODO Interested list should have been cleared completely. Remove after
+    // debugging.
+    if (!interestedList.isEmpty()) {
+      System.err
+        .println("Error: An intelligent did not deal with all traded orders...exiting");
+      System.exit(1);
+    }
     interestedList.addAll(orderBuffer);
     orderBuffer.clear();
 
     setNextActTime(getNextActTime() + INTERVAL);
+    setWillAct(false);
   }
 
   /**
