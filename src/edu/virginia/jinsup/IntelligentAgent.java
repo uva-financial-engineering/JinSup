@@ -157,13 +157,12 @@ public class IntelligentAgent extends Agent {
       }
     } else if (currentTradePriceDifference > 0) {
       // Price decreased, create more buy orders and remove sell orders.
-
       int startOrderIndex = (interestedList.remove(buyEdgePrice)) ? 0 : 1;
       int startCancelIndex = (!interestedList.remove(sellEdgePrice)) ? 0 : 1;
-      for (int i = startOrderIndex; i < currentTradePriceDifference; i++) {
+      for (int i = startOrderIndex; i <= currentTradePriceDifference; i++) {
         createNewOrder(buyEdgePrice - (i * TICK_SIZE), ORDER_SIZE, true);
       }
-      for (int i = startCancelIndex; i < currentTradePriceDifference; i++) {
+      for (int i = startCancelIndex; i <= currentTradePriceDifference; i++) {
         innerLoopPrice = sellEdgePrice + (i * TICK_SIZE);
         // Prevent null pointer exceptions
         if (!interestedList.remove(innerLoopPrice)) {
@@ -174,10 +173,10 @@ public class IntelligentAgent extends Agent {
       // Price increased, create more sell orders and remove buy orders.
       int startOrderIndex = (interestedList.remove(sellEdgePrice) ? 0 : 1);
       int startCancelIndex = (!interestedList.remove(buyEdgePrice) ? 0 : 1);
-      for (int i = startOrderIndex; i < Math.abs(currentTradePriceDifference); i++) {
+      for (int i = startOrderIndex; i <= Math.abs(currentTradePriceDifference); i++) {
         createNewOrder(sellEdgePrice + (i * TICK_SIZE), ORDER_SIZE, false);
       }
-      for (int i = startCancelIndex; i < Math.abs(currentTradePriceDifference); i++) {
+      for (int i = startCancelIndex; i <= Math.abs(currentTradePriceDifference); i++) {
         innerLoopPrice = buyEdgePrice - (i * TICK_SIZE);
         // Prevent null pointer exceptions
         if (!interestedList.remove(innerLoopPrice)) {

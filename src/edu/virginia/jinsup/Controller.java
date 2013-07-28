@@ -201,8 +201,8 @@ public class Controller {
   public void triggerHelperEvent() {
     if (time >= (startupTime - INTELLIGENT_AGENT_DELAY)) {
       intelligentAgentHelper.addData(matchingEngine.getBestBidQuantity()
-        - matchingEngine.getBestAskQuantity(),
-        matchingEngine.getLastTradePrice());
+        - matchingEngine.getBestAskQuantity(), matchingEngine.getBestAsk()
+        .getPrice() - Agent.TICK_SIZE);
       IntelligentAgent.updateThresholdState(intelligentAgentHelper
         .getCurrentThresholdState());
     }

@@ -69,6 +69,9 @@ public class IntelligentAgentHelper {
     }
     currentTradePriceDifference =
       previousOldTradePrice - getOldTradePriceData();
+    if (currentTradePriceDifference != 0) {
+      System.out.println(currentTradePriceDifference);
+    }
   }
 
   /**
