@@ -337,7 +337,7 @@ public class MatchingEngine {
    *          Order of the passive agent.
    * @return The volume that was traded between the two orders.
    */
-  private int trade(Order agOrder, Order passOrder) {
+  private int trade(Order agOrder, Order passOrder, long matchID) {
     // save price for logging at the end.
     int price = passOrder.getPrice();
     lastTradePrice = price;
@@ -385,8 +385,9 @@ public class MatchingEngine {
     }
 
     // Update order-book visualization
-    logTrade(agOrder, agOrder.isMarketOrder(), price, volumeTraded, true);
-    logTrade(passOrder, false, price, volumeTraded, false);
+    logTrade(agOrder, agOrder.isMarketOrder(), price, volumeTraded, true,
+      matchID);
+    logTrade(passOrder, false, price, volumeTraded, false, matchID);
 
     // Update inventories
     int inventoryChange = volumeTraded * (agOrder.isBuyOrder() ? 1 : -1);
@@ -577,8 +578,9 @@ public class MatchingEngine {
     lastTradePrice = samePricedOrders.get(0).getPrice();
     int quantToRid = order.getCurrentQuant();
     int orderIndex = 0;
+    long currentID = getAndUpdateTradeMatchID();
     while (quantToRid > 0 && orderIndex < samePricedOrders.size()) {
-      quantToRid -= trade(order, samePricedOrders.get(orderIndex));
+      quantToRid -= trade(order, samePricedOrders.get(orderIndex), currentID);
       orderIndex++;
     }
 
@@ -726,7 +728,6 @@ public class MatchingEngine {
   /**
    * A logging method that is called to log orders when they trade.
    * 
-   * 
    * @param order
    *          The order to be logged.
    * @param market
@@ -737,7 +738,7 @@ public class MatchingEngine {
    *          The volume that was traded on this order.
    */
   public void logTrade(Order order, boolean market, int tradePrice, int volume,
-    boolean aggressor) {
+    boolean aggressor, long matchID) {
     if (!testing) {
       if (order.isBuyOrder()) {
         currAgVolumeBuySide += volume;
@@ -757,7 +758,7 @@ public class MatchingEngine {
         + order.getOriginalQuant() + "," + order.getPrice() * 0.01 + ","
         + (market ? "Market," : "Limit,") + order.getCurrentQuant() + ","
         + tradePrice * 0.01 + "," + volume + (aggressor ? ",Y" : ",N") + ", "
-        + getAndUpdateTradeMatchID() + "\n");
+        + matchID + "\n");
     }
   }
 
