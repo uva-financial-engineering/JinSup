@@ -395,6 +395,7 @@ public class MatchingEngine {
     agentMap.get(passOrder.getCreatorID()).setLastOrderTraded(true,
       -inventoryChange);
 
+    checkIntelligentAgentOrder(agOrder);
     checkIntelligentAgentOrder(passOrder);
 
     return volumeTraded;
@@ -756,7 +757,7 @@ public class MatchingEngine {
         + order.getOriginalQuant() + "," + order.getPrice() * 0.01 + ","
         + (market ? "Market," : "Limit,") + order.getCurrentQuant() + ","
         + tradePrice * 0.01 + "," + volume + (aggressor ? ",Y" : ",N") + ", "
-        + getNextTradeMatchID() + "\n");
+        + getAndUpdateTradeMatchID() + "\n");
     }
   }
 
@@ -910,7 +911,11 @@ public class MatchingEngine {
     return buyArrayList;
   }
 
-  public int getNextTradeMatchID() {
+  public int getAndUpdateTradeMatchID() {
     return tradeMatchID++;
+  }
+
+  public void setTradePrice(int newTradePrice) {
+    lastTradePrice = newTradePrice;
   }
 }

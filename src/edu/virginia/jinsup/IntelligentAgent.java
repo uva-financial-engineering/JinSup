@@ -99,10 +99,17 @@ public class IntelligentAgent extends Agent {
     ArrayList<Integer> interestedList =
       potentialOrdersToCover.get(intelligentAgentHelper.getOldestIndex());
     int oldTradePrice = intelligentAgentHelper.getOldTradePriceData();
+    int currentTradePriceDifference =
+      intelligentAgentHelper.getTradePriceDifference() / TICK_SIZE;
+    // System.out.println(currentTradePriceDifference);
     Integer bestBidPrice = oldTradePrice - TICK_SIZE;
     Integer bestAskPrice = oldTradePrice + TICK_SIZE;
-    Integer buyEdgePrice = oldTradePrice - (HALF_TICK_WIDTH * TICK_SIZE);
-    Integer sellEdgePrice = oldTradePrice + (HALF_TICK_WIDTH * TICK_SIZE);
+    Integer buyEdgePrice =
+      oldTradePrice
+        - ((HALF_TICK_WIDTH - currentTradePriceDifference) * TICK_SIZE);
+    Integer sellEdgePrice =
+      oldTradePrice
+        + ((HALF_TICK_WIDTH + currentTradePriceDifference) * TICK_SIZE);
 
     switch (currentThresholdState) {
       case BELOW_THRESHOLD:
@@ -144,8 +151,7 @@ public class IntelligentAgent extends Agent {
     }
 
     // Deal with orders at the edge
-    int currentTradePriceDifference =
-      intelligentAgentHelper.getTradePriceDifference() / TICK_SIZE;
+
     Integer innerLoopPrice;
     if (currentTradePriceDifference == 0) {
       // Make sure edges are filled.
@@ -162,8 +168,8 @@ public class IntelligentAgent extends Agent {
       for (int i = startOrderIndex; i <= currentTradePriceDifference; i++) {
         createNewOrder(buyEdgePrice - (i * TICK_SIZE), ORDER_SIZE, true);
       }
-      for (int i = startCancelIndex; i <= currentTradePriceDifference; i++) {
-        innerLoopPrice = sellEdgePrice + (i * TICK_SIZE);
+      for (int i = startCancelIndex; i < currentTradePriceDifference; i++) {
+        innerLoopPrice = sellEdgePrice - (i * TICK_SIZE);
         // Prevent null pointer exceptions
         if (!interestedList.remove(innerLoopPrice)) {
           cancelOrder(innerLoopPrice);
@@ -176,8 +182,8 @@ public class IntelligentAgent extends Agent {
       for (int i = startOrderIndex; i <= Math.abs(currentTradePriceDifference); i++) {
         createNewOrder(sellEdgePrice + (i * TICK_SIZE), ORDER_SIZE, false);
       }
-      for (int i = startCancelIndex; i <= Math.abs(currentTradePriceDifference); i++) {
-        innerLoopPrice = buyEdgePrice - (i * TICK_SIZE);
+      for (int i = startCancelIndex; i < Math.abs(currentTradePriceDifference); i++) {
+        innerLoopPrice = buyEdgePrice + (i * TICK_SIZE);
         // Prevent null pointer exceptions
         if (!interestedList.remove(innerLoopPrice)) {
           cancelOrder(innerLoopPrice);

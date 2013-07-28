@@ -69,9 +69,13 @@ public class IntelligentAgentHelper {
     }
     currentTradePriceDifference =
       previousOldTradePrice - getOldTradePriceData();
-    if (currentTradePriceDifference != 0) {
-      System.out.println(currentTradePriceDifference);
-    }
+
+    // if (currentTradePriceDifference != 0) {
+    // System.out.println("OH");
+    // }
+    // System.out.print("TPD: " + Arrays.toString(tradePriceData) + " VDD: "
+    // + Arrays.toString(volumeDifferenceData) + " CTPD: "
+    // + currentTradePriceDifference + " OI: " + oldestIndex);
   }
 
   /**

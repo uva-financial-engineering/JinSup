@@ -43,7 +43,7 @@ public class Controller {
   private static final int INTELLIGENT_AGENT_COUNT = 10;
 
   // Specify parameters for intelligent agents here
-  private static final int INTELLIGENT_AGENT_DELAY = 500;
+  private static final int INTELLIGENT_AGENT_DELAY = 10;
 
   private static final int INTELLIGENT_AGENT_THRESHOLD = 200;
 
@@ -206,6 +206,10 @@ public class Controller {
       IntelligentAgent.updateThresholdState(intelligentAgentHelper
         .getCurrentThresholdState());
     }
+    // System.out.print(" TIME: " + time + " \n");
+    // if (time == 400 * 1000) {
+    // matchingEngine.setTradePrice(127025);
+    // }
   }
 
   /**
