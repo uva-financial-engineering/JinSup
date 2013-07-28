@@ -1,7 +1,7 @@
 package edu.virginia.jinsup;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Collections;
 
 import org.apache.commons.math3.distribution.PoissonDistribution;
 
@@ -143,16 +143,15 @@ public class Controller {
    * slot.
    */
   public void selectActingAgent() {
-    LinkedList<Agent> actingAgents = new LinkedList<Agent>();
+    ArrayList<Agent> actingAgents = new ArrayList<Agent>();
     for (Agent a : agentList) {
       if (a.getNextActTime() == time) {
         actingAgents.add(a);
       }
     }
-    // pick a random agent to activate
-    while (!actingAgents.isEmpty()) {
-      activateAgent(actingAgents.remove((int) (Math.random() * actingAgents
-        .size())));
+    Collections.shuffle(actingAgents);
+    for (Agent a : actingAgents) {
+      activateAgent(a);
     }
   }
 
