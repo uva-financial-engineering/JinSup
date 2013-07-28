@@ -41,7 +41,7 @@ public class GraphFrame extends JFrame {
   /**
    * Minimum number of ms to wait before allowing order graph to be refreshed.
    */
-  private static long ORDER_REFRESH_INTERVAL = 50;
+  private static long REFRESH_INTERVAL = 200;
   /**
    * Buy price in cents.
    */
@@ -62,9 +62,14 @@ public class GraphFrame extends JFrame {
   private final BarRenderer orderRenderer;
 
   /**
-   * Next time to repaint graph.
+   * Next time to repaint order graph.
    */
-  private long nextRefreshTime = 0;
+  private long nextOrderRefreshTime = 0;
+
+  /**
+   * Next time to repaint trade graph.
+   */
+  private long nextTradeRefreshTime = 0;
 
   /**
    * First element of array is buy volume at the given price; second element is
@@ -75,6 +80,7 @@ public class GraphFrame extends JFrame {
   private final JFreeChart orderChart;
 
   private final XYSeries priceCollection;
+  private boolean needResize;
   private int minTradePrice;
   private int maxTradePrice;
   private final ValueAxis tradeXAxis;
@@ -88,6 +94,7 @@ public class GraphFrame extends JFrame {
   public GraphFrame(boolean optionsSet) {
     super("JinSup");
 
+    needResize = true;
     minTradePrice = Integer.MAX_VALUE;
     maxTradePrice = 0;
     JPanel window = new JPanel();
@@ -266,8 +273,8 @@ public class GraphFrame extends JFrame {
 
     // Repaint order graph at fixed refresh rate
     long now = System.currentTimeMillis();
-    if (now > nextRefreshTime) {
-      nextRefreshTime = now + ORDER_REFRESH_INTERVAL;
+    if (now > nextOrderRefreshTime) {
+      nextOrderRefreshTime = now + REFRESH_INTERVAL;
 
       // Rebuild data set
       orderDataset = new DefaultCategoryDataset();
@@ -307,7 +314,6 @@ public class GraphFrame extends JFrame {
    *          Price of the order in cents.
    */
   public void addTrade(double seconds, int price) {
-    boolean needResize = false;
     if (price < minTradePrice) {
       minTradePrice = price;
       needResize = true;
@@ -318,12 +324,21 @@ public class GraphFrame extends JFrame {
       maxTradePrice = price;
       needResize = true;
     }
-    if (needResize) {
-      tradeVerticalMargin = (maxTradePrice - minTradePrice + 25.0) * 0.1;
-      tradeYAxis.setRange((minTradePrice - tradeVerticalMargin) * 0.01,
-        (maxTradePrice + tradeVerticalMargin) * 0.01);
+
+    long now = System.currentTimeMillis();
+    if (now > nextTradeRefreshTime) {
+      nextTradeRefreshTime = now + REFRESH_INTERVAL;
+
+      if (needResize) {
+        tradeVerticalMargin = (maxTradePrice - minTradePrice + 25.0) * 0.1;
+        tradeYAxis.setRange((minTradePrice - tradeVerticalMargin) * 0.01,
+          (maxTradePrice + tradeVerticalMargin) * 0.01);
+        needResize = false;
+      }
+      priceCollection.add(seconds, price * 0.01);
+    } else {
+      priceCollection.add(seconds, price * 0.01, false);
     }
-    priceCollection.add(seconds, price * 0.01);
   }
 
   /**
