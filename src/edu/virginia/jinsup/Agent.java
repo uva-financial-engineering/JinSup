@@ -7,7 +7,7 @@ package edu.virginia.jinsup;
  * will need to have its own unique implementation of the act() method.
  */
 
-public abstract class Agent implements Comparable<Agent> {
+public abstract class Agent {
 
   /**
    * The ID that should be assigned to the next agent created.
@@ -401,11 +401,5 @@ public abstract class Agent implements Comparable<Agent> {
    */
   public long getID() {
     return id;
-  }
-
-  @Override
-  public int compareTo(Agent a) {
-    return getNextActTime() > a.getNextActTime() ? 1 : getNextActTime() < a
-      .getNextActTime() ? -1 : 0;
   }
 }

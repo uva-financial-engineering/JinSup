@@ -43,10 +43,6 @@ public class IntelligentAgent extends Agent {
   private static ThresholdState currentThresholdState =
     ThresholdState.BELOW_THRESHOLD;
 
-  private static int previousTradePrice = 0;
-
-  private static int currentTradePrice = 0;
-
   /**
    * List of order prices over time that were traded that may need to be covered
    * by the agent.

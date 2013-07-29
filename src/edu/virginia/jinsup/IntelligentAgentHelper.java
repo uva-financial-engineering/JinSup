@@ -19,7 +19,7 @@ public class IntelligentAgentHelper {
     BELOW_THRESHOLD, BUY_ORDER_SURPLUS, SELL_ORDER_SURPLUS;
   }
 
-  private ThresholdState currentThresholdState;
+  private ThresholdState pastThresholdState;
 
   public IntelligentAgentHelper(int delayLength, int threshold,
     int initialTradePrice) {
@@ -29,7 +29,7 @@ public class IntelligentAgentHelper {
     Arrays.fill(tradePriceData, initialTradePrice);
     oldestIndex = 0;
     this.threshold = threshold;
-    currentThresholdState = ThresholdState.BELOW_THRESHOLD;
+    pastThresholdState = ThresholdState.BELOW_THRESHOLD;
     currentTradePriceDifference = 0;
   }
 
@@ -62,13 +62,16 @@ public class IntelligentAgentHelper {
     int previousOldTradePrice = tradePriceData[oldestIndex];
     volumeDifferenceData[oldestIndex] = newVolumeDifference;
     tradePriceData[oldestIndex] = newTradePrice;
-    currentThresholdState = computeThresholdState(newVolumeDifference);
+
     oldestIndex++;
     if (oldestIndex >= delayLength) {
       oldestIndex = 0;
     }
     currentTradePriceDifference =
       previousOldTradePrice - getOldTradePriceData();
+
+    pastThresholdState =
+      computeThresholdState(volumeDifferenceData[oldestIndex]);
 
     // if (currentTradePriceDifference != 0) {
     // System.out.println("OH");
@@ -102,8 +105,8 @@ public class IntelligentAgentHelper {
     return currentTradePriceDifference;
   }
 
-  public ThresholdState getCurrentThresholdState() {
-    return currentThresholdState;
+  public ThresholdState getPastThresholdState() {
+    return pastThresholdState;
   }
 
   public int getOldestIndex() {

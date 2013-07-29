@@ -203,7 +203,7 @@ public class Controller {
         - matchingEngine.getBestAskQuantity(), matchingEngine.getBestAsk()
         .getPrice() - Agent.TICK_SIZE);
       IntelligentAgent.updateThresholdState(intelligentAgentHelper
-        .getCurrentThresholdState());
+        .getPastThresholdState());
     }
     // System.out.print(" TIME: " + time + " \n");
     // if (time == 400 * 1000) {
