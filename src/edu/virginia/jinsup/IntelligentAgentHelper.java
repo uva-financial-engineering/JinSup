@@ -10,10 +10,12 @@ public class IntelligentAgentHelper {
 
   private int delayLength;
   private int[] volumeDifferenceData;
-  private int[] tradePriceData;
+  private int[] bestBidPriceData;
+  private int[] bestAskPriceData;
+  private int previousOldBestBidPrice;
+  private int previousOldBestAskPrice;
   private int oldestIndex;
   private int threshold;
-  private int currentTradePriceDifference;
 
   public enum ThresholdState {
     BELOW_THRESHOLD, BUY_ORDER_SURPLUS, SELL_ORDER_SURPLUS;
@@ -25,32 +27,35 @@ public class IntelligentAgentHelper {
     int initialTradePrice) {
     this.delayLength = delayLength;
     volumeDifferenceData = new int[delayLength];
-    tradePriceData = new int[delayLength];
-    Arrays.fill(tradePriceData, initialTradePrice);
+    bestBidPriceData = new int[delayLength];
+    bestAskPriceData = new int[delayLength];
+    Arrays.fill(bestBidPriceData, initialTradePrice - Agent.TICK_SIZE);
+    Arrays.fill(bestAskPriceData, initialTradePrice + Agent.TICK_SIZE);
+    previousOldBestBidPrice = initialTradePrice - Agent.TICK_SIZE;
+    previousOldBestAskPrice = initialTradePrice + Agent.TICK_SIZE;
     oldestIndex = 0;
     this.threshold = threshold;
     pastThresholdState = ThresholdState.BELOW_THRESHOLD;
-    currentTradePriceDifference = 0;
   }
 
   /**
-   * Get the oldest volume difference data. Must ensure this is called first
-   * before adding new data otherwise it will be overwritten.
-   * 
-   * @return The oldest data so far.
-   */
-  public int getOldVolumeDifferenceData() {
-    return volumeDifferenceData[oldestIndex];
-  }
-
-  /**
-   * Get the oldest trade price data. Must ensure this is called first before
+   * Get the oldest best bid price. Must ensure this is called first before
    * adding new data otherwise it will be overwritten.
    * 
-   * @return The oldest data so far.
+   * @return The oldest best bid price so far.
    */
-  public int getOldTradePriceData() {
-    return tradePriceData[oldestIndex];
+  public int getOldBestBidPrice() {
+    return bestBidPriceData[oldestIndex];
+  }
+
+  /**
+   * Get the oldest best ask price. Must ensure this is called first before
+   * adding new data otherwise it will be overwritten.
+   * 
+   * @return The oldest best ask price so far.
+   */
+  public int getOldBestAskPrice() {
+    return bestAskPriceData[oldestIndex];
   }
 
   /**
@@ -58,18 +63,22 @@ public class IntelligentAgentHelper {
    * 
    * @param newData
    */
-  public void addData(int newVolumeDifference, int newTradePrice) {
-    int previousOldTradePrice = tradePriceData[oldestIndex];
+  public void addData(int newVolumeDifference, int newBestBidPrice,
+    int newBestAskPrice) {
+    previousOldBestBidPrice = bestBidPriceData[oldestIndex];
+    previousOldBestAskPrice = bestAskPriceData[oldestIndex];
+
+    // Overwrite
+    bestBidPriceData[oldestIndex] = newBestBidPrice;
+    bestAskPriceData[oldestIndex] = newBestAskPrice;
     volumeDifferenceData[oldestIndex] = newVolumeDifference;
-    tradePriceData[oldestIndex] = newTradePrice;
 
     oldestIndex++;
     if (oldestIndex >= delayLength) {
       oldestIndex = 0;
     }
-    currentTradePriceDifference =
-      previousOldTradePrice - getOldTradePriceData();
 
+    // Update ThresholdState
     pastThresholdState =
       computeThresholdState(volumeDifferenceData[oldestIndex]);
 
@@ -98,18 +107,19 @@ public class IntelligentAgentHelper {
     }
   }
 
-  /**
-   * @return TradePrice[i - 1] - TradePrice[i].
-   */
-  public int getTradePriceDifference() {
-    return currentTradePriceDifference;
-  }
-
   public ThresholdState getPastThresholdState() {
     return pastThresholdState;
   }
 
   public int getOldestIndex() {
     return oldestIndex;
+  }
+
+  public int getPreviousOldBestBidPrice() {
+    return previousOldBestBidPrice;
+  }
+
+  public int getPreviousOldBestAskPrice() {
+    return previousOldBestAskPrice;
   }
 }

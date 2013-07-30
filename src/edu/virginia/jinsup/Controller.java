@@ -200,15 +200,11 @@ public class Controller {
   public void triggerHelperEvent() {
     if (time >= (startupTime - INTELLIGENT_AGENT_DELAY)) {
       intelligentAgentHelper.addData(matchingEngine.getBestBidQuantity()
-        - matchingEngine.getBestAskQuantity(), matchingEngine.getBestAsk()
-        .getPrice() - Agent.TICK_SIZE);
+        - matchingEngine.getBestAskQuantity(), matchingEngine.getBestBid()
+        .getPrice(), matchingEngine.getBestAsk().getPrice());
       IntelligentAgent.updateThresholdState(intelligentAgentHelper
         .getPastThresholdState());
     }
-    // System.out.print(" TIME: " + time + " \n");
-    // if (time == 400 * 1000) {
-    // matchingEngine.setTradePrice(127025);
-    // }
   }
 
   /**

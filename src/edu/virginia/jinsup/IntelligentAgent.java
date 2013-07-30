@@ -1,6 +1,7 @@
 package edu.virginia.jinsup;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import edu.virginia.jinsup.IntelligentAgentHelper.ThresholdState;
 
@@ -94,102 +95,60 @@ public class IntelligentAgent extends Agent {
     // TODO Refactor this nightmare without breaking anything.
     ArrayList<Integer> interestedList =
       potentialOrdersToCover.get(intelligentAgentHelper.getOldestIndex());
-    int oldTradePrice = intelligentAgentHelper.getOldTradePriceData();
-    int currentTradePriceDifference =
-      intelligentAgentHelper.getTradePriceDifference() / TICK_SIZE;
-    // System.out.println(currentTradePriceDifference);
-    Integer bestBidPrice = oldTradePrice - TICK_SIZE;
-    Integer bestAskPrice = oldTradePrice + TICK_SIZE;
-    Integer buyEdgePrice =
-      oldTradePrice
-        - ((HALF_TICK_WIDTH - currentTradePriceDifference) * TICK_SIZE);
-    Integer sellEdgePrice =
-      oldTradePrice
-        + ((HALF_TICK_WIDTH + currentTradePriceDifference) * TICK_SIZE);
+    Integer bestBidPriceToFill = intelligentAgentHelper.getOldBestBidPrice();
+    Integer bestAskPriceToFill = intelligentAgentHelper.getOldBestAskPrice();
+    Integer previousBestBidPrice =
+      intelligentAgentHelper.getPreviousOldBestBidPrice();
+    Integer previousBestAskPrice =
+      intelligentAgentHelper.getPreviousOldBestAskPrice();
+
+    HashSet<Integer> pricesToOrder = new HashSet<Integer>();
+    for (int i = 0; i < HALF_TICK_WIDTH; ++i) {
+      pricesToOrder.add(bestBidPriceToFill - (i * TICK_SIZE));
+      pricesToOrder.add(bestAskPriceToFill + (i * TICK_SIZE));
+    }
+
+    // Iterate through old interval
+    for (int i = 0; i < HALF_TICK_WIDTH; ++i) {
+      Integer currentPrice = previousBestBidPrice - (i * TICK_SIZE);
+      if (!interestedList.contains(currentPrice)) {
+        if (isInInterval(currentPrice, bestBidPriceToFill, bestAskPriceToFill)) {
+          pricesToOrder.remove(currentPrice);
+        } else {
+          cancelOrder(currentPrice);
+        }
+      }
+
+      currentPrice = previousBestAskPrice - (i * TICK_SIZE);
+      if (!interestedList.contains(currentPrice)) {
+        if (isInInterval(currentPrice, bestBidPriceToFill, bestAskPriceToFill)) {
+          pricesToOrder.remove(currentPrice);
+        } else {
+          cancelOrder(currentPrice);
+        }
+      }
+
+    }
 
     switch (currentThresholdState) {
       case BELOW_THRESHOLD:
-        // Make sure best bid/ask are covered.
-        if (interestedList.remove(bestBidPrice)) {
-          createNewOrder(bestBidPrice, ORDER_SIZE, true);
-        }
-
-        if (interestedList.remove(bestAskPrice)) {
-          createNewOrder(bestAskPrice, ORDER_SIZE, false);
-        }
-
+        // Make sure best bid/ask are covered... they should be by default
+        // TODO Remove this case
         break;
+
       case BUY_ORDER_SURPLUS:
         // Cancel best ask if it exists.
-        if (!interestedList.remove(bestAskPrice)) {
-          cancelOrder(bestAskPrice);
-        }
 
-        // Make sure best bid is still covered.
-        if (interestedList.remove(bestBidPrice)) {
-          createNewOrder(bestBidPrice, ORDER_SIZE, true);
-        }
+        // Make sure best bid is still covered... should be covered already
         break;
       case SELL_ORDER_SURPLUS:
         // Cancel best bid if it exists.
-        if (!interestedList.remove(bestBidPrice)) {
-          cancelOrder(bestBidPrice);
-        }
 
-        // Make sure best ask is still covered.
-        if (interestedList.remove(bestAskPrice)) {
-          createNewOrder(bestAskPrice, ORDER_SIZE, false);
-        }
+        // Make sure best ask is still covered... should be covered already
         break;
       default:
         System.err.println("Error: Invalid threshold state...exiting.");
         System.exit(1);
-    }
-
-    // Deal with orders at the edge
-
-    Integer innerLoopPrice;
-    if (currentTradePriceDifference == 0) {
-      // Make sure edges are filled.
-      if (interestedList.remove(sellEdgePrice)) {
-        createNewOrder(sellEdgePrice, ORDER_SIZE, false);
-      }
-      if (interestedList.remove(buyEdgePrice)) {
-        createNewOrder(buyEdgePrice, ORDER_SIZE, true);
-      }
-    } else if (currentTradePriceDifference > 0) {
-      // Price decreased, create more buy orders and remove sell orders.
-      int startOrderIndex = (interestedList.remove(buyEdgePrice)) ? 0 : 1;
-      int startCancelIndex = (!interestedList.remove(sellEdgePrice)) ? 0 : 1;
-      for (int i = startOrderIndex; i <= currentTradePriceDifference; i++) {
-        createNewOrder(buyEdgePrice - (i * TICK_SIZE), ORDER_SIZE, true);
-      }
-      for (int i = startCancelIndex; i < currentTradePriceDifference; i++) {
-        innerLoopPrice = sellEdgePrice - (i * TICK_SIZE);
-        // Prevent null pointer exceptions
-        if (!interestedList.remove(innerLoopPrice)) {
-          cancelOrder(innerLoopPrice);
-        }
-      }
-    } else {
-      // Price increased, create more sell orders and remove buy orders.
-      int startOrderIndex = (interestedList.remove(sellEdgePrice) ? 0 : 1);
-      int startCancelIndex = (!interestedList.remove(buyEdgePrice) ? 0 : 1);
-      for (int i = startOrderIndex; i <= Math.abs(currentTradePriceDifference); i++) {
-        createNewOrder(sellEdgePrice + (i * TICK_SIZE), ORDER_SIZE, false);
-      }
-      for (int i = startCancelIndex; i < Math.abs(currentTradePriceDifference); i++) {
-        innerLoopPrice = buyEdgePrice + (i * TICK_SIZE);
-        // Prevent null pointer exceptions
-        if (!interestedList.remove(innerLoopPrice)) {
-          cancelOrder(innerLoopPrice);
-        }
-      }
-    }
-
-    // Deal with all other orders
-    for (Integer i : interestedList) {
-      createNewOrder(i, ORDER_SIZE, i < oldTradePrice);
     }
 
     // Load buffer to the main array and clear it.
@@ -220,6 +179,30 @@ public class IntelligentAgent extends Agent {
       potentialOrdersToCover.get(intelligentAgentHelper.getOldestIndex()).add(
         priceOfOrderTraded);
     }
+  }
+
+  /**
+   * Checks if the price is in the interval (bestBidPrice - TICK_SIZE ,
+   * bestBidPrice] or [bestAskPrice, bestAskPrice + TICK_SIZE).
+   * 
+   * @param priceToCheck
+   *          The price to check.
+   * @param bestBidPrice
+   *          Best bid price.
+   * @param bestAskPrice
+   *          Best ask price.
+   * @return True if priceToCheck is in the interval. False otherwise.
+   */
+  public boolean isInInterval(int priceToCheck, int bestBidPrice,
+    int bestAskPrice) {
+    if (priceToCheck > bestBidPrice - TICK_SIZE && priceToCheck <= bestBidPrice) {
+      return true;
+    }
+
+    if (priceToCheck >= bestAskPrice && priceToCheck < bestAskPrice + TICK_SIZE) {
+      return true;
+    }
+    return false;
   }
 
   public static int getDelay() {
