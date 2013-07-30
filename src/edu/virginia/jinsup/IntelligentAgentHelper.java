@@ -16,6 +16,7 @@ public class IntelligentAgentHelper {
   private int previousOldBestAskPrice;
   private int oldestIndex;
   private int threshold;
+  private boolean thresholdEnabled;
 
   public enum ThresholdState {
     BELOW_THRESHOLD, BUY_ORDER_SURPLUS, SELL_ORDER_SURPLUS;
@@ -24,7 +25,7 @@ public class IntelligentAgentHelper {
   private ThresholdState pastThresholdState;
 
   public IntelligentAgentHelper(int delayLength, int threshold,
-    int initialTradePrice) {
+    int initialTradePrice, boolean thresholdEnabled) {
     this.delayLength = delayLength;
     volumeDifferenceData = new int[delayLength];
     bestBidPriceData = new int[delayLength];
@@ -36,6 +37,7 @@ public class IntelligentAgentHelper {
     oldestIndex = 0;
     this.threshold = threshold;
     pastThresholdState = ThresholdState.BELOW_THRESHOLD;
+    this.thresholdEnabled = thresholdEnabled;
   }
 
   /**
@@ -71,14 +73,24 @@ public class IntelligentAgentHelper {
     // Overwrite
     bestBidPriceData[oldestIndex] = newBestBidPrice;
     bestAskPriceData[oldestIndex] = newBestAskPrice;
-    volumeDifferenceData[oldestIndex] = newVolumeDifference;
 
+    if (thresholdEnabled) {
+      updateOldIndexWithThreshold(newVolumeDifference);
+    } else {
+      updateOldIndex();
+    }
+  }
+
+  public void updateOldIndex() {
     oldestIndex++;
     if (oldestIndex >= delayLength) {
       oldestIndex = 0;
     }
+  }
 
-    // Update ThresholdState
+  public void updateOldIndexWithThreshold(int newVolumeDifference) {
+    volumeDifferenceData[oldestIndex] = newVolumeDifference;
+    updateOldIndex();
     pastThresholdState =
       computeThresholdState(volumeDifferenceData[oldestIndex]);
   }

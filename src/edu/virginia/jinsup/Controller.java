@@ -43,7 +43,12 @@ public class Controller {
   private static final int INTELLIGENT_AGENT_COUNT = 10;
 
   // Specify parameters for intelligent agents here
-  private static final int INTELLIGENT_AGENT_DELAY = 10;
+  private static final int INTELLIGENT_AGENT_DELAY = 100;
+
+  /**
+   * To speed up the simulation with infinite thresholds, set this to false.
+   */
+  private static final boolean INTELLIGENT_AGENT_THRESHOLD_ENABLE = true;
 
   private static final int INTELLIGENT_AGENT_THRESHOLD = 200;
 
@@ -202,11 +207,10 @@ public class Controller {
       intelligentAgentHelper.addData(matchingEngine.getBestBidQuantity()
         - matchingEngine.getBestAskQuantity(), matchingEngine.getBestBid()
         .getPrice(), matchingEngine.getBestAsk().getPrice());
-      System.out.println(time + ": " + "best bid: "
-        + matchingEngine.getBestBid().getPrice() + "best ask: "
-        + matchingEngine.getBestAsk().getPrice());
-      IntelligentAgent.updateThresholdState(intelligentAgentHelper
-        .getPastThresholdState());
+      if (INTELLIGENT_AGENT_THRESHOLD_ENABLE) {
+        IntelligentAgent.updateThresholdState(intelligentAgentHelper
+          .getPastThresholdState());
+      }
     }
   }
 
@@ -282,7 +286,8 @@ public class Controller {
     if (INTELLIGENT_AGENT_COUNT != 0) {
       intelligentAgentHelper =
         new IntelligentAgentHelper(INTELLIGENT_AGENT_DELAY,
-          INTELLIGENT_AGENT_THRESHOLD, matchingEngine.getLastTradePrice());
+          INTELLIGENT_AGENT_THRESHOLD, matchingEngine.getLastTradePrice(),
+          INTELLIGENT_AGENT_THRESHOLD_ENABLE);
 
       IntelligentAgent intelligentAgent;
       // Explicitly set delay, threshold, and helper.

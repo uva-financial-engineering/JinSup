@@ -200,8 +200,9 @@ public class IntelligentAgent extends Agent {
   }
 
   /**
-   * Checks if the price is in the interval (bestBidPrice - TICK_SIZE ,
-   * bestBidPrice] or [bestAskPrice, bestAskPrice + TICK_SIZE).
+   * Checks if the price is in the interval (bestBidPrice - HALF_TICK_WIDTH *
+   * TICK_SIZE , bestBidPrice] or [bestAskPrice, bestAskPrice + HALF_TICK_WIDTH
+   * * TICK_SIZE).
    * 
    * @param priceToCheck
    *          The price to check.
