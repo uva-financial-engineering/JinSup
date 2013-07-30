@@ -202,6 +202,9 @@ public class Controller {
       intelligentAgentHelper.addData(matchingEngine.getBestBidQuantity()
         - matchingEngine.getBestAskQuantity(), matchingEngine.getBestBid()
         .getPrice(), matchingEngine.getBestAsk().getPrice());
+      System.out.println(time + ": " + "best bid: "
+        + matchingEngine.getBestBid().getPrice() + "best ask: "
+        + matchingEngine.getBestAsk().getPrice());
       IntelligentAgent.updateThresholdState(intelligentAgentHelper
         .getPastThresholdState());
     }

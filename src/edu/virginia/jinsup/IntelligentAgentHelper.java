@@ -81,13 +81,6 @@ public class IntelligentAgentHelper {
     // Update ThresholdState
     pastThresholdState =
       computeThresholdState(volumeDifferenceData[oldestIndex]);
-
-    // if (currentTradePriceDifference != 0) {
-    // System.out.println("OH");
-    // }
-    // System.out.print("TPD: " + Arrays.toString(tradePriceData) + " VDD: "
-    // + Arrays.toString(volumeDifferenceData) + " CTPD: "
-    // + currentTradePriceDifference + " OI: " + oldestIndex);
   }
 
   /**

@@ -108,7 +108,7 @@ public class IntelligentAgent extends Agent {
       pricesToOrder.add(bestAskPriceToFill + (i * TICK_SIZE));
     }
 
-    // Iterate through old interval
+    // Iterate through old interval, best bid and under
     for (int i = 0; i < HALF_TICK_WIDTH; ++i) {
       Integer currentPrice = previousBestBidPrice - (i * TICK_SIZE);
       if (!interestedList.contains(currentPrice)) {
@@ -118,8 +118,11 @@ public class IntelligentAgent extends Agent {
           cancelOrder(currentPrice);
         }
       }
+    }
 
-      currentPrice = previousBestAskPrice - (i * TICK_SIZE);
+    // Iterate through old interval, best ask and above
+    for (int i = 0; i < HALF_TICK_WIDTH; ++i) {
+      Integer currentPrice = previousBestAskPrice + (i * TICK_SIZE);
       if (!interestedList.contains(currentPrice)) {
         if (isInInterval(currentPrice, bestBidPriceToFill, bestAskPriceToFill)) {
           pricesToOrder.remove(currentPrice);
@@ -127,7 +130,6 @@ public class IntelligentAgent extends Agent {
           cancelOrder(currentPrice);
         }
       }
-
     }
 
     switch (currentThresholdState) {
@@ -138,11 +140,21 @@ public class IntelligentAgent extends Agent {
 
       case BUY_ORDER_SURPLUS:
         // Cancel best ask if it exists.
+        pricesToOrder.remove(bestAskPriceToFill);
+        if (isInInterval(bestAskPriceToFill, previousBestBidPrice,
+          previousBestAskPrice) && !interestedList.contains(bestAskPriceToFill)) {
+          cancelOrder(bestAskPriceToFill);
+        }
 
         // Make sure best bid is still covered... should be covered already
         break;
       case SELL_ORDER_SURPLUS:
         // Cancel best bid if it exists.
+        pricesToOrder.remove(bestBidPriceToFill);
+        if (isInInterval(bestBidPriceToFill, previousBestBidPrice,
+          previousBestAskPrice) && !interestedList.contains(bestBidPriceToFill)) {
+          cancelOrder(bestBidPriceToFill);
+        }
 
         // Make sure best ask is still covered... should be covered already
         break;
@@ -151,7 +163,13 @@ public class IntelligentAgent extends Agent {
         System.exit(1);
     }
 
+    // Fill all remaining orders
+    for (Integer i : pricesToOrder) {
+      createNewOrder(i, ORDER_SIZE, i <= bestBidPriceToFill);
+    }
+
     // Load buffer to the main array and clear it.
+    pricesToOrder.clear();
     interestedList.clear();
     interestedList.addAll(orderBuffer);
     orderBuffer.clear();
@@ -195,11 +213,13 @@ public class IntelligentAgent extends Agent {
    */
   public boolean isInInterval(int priceToCheck, int bestBidPrice,
     int bestAskPrice) {
-    if (priceToCheck > bestBidPrice - TICK_SIZE && priceToCheck <= bestBidPrice) {
+    if (priceToCheck > bestBidPrice - (HALF_TICK_WIDTH * TICK_SIZE)
+      && priceToCheck <= bestBidPrice) {
       return true;
     }
 
-    if (priceToCheck >= bestAskPrice && priceToCheck < bestAskPrice + TICK_SIZE) {
+    if (priceToCheck >= bestAskPrice
+      && priceToCheck < bestAskPrice + (HALF_TICK_WIDTH * TICK_SIZE)) {
       return true;
     }
     return false;
