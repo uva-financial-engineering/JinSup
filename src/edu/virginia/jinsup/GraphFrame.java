@@ -62,6 +62,11 @@ public class GraphFrame extends JFrame {
   private final BarRenderer orderRenderer;
 
   /**
+   * Next time to refresh title.
+   */
+  private long nextTitleRefreshTime = 0;
+
+  /**
    * Next time to repaint order graph.
    */
   private long nextOrderRefreshTime = 0;
@@ -355,6 +360,17 @@ public class GraphFrame extends JFrame {
   }
 
   public void updateTitleBar(long newTime, String state) {
-    this.setTitle("Time: " + String.valueOf(newTime) + " ms - " + state);
+    long now = System.currentTimeMillis();
+    if (now > nextTitleRefreshTime) {
+      nextTitleRefreshTime = now + REFRESH_INTERVAL;
+
+      long hours = newTime / 3600000;
+      newTime %= 3600000;
+      long minutes = newTime / 60000;
+      newTime %= 60000;
+      double seconds = newTime * 0.001;
+      this.setTitle(String.format("Simulation Time %d:%02d:%02.3f - %s", hours,
+        minutes, seconds, state));
+    }
   }
 }

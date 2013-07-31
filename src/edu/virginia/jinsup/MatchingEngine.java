@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.TreeSet;
@@ -199,11 +198,15 @@ public class MatchingEngine {
    *          The price of the order to remove.
    */
   public void cancelOrder(long agentID, int price) {
-    Iterator<Order> it = orderMap.get(agentID).iterator();
-    while (it.hasNext()) {
-      if (it.next().getPrice() == price) {
-        it.remove();
+    ArrayList<Order> cancelList = new ArrayList<Order>();
+    for (Order o : orderMap.get(agentID)) {
+      if (o.getPrice() == price) {
+        // Cannot remove order while iterating.
+        cancelList.add(o);
       }
+    }
+    for (Order o : cancelList) {
+      cancelOrder(o);
     }
   }
 
