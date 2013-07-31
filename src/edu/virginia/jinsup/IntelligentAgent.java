@@ -53,7 +53,7 @@ public class IntelligentAgent extends Agent {
   /**
    * Holds the list of orders to cover at time t = now - delay.
    */
-  private ArrayList<Integer> orderBuffer;
+  private final ArrayList<Integer> orderBuffer;
 
   /**
    * Constructs an Intelligent Agent and initializes its order book so that
@@ -108,9 +108,10 @@ public class IntelligentAgent extends Agent {
       pricesToOrder.add(bestAskPriceToFill + (i * TICK_SIZE));
     }
 
-    // Iterate through old interval, best bid and under
+    Integer currentPrice;
     for (int i = 0; i < HALF_TICK_WIDTH; ++i) {
-      Integer currentPrice = previousBestBidPrice - (i * TICK_SIZE);
+      // Iterate through old interval, best bid and under
+      currentPrice = previousBestBidPrice - (i * TICK_SIZE);
       if (!interestedList.contains(currentPrice)) {
         if (isInInterval(currentPrice, bestBidPriceToFill, bestAskPriceToFill)) {
           pricesToOrder.remove(currentPrice);
@@ -118,11 +119,9 @@ public class IntelligentAgent extends Agent {
           cancelOrder(currentPrice);
         }
       }
-    }
 
-    // Iterate through old interval, best ask and above
-    for (int i = 0; i < HALF_TICK_WIDTH; ++i) {
-      Integer currentPrice = previousBestAskPrice + (i * TICK_SIZE);
+      // Iterate through old interval, best ask and above
+      currentPrice = previousBestAskPrice + (i * TICK_SIZE);
       if (!interestedList.contains(currentPrice)) {
         if (isInInterval(currentPrice, bestBidPriceToFill, bestAskPriceToFill)) {
           pricesToOrder.remove(currentPrice);
@@ -214,16 +213,12 @@ public class IntelligentAgent extends Agent {
    */
   public boolean isInInterval(int priceToCheck, int bestBidPrice,
     int bestAskPrice) {
-    if (priceToCheck > bestBidPrice - (HALF_TICK_WIDTH * TICK_SIZE)
-      && priceToCheck <= bestBidPrice) {
-      return true;
-    }
-
-    if (priceToCheck >= bestAskPrice
-      && priceToCheck < bestAskPrice + (HALF_TICK_WIDTH * TICK_SIZE)) {
-      return true;
-    }
-    return false;
+    return (
+    // Price within bid interval
+    (priceToCheck > bestBidPrice - (HALF_TICK_WIDTH * TICK_SIZE) && priceToCheck <= bestBidPrice)
+    // Price within ask interval
+    || (priceToCheck >= bestAskPrice && priceToCheck < bestAskPrice
+      + (HALF_TICK_WIDTH * TICK_SIZE)));
   }
 
   public static int getDelay() {

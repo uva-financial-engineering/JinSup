@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.TreeSet;
@@ -40,12 +41,12 @@ public class MatchingEngine {
   private final HashMap<Long, Agent> agentMap;
 
   /**
-   * All the buy orders in the simulation, unsorted.
+   * All the buy orders in the simulation, highest first.
    */
   private final TreeSet<Order> buyOrders;
 
   /**
-   * All the sell orders in the simulation, unsorted.
+   * All the sell orders in the simulation, highest first.
    */
   private final TreeSet<Order> sellOrders;
 
@@ -198,15 +199,11 @@ public class MatchingEngine {
    *          The price of the order to remove.
    */
   public void cancelOrder(long agentID, int price) {
-    ArrayList<Order> cancelList = new ArrayList<Order>();
-    for (Order o : orderMap.get(agentID)) {
-      if (o.getPrice() == price) {
-        // Cannot remove order while iterating.
-        cancelList.add(o);
+    Iterator<Order> it = orderMap.get(agentID).iterator();
+    while (it.hasNext()) {
+      if (it.next().getPrice() == price) {
+        it.remove();
       }
-    }
-    for (Order o : cancelList) {
-      cancelOrder(o);
     }
   }
 
@@ -484,10 +481,10 @@ public class MatchingEngine {
    * @return The sum of quantities of all orders at the best bid price.
    */
   public int getBestBidQuantity() {
-    int quantity = 0;
     if (buyOrders.isEmpty()) {
-      return quantity;
+      return 0;
     }
+    int quantity = 0;
     int bestBidPrice = getBestBid().getPrice();
     for (Order o : buyOrders) {
       if (o.getPrice() == bestBidPrice) {
@@ -501,10 +498,10 @@ public class MatchingEngine {
    * @return The sum of quantities of all orders at the best ask price.
    */
   public int getBestAskQuantity() {
-    int quantity = 0;
     if (sellOrders.isEmpty()) {
-      return quantity;
+      return 0;
     }
+    int quantity = 0;
     int bestAskPrice = getBestAsk().getPrice();
     for (Order o : sellOrders) {
       if (o.getPrice() == bestAskPrice) {
