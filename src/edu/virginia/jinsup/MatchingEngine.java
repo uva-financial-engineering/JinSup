@@ -269,8 +269,34 @@ public class MatchingEngine {
     }
     int quantToRid = initialQuant;
 
-    TreeSet<Order> interestedOrders =
-      (buyOrder ? topSellOrders() : topBuyOrders());
+    TreeSet<Order> interestedOrders;
+    if (buyOrder) {
+      // The top ten sell orders sorted by price (lowest) and time of order
+      // creation (most recent).
+      interestedOrders = new TreeSet<Order>(Order.lowestFirstComparator);
+      for (Order o : sellOrders) {
+        if (interestedOrders.size() < 10) {
+          interestedOrders.add(o);
+        } else if (Order.lowestFirstComparator.compare(o,
+          interestedOrders.last()) < 0) {
+          interestedOrders.pollLast();
+          interestedOrders.add(o);
+        }
+      }
+    } else {
+      // The top ten pending buy orders sorted by price (highest) and time of
+      // order creation (most recent).
+      interestedOrders = new TreeSet<Order>(Order.highestFirstComparator);
+      for (Order o : buyOrders) {
+        if (interestedOrders.size() < 10) {
+          interestedOrders.add(o);
+        } else if (Order.highestFirstComparator.compare(o,
+          interestedOrders.last()) < 0) {
+          interestedOrders.pollLast();
+          interestedOrders.add(o);
+        }
+      }
+    }
 
     if (interestedOrders.isEmpty()) {
       System.err.println("Error: Sell / Buy orders depleted.");
@@ -327,94 +353,6 @@ public class MatchingEngine {
   }
 
   /**
-   * Method that performs the actual trading for the tradeMarketOrder and
-   * trade(Order, ArrayList) method. Takes care of filling the correct
-   * quantities during a trade.
-   * 
-   * @param agOrder
-   *          Order of the aggressive agent.
-   * @param passOrder
-   *          Order of the passive agent.
-   * @return The volume that was traded between the two orders.
-   */
-  private int trade(Order agOrder, Order passOrder, long matchID) {
-    // save price for logging at the end.
-    int price = passOrder.getPrice();
-    lastTradePrice = price;
-
-    int volumeTraded;
-    if (agOrder.getCurrentQuant() == passOrder.getCurrentQuant()) {
-      volumeTraded = agOrder.getCurrentQuant();
-      if (agOrder.isBuyOrder()) {
-        buyOrders.remove(agOrder);
-      } else {
-        sellOrders.remove(agOrder);
-      }
-      if (passOrder.isBuyOrder()) {
-        buyOrders.remove(passOrder);
-      } else {
-        sellOrders.remove(passOrder);
-      }
-      // Setting quantities to new values is necessary for correct logging of
-      // leaves quantity.
-      agOrder.setQuant(0);
-      passOrder.setQuant(0);
-      orderMap.get(agOrder.getCreatorID()).remove(agOrder);
-      orderMap.get(passOrder.getCreatorID()).remove(passOrder);
-    } else if (agOrder.getCurrentQuant() > passOrder.getCurrentQuant()) {
-      volumeTraded = passOrder.getCurrentQuant();
-      agOrder.setQuant(agOrder.getCurrentQuant() - passOrder.getCurrentQuant());
-      if (passOrder.isBuyOrder()) {
-        buyOrders.remove(passOrder);
-      } else {
-        sellOrders.remove(passOrder);
-      }
-      passOrder.setQuant(0);
-      orderMap.get(passOrder.getCreatorID()).remove(passOrder);
-    } else {
-      volumeTraded = agOrder.getCurrentQuant();
-      passOrder.setQuant(passOrder.getCurrentQuant()
-        - agOrder.getCurrentQuant());
-      if (agOrder.isBuyOrder()) {
-        buyOrders.remove(agOrder);
-      } else {
-        sellOrders.remove(agOrder);
-      }
-      agOrder.setQuant(0);
-      orderMap.get(agOrder.getCreatorID()).remove(agOrder);
-    }
-
-    // Update order-book visualization
-    logTrade(agOrder, agOrder.isMarketOrder(), price, volumeTraded, true,
-      matchID);
-    logTrade(passOrder, false, price, volumeTraded, false, matchID);
-
-    // Update inventories
-    int inventoryChange = volumeTraded * (agOrder.isBuyOrder() ? 1 : -1);
-    agentMap.get(agOrder.getCreatorID()).setLastOrderTraded(true,
-      inventoryChange);
-    agentMap.get(passOrder.getCreatorID()).setLastOrderTraded(true,
-      -inventoryChange);
-
-    checkIntelligentAgentOrder(agOrder);
-    checkIntelligentAgentOrder(passOrder);
-
-    return volumeTraded;
-  }
-
-  /**
-   * Checks if the order belongs to an intelligent agent. If so, then notify the
-   * agent that the order has been traded.
-   * 
-   * @param order
-   */
-  private void checkIntelligentAgentOrder(Order order) {
-    if (agentMap.get(order.getCreatorID()) instanceof IntelligentAgent) {
-      agentMap.get(order.getCreatorID()).notify(order.getPrice(), time);
-    }
-  }
-
-  /**
    * Modifies the order in the MatchingEngine's allOrders and orderMap. Also
    * checks if any trade occurs from this modification.
    * 
@@ -441,43 +379,6 @@ public class MatchingEngine {
    */
   public int getLastTradePrice() {
     return lastTradePrice;
-  }
-
-  /**
-   * 
-   * @return The top ten pending buy orders sorted by price (highest) and time
-   *         of order creation (most recent).
-   */
-  public TreeSet<Order> topBuyOrders() {
-    TreeSet<Order> topBuyOrders =
-      new TreeSet<Order>(Order.highestFirstComparator);
-    for (Order o : buyOrders) {
-      if (topBuyOrders.size() < 10) {
-        topBuyOrders.add(o);
-      } else if (Order.highestFirstComparator.compare(o, topBuyOrders.last()) < 0) {
-        topBuyOrders.pollLast();
-        topBuyOrders.add(o);
-      }
-    }
-    return topBuyOrders;
-  }
-
-  /**
-   * @return The top ten sell orders sorted by price (lowest) and time of order
-   *         creation (most recent).
-   */
-  public TreeSet<Order> topSellOrders() {
-    TreeSet<Order> topSellOrders =
-      new TreeSet<Order>(Order.lowestFirstComparator);
-    for (Order o : sellOrders) {
-      if (topSellOrders.size() < 10) {
-        topSellOrders.add(o);
-      } else if (Order.lowestFirstComparator.compare(o, topSellOrders.last()) < 0) {
-        topSellOrders.pollLast();
-        topSellOrders.add(o);
-      }
-    }
-    return topSellOrders;
   }
 
   /**
@@ -918,5 +819,93 @@ public class MatchingEngine {
 
   public void setTradePrice(int newTradePrice) {
     lastTradePrice = newTradePrice;
+  }
+
+  /**
+   * Method that performs the actual trading for the tradeMarketOrder and
+   * trade(Order, ArrayList) method. Takes care of filling the correct
+   * quantities during a trade.
+   * 
+   * @param agOrder
+   *          Order of the aggressive agent.
+   * @param passOrder
+   *          Order of the passive agent.
+   * @return The volume that was traded between the two orders.
+   */
+  private int trade(Order agOrder, Order passOrder, long matchID) {
+    // save price for logging at the end.
+    int price = passOrder.getPrice();
+    lastTradePrice = price;
+
+    int volumeTraded;
+    if (agOrder.getCurrentQuant() == passOrder.getCurrentQuant()) {
+      volumeTraded = agOrder.getCurrentQuant();
+      if (agOrder.isBuyOrder()) {
+        buyOrders.remove(agOrder);
+      } else {
+        sellOrders.remove(agOrder);
+      }
+      if (passOrder.isBuyOrder()) {
+        buyOrders.remove(passOrder);
+      } else {
+        sellOrders.remove(passOrder);
+      }
+      // Setting quantities to new values is necessary for correct logging of
+      // leaves quantity.
+      agOrder.setQuant(0);
+      passOrder.setQuant(0);
+      orderMap.get(agOrder.getCreatorID()).remove(agOrder);
+      orderMap.get(passOrder.getCreatorID()).remove(passOrder);
+    } else if (agOrder.getCurrentQuant() > passOrder.getCurrentQuant()) {
+      volumeTraded = passOrder.getCurrentQuant();
+      agOrder.setQuant(agOrder.getCurrentQuant() - passOrder.getCurrentQuant());
+      if (passOrder.isBuyOrder()) {
+        buyOrders.remove(passOrder);
+      } else {
+        sellOrders.remove(passOrder);
+      }
+      passOrder.setQuant(0);
+      orderMap.get(passOrder.getCreatorID()).remove(passOrder);
+    } else {
+      volumeTraded = agOrder.getCurrentQuant();
+      passOrder.setQuant(passOrder.getCurrentQuant()
+        - agOrder.getCurrentQuant());
+      if (agOrder.isBuyOrder()) {
+        buyOrders.remove(agOrder);
+      } else {
+        sellOrders.remove(agOrder);
+      }
+      agOrder.setQuant(0);
+      orderMap.get(agOrder.getCreatorID()).remove(agOrder);
+    }
+
+    // Update order-book visualization
+    logTrade(agOrder, agOrder.isMarketOrder(), price, volumeTraded, true,
+      matchID);
+    logTrade(passOrder, false, price, volumeTraded, false, matchID);
+
+    // Update inventories
+    int inventoryChange = volumeTraded * (agOrder.isBuyOrder() ? 1 : -1);
+    agentMap.get(agOrder.getCreatorID()).setLastOrderTraded(true,
+      inventoryChange);
+    agentMap.get(passOrder.getCreatorID()).setLastOrderTraded(true,
+      -inventoryChange);
+
+    checkIntelligentAgentOrder(agOrder);
+    checkIntelligentAgentOrder(passOrder);
+
+    return volumeTraded;
+  }
+
+  /**
+   * Checks if the order belongs to an intelligent agent. If so, then notify the
+   * agent that the order has been traded.
+   * 
+   * @param order
+   */
+  private void checkIntelligentAgentOrder(Order order) {
+    if (agentMap.get(order.getCreatorID()) instanceof IntelligentAgent) {
+      agentMap.get(order.getCreatorID()).notify(order.getPrice(), time);
+    }
   }
 }

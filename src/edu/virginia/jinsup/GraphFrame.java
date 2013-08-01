@@ -368,7 +368,7 @@ public class GraphFrame extends JFrame {
       long minutes = newTime / 60000;
       newTime %= 60000;
       double seconds = newTime * 0.001;
-      this.setTitle(String.format("Simulation Time %d:%02d:%02.3f - %s", hours,
+      this.setTitle(String.format("Simulation Time %d:%02d:%06.3f - %s", hours,
         minutes, seconds, state));
     }
   }
