@@ -207,11 +207,10 @@ public class GraphFrame extends JFrame {
       saveDialog.setCurrentDirectory(new File("."));
       saveDialog
         .setDialogTitle("Step 4 of 4: Choose where to save the log file");
-      saveDialog.setSelectedFile(new File("log-" + calendar.get(Calendar.YEAR)
-        + String.format("%02d", calendar.get(Calendar.MONTH))
-        + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH)) + "-"
-        + String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY))
-        + String.format("%02d", calendar.get(Calendar.MINUTE)) + ".csv"));
+      saveDialog.setSelectedFile(new File(String.format(
+        "log-%2d%02d%02d-%02d%02d.csv", calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH),
+        calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE))));
       int saveResult = saveDialog.showSaveDialog(this);
       switch (saveResult) {
         case JFileChooser.APPROVE_OPTION:
@@ -369,7 +368,7 @@ public class GraphFrame extends JFrame {
       long minutes = newTime / 60000;
       newTime %= 60000;
       double seconds = newTime * 0.001;
-      this.setTitle(String.format("Simulation Time %d:%02d:%02.3f - %s", hours,
+      this.setTitle(String.format("Simulation Time %d:%02d:%06.3f - %s", hours,
         minutes, seconds, state));
     }
   }

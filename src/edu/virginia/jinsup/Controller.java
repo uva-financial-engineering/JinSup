@@ -153,61 +153,6 @@ public class Controller {
   }
 
   /**
-   * Selects all eligible agents in random order to act during a given time
-   * slot.
-   */
-  public void selectActingAgent() {
-    ArrayList<Agent> actingAgents = new ArrayList<Agent>();
-    for (Agent a : agentList) {
-      if (a.getNextActTime() == time) {
-        actingAgents.add(a);
-      }
-    }
-    Collections.shuffle(actingAgents);
-    for (Agent a : actingAgents) {
-      activateAgent(a);
-    }
-  }
-
-  /**
-   * Enable the agent to act until it no longer needs to act.
-   * 
-   * @param a
-   *          Eligible agent to act.
-   */
-  public void activateAgent(Agent a) {
-    a.setWillAct(true);
-    do {
-      a.act();
-    } while (a.getWillAct());
-  }
-
-  /**
-   * Method that increments simulator time and performs other necessary actions
-   * after each time step.
-   */
-  public void moveTime() {
-    // Moving average is not used for poisson trading.
-    // matchingEngine.storeMovingAverage();
-    matchingEngine.reset();
-    if (INTELLIGENT_AGENT_COUNT != 0) {
-      triggerHelperEvent();
-    }
-    time++;
-    matchingEngine.incrementTime();
-    triggerGroupEvent();
-
-    if (time % 500 == 0) {
-      graphFrame.updateTitleBar(time, state);
-    }
-    if (time == startupTime) {
-      matchingEngine.setStartingPeriod(false);
-      System.out.println("Trading Enabled!");
-      state = "Trading Period";
-    }
-  }
-
-  /**
    * Update the delay data for intelligent agents. A positive number means that
    * there are more buy orders than sell orders at the best bid/ask.
    */
@@ -312,8 +257,13 @@ public class Controller {
     System.out.println("Done! Simulation has started");
 
     // run simulator until endTime is reached.
+    while (time < startupTime) {
+      moveTime();
+    }
+    matchingEngine.setStartingPeriod(false);
+    System.out.println("Trading Enabled!");
+    state = "Trading Period";
     while (time < endTime) {
-      selectActingAgent();
       moveTime();
     }
 
@@ -322,5 +272,57 @@ public class Controller {
 
     System.out.println("The simulation has ended.");
     graphFrame.updateTitleBar(time, "Simulation Finished");
+  }
+
+  /**
+   * Method that increments simulator time and performs other necessary actions
+   * after each time step.
+   */
+  private void moveTime() {
+    // Select all eligible agents in random order to act during a given time
+    ArrayList<Agent> actingAgents = new ArrayList<Agent>();
+    for (Agent a : agentList) {
+      if (a.getNextActTime() == time) {
+        actingAgents.add(a);
+      }
+    }
+    Collections.shuffle(actingAgents);
+    for (Agent a : actingAgents) {
+      // Enable the agent to act until it no longer needs to act.
+      a.setWillAct(true);
+      do {
+        a.act();
+      } while (a.getWillAct());
+    }
+
+    // Moving average is not used for poisson trading.
+    // matchingEngine.storeMovingAverage();
+    matchingEngine.reset();
+    if (INTELLIGENT_AGENT_COUNT != 0) {
+      // Update the delay data for intelligent agents. A positive number means
+      // that there are more buy orders than sell orders at the best bid/ask.
+      if (time >= (startupTime - INTELLIGENT_AGENT_DELAY_LENGTH)) {
+        intelligentAgentHelper.addData(matchingEngine.getBestBidQuantity()
+          - matchingEngine.getBestAskQuantity(), matchingEngine.getBestBid()
+          .getPrice(), matchingEngine.getBestAsk().getPrice());
+        if (INTELLIGENT_AGENT_THRESHOLD_ENABLE) {
+          IntelligentAgent.setOldThresholdState(intelligentAgentHelper
+            .getOldThresholdState());
+        }
+      }
+    }
+    time++;
+    matchingEngine.incrementTime();
+
+    // Update a group of agents. Currently only updates the buy probabilities
+    // across all opportunistic traders.
+    if (time == lastNewsTime) {
+      OpporStratPoisson.calcNewBuyProbability();
+      lastNewsTime += poissonGeneratorNews.sample();
+    }
+
+    if (time % 500 == 0) {
+      graphFrame.updateTitleBar(time, state);
+    }
   }
 }
