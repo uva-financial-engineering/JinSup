@@ -8,22 +8,80 @@ import java.util.Arrays;
  */
 public class IntelligentAgentHelper {
 
+  /**
+   * How far into the past Intelligent Agents should look for market data in
+   * milliseconds.
+   */
   private int delayLength;
+
+  /**
+   * History of the Best bid price minus best ask price.
+   */
   private int[] volumeDifferenceData;
+
+  /**
+   * History of the best bid price.
+   */
   private int[] bestBidPriceData;
+
+  /**
+   * History of the best ask price.
+   */
   private int[] bestAskPriceData;
+
+  /**
+   * The best bid price at time t = now - delayLength - 1.
+   */
   private int previousOldBestBidPrice;
+
+  /**
+   * The best ask price at time t = now - delayLength - 1.
+   */
   private int previousOldBestAskPrice;
+
+  /**
+   * The index corresponding to time t = now - delayLength.
+   */
   private int oldestIndex;
+
+  /**
+   * Maximum difference between the total volume at the best bid/ask allowed
+   * before additional actions are taken.
+   */
   private int threshold;
+
+  /**
+   * True if threshold checking should be done. False otherwise.
+   */
   private boolean thresholdEnabled;
 
+  /**
+   * Different threshold states the agent can be in.
+   */
   public enum ThresholdState {
     BELOW_THRESHOLD, BUY_ORDER_SURPLUS, SELL_ORDER_SURPLUS;
   }
 
-  private ThresholdState pastThresholdState;
+  /**
+   * The threshold state corresponding to time t = now - delayLength.
+   */
+  private ThresholdState oldThresholdState;
 
+  /**
+   * Constructs the helper class for Intelligent Agents. Fills history with
+   * initial values.
+   * 
+   * @param delayLength
+   *          How long in the past the agent should look for market information.
+   * @param threshold
+   *          Maximum difference between the total volume at the best bid/ask
+   *          allowed before additional actions are taken.
+   * @param initialTradePrice
+   *          The initial trade price of the simulation. Defined to be one tick
+   *          below best ask and one tick above best bid.
+   * @param thresholdEnabled
+   *          Whether or not threshold checking should be done.
+   */
   public IntelligentAgentHelper(int delayLength, int threshold,
     int initialTradePrice, boolean thresholdEnabled) {
     this.delayLength = delayLength;
@@ -36,7 +94,7 @@ public class IntelligentAgentHelper {
     previousOldBestAskPrice = initialTradePrice + Agent.TICK_SIZE;
     oldestIndex = 0;
     this.threshold = threshold;
-    pastThresholdState = ThresholdState.BELOW_THRESHOLD;
+    oldThresholdState = ThresholdState.BELOW_THRESHOLD;
     this.thresholdEnabled = thresholdEnabled;
   }
 
@@ -61,7 +119,8 @@ public class IntelligentAgentHelper {
   }
 
   /**
-   * Adds new data. Wraps around the array if necessary.
+   * Adds new data by overwriting the oldest data. Wraps around the array if
+   * necessary.
    * 
    * @param newData
    */
@@ -81,6 +140,9 @@ public class IntelligentAgentHelper {
     }
   }
 
+  /**
+   * Update the old index to point at oldest data so far.
+   */
   public void updateOldIndex() {
     oldestIndex++;
     if (oldestIndex >= delayLength) {
@@ -88,10 +150,16 @@ public class IntelligentAgentHelper {
     }
   }
 
+  /**
+   * Update both the old index and the volume difference data.
+   * 
+   * @param newVolumeDifference
+   *          The new value of best bid - best ask total volume.
+   */
   public void updateOldIndexWithThreshold(int newVolumeDifference) {
     volumeDifferenceData[oldestIndex] = newVolumeDifference;
     updateOldIndex();
-    pastThresholdState =
+    oldThresholdState =
       computeThresholdState(volumeDifferenceData[oldestIndex]);
   }
 
@@ -112,18 +180,40 @@ public class IntelligentAgentHelper {
     }
   }
 
-  public ThresholdState getPastThresholdState() {
-    return pastThresholdState;
+  /**
+   * Gets the threshold state at time t = now - delayLength.
+   * 
+   * @return The threshold state.
+   */
+  public ThresholdState getOldThresholdState() {
+    return oldThresholdState;
   }
 
+  /**
+   * Gets the value of the index that is pointing at data at time t = now -
+   * delayLength.
+   * 
+   * @return The value of the index that is pointing at data at time t = now -
+   *         delayLength.
+   */
   public int getOldestIndex() {
     return oldestIndex;
   }
 
+  /**
+   * Get the best bid price at time t = now - delayLength - 1.
+   * 
+   * @return The best bid price at time t = now - delayLength - 1.
+   */
   public int getPreviousOldBestBidPrice() {
     return previousOldBestBidPrice;
   }
 
+  /**
+   * Get the best ask price at time t = now - delayLength - 1.
+   * 
+   * @return The best ask price at time t = now - delayLength - 1.
+   */
   public int getPreviousOldBestAskPrice() {
     return previousOldBestAskPrice;
   }

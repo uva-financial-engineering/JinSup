@@ -43,13 +43,22 @@ public class Controller {
   private static final int INTELLIGENT_AGENT_COUNT = 10;
 
   // Specify parameters for intelligent agents here
-  private static final int INTELLIGENT_AGENT_DELAY = 100;
+
+  /**
+   * How far in the past Intelligent Agents should look for data.
+   */
+  private static final int INTELLIGENT_AGENT_DELAY_LENGTH = 100;
 
   /**
    * To speed up the simulation with infinite thresholds, set this to false.
+   * Takes precedence over INTELLIGENT_AGENT_THRESHOLD.
    */
   private static final boolean INTELLIGENT_AGENT_THRESHOLD_ENABLE = true;
 
+  /**
+   * Maximum difference between the total volume at the best bid/ask allowed
+   * before additional actions are taken.
+   */
   private static final int INTELLIGENT_AGENT_THRESHOLD = 200;
 
   // Specify the lambdas here in seconds
@@ -203,13 +212,13 @@ public class Controller {
    * there are more buy orders than sell orders at the best bid/ask.
    */
   public void triggerHelperEvent() {
-    if (time >= (startupTime - INTELLIGENT_AGENT_DELAY)) {
+    if (time >= (startupTime - INTELLIGENT_AGENT_DELAY_LENGTH)) {
       intelligentAgentHelper.addData(matchingEngine.getBestBidQuantity()
         - matchingEngine.getBestAskQuantity(), matchingEngine.getBestBid()
         .getPrice(), matchingEngine.getBestAsk().getPrice());
       if (INTELLIGENT_AGENT_THRESHOLD_ENABLE) {
-        IntelligentAgent.updateThresholdState(intelligentAgentHelper
-          .getPastThresholdState());
+        IntelligentAgent.setOldThresholdState(intelligentAgentHelper
+          .getOldThresholdState());
       }
     }
   }
@@ -285,13 +294,13 @@ public class Controller {
 
     if (INTELLIGENT_AGENT_COUNT != 0) {
       intelligentAgentHelper =
-        new IntelligentAgentHelper(INTELLIGENT_AGENT_DELAY,
+        new IntelligentAgentHelper(INTELLIGENT_AGENT_DELAY_LENGTH,
           INTELLIGENT_AGENT_THRESHOLD, matchingEngine.getLastTradePrice(),
           INTELLIGENT_AGENT_THRESHOLD_ENABLE);
 
       IntelligentAgent intelligentAgent;
       // Explicitly set delay, threshold, and helper.
-      IntelligentAgent.setDelay(INTELLIGENT_AGENT_DELAY);
+      IntelligentAgent.setDelay(INTELLIGENT_AGENT_DELAY_LENGTH);
       IntelligentAgent.setThreshold(INTELLIGENT_AGENT_THRESHOLD);
       IntelligentAgent.setIntelligentAgentHelper(intelligentAgentHelper);
       for (int i = 0; i < INTELLIGENT_AGENT_COUNT; ++i) {

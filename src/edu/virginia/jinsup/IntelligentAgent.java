@@ -37,21 +37,29 @@ public class IntelligentAgent extends Agent {
    * How long in the past the agent should look for market information, in
    * milliseconds.
    */
-  private static int delay = 500;
+  private static int delayLength = 500;
 
+  /**
+   * Helper class for all Intelligent Agents.
+   */
   private static IntelligentAgentHelper intelligentAgentHelper;
 
-  private static ThresholdState currentThresholdState =
+  /**
+   * The threshold state at time t = now - delay.
+   */
+  private static ThresholdState oldThresholdState =
     ThresholdState.BELOW_THRESHOLD;
 
   /**
    * List of order prices over time that were traded that may need to be covered
    * by the agent.
    */
-  private final ArrayList<ArrayList<Integer>> potentialOrdersToCover;
+  private final ArrayList<ArrayList<Integer>> potentialOrdersPricesToCover;
 
   /**
-   * Holds the list of orders to cover at time t = now - delay.
+   * Holds the list of orders to cover at time t = now - delay. Used to keep
+   * track of trades that happen before the agent has a chance to act at time t
+   * = now.
    */
   private final ArrayList<Integer> orderBuffer;
 
@@ -62,8 +70,9 @@ public class IntelligentAgent extends Agent {
    * 
    * @param matchEng
    *          The MatchingEngine of the simulator.
-   * @param delay
-   *          How long in the past the agent should look for market information.
+   * @param delayLength
+   *          How long in the past the agent should look for market information,
+   *          in milliseconds.
    * @param threshold
    *          Maximum difference between the total volume at the best bid/ask
    *          allowed before additional actions are taken.
@@ -71,9 +80,9 @@ public class IntelligentAgent extends Agent {
   public IntelligentAgent(MatchingEngine matchEng) {
     super(matchEng);
 
-    potentialOrdersToCover = new ArrayList<ArrayList<Integer>>();
-    for (int i = 0; i < delay; i++) {
-      potentialOrdersToCover.add(new ArrayList<Integer>());
+    potentialOrdersPricesToCover = new ArrayList<ArrayList<Integer>>();
+    for (int i = 0; i < delayLength; i++) {
+      potentialOrdersPricesToCover.add(new ArrayList<Integer>());
     }
 
     orderBuffer = new ArrayList<Integer>();
@@ -89,12 +98,14 @@ public class IntelligentAgent extends Agent {
     }
   }
 
+  /**
+   * See the wiki for details on the algorithm.
+   */
   @Override
   void act() {
-    // Deal with orders at the best bid/ask
     // TODO Refactor this nightmare without breaking anything.
     ArrayList<Integer> interestedList =
-      potentialOrdersToCover.get(intelligentAgentHelper.getOldestIndex());
+      potentialOrdersPricesToCover.get(intelligentAgentHelper.getOldestIndex());
     Integer bestBidPriceToFill = intelligentAgentHelper.getOldBestBidPrice();
     Integer bestAskPriceToFill = intelligentAgentHelper.getOldBestAskPrice();
     Integer previousBestBidPrice =
@@ -102,12 +113,15 @@ public class IntelligentAgent extends Agent {
     Integer previousBestAskPrice =
       intelligentAgentHelper.getPreviousOldBestAskPrice();
 
+    // Assume all prices have to be ordered covered first.
     HashSet<Integer> pricesToOrder = new HashSet<Integer>();
     for (int i = 0; i < HALF_TICK_WIDTH; ++i) {
       pricesToOrder.add(bestBidPriceToFill - (i * TICK_SIZE));
       pricesToOrder.add(bestAskPriceToFill + (i * TICK_SIZE));
     }
 
+    // Cancel all orders that exist (i.e. have not been traded) but have prices
+    // that are no longer in the new best bid/ask interval.
     Integer currentPrice;
     for (int i = 0; i < HALF_TICK_WIDTH; ++i) {
       // Iterate through old interval, best bid and under
@@ -131,7 +145,8 @@ public class IntelligentAgent extends Agent {
       }
     }
 
-    switch (currentThresholdState) {
+    // Deal with threshold. Update orders to cover accordingly.
+    switch (oldThresholdState) {
       case BELOW_THRESHOLD:
         // Make sure best bid/ask are covered... they should be by default
         // TODO Remove this case
@@ -193,8 +208,8 @@ public class IntelligentAgent extends Agent {
     if (getNextActTime() <= timeOfTrade) {
       orderBuffer.add(priceOfOrderTraded);
     } else {
-      potentialOrdersToCover.get(intelligentAgentHelper.getOldestIndex()).add(
-        priceOfOrderTraded);
+      potentialOrdersPricesToCover.get(intelligentAgentHelper.getOldestIndex())
+        .add(priceOfOrderTraded);
     }
   }
 
@@ -221,28 +236,47 @@ public class IntelligentAgent extends Agent {
       + (HALF_TICK_WIDTH * TICK_SIZE)));
   }
 
-  public static int getDelay() {
-    return delay;
+  /**
+   * Set the amount of time from the present that all Intelligent Agents should
+   * look for market information, in milliseconds.
+   * 
+   * @param delayLength
+   *          The delay time, in milliseconds.
+   */
+  public static void setDelay(int delayLength) {
+    IntelligentAgent.delayLength = delayLength;
   }
 
-  public static void setDelay(int delay) {
-    IntelligentAgent.delay = delay;
-  }
-
-  public static int getThreshold() {
-    return threshold;
-  }
-
+  /**
+   * Set the maximum difference between the total volume at the best bid/ask
+   * allowed before additional actions are taken by all Intelligent Agents.
+   * 
+   * @param threshold
+   *          The difference between the total volume at the best bid/ask
+   *          allowed.
+   */
   public static void setThreshold(int threshold) {
     IntelligentAgent.threshold = threshold;
   }
 
+  /**
+   * Set the helper class for Intelligent Agents.
+   * 
+   * @param iah
+   *          The IntelligentAgentHelper class.
+   */
   public static void setIntelligentAgentHelper(IntelligentAgentHelper iah) {
     intelligentAgentHelper = iah;
   }
 
-  public static void updateThresholdState(ThresholdState newState) {
-    currentThresholdState = newState;
+  /**
+   * Set the threshold state at time t = now - delayLength.
+   * 
+   * @param newState
+   *          The new state at time t = now - delayLength.
+   */
+  public static void setOldThresholdState(ThresholdState newState) {
+    oldThresholdState = newState;
   }
 
 }
