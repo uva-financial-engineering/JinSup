@@ -59,6 +59,11 @@ public class GraphFrame extends JFrame {
    */
   private String dest;
 
+  /**
+   * Date and time of the log in String.
+   */
+  private String logTime;
+
   private final BarRenderer orderRenderer;
 
   /**
@@ -207,10 +212,11 @@ public class GraphFrame extends JFrame {
       saveDialog.setCurrentDirectory(new File("."));
       saveDialog
         .setDialogTitle("Step 4 of 4: Choose where to save the log file");
-      saveDialog.setSelectedFile(new File(String.format(
-        "log-%2d%02d%02d-%02d%02d.csv", calendar.get(Calendar.YEAR),
-        calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH),
-        calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE))));
+      logTime =
+        String.format("%2d%02d%02d-%02d%02d", calendar.get(Calendar.YEAR),
+          calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH),
+          calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
+      saveDialog.setSelectedFile(new File("log-" + logTime + ".csv"));
       int saveResult = saveDialog.showSaveDialog(this);
       switch (saveResult) {
         case JFileChooser.APPROVE_OPTION:
@@ -240,6 +246,10 @@ public class GraphFrame extends JFrame {
 
   public String getDest() {
     return dest;
+  }
+
+  public String getLogTime() {
+    return logTime;
   }
 
   public void showFinished(long nanoseconds) {

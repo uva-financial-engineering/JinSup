@@ -1,5 +1,8 @@
 package edu.virginia.jinsup;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -45,7 +48,8 @@ public class Controller {
   // Specify parameters for intelligent agents here
 
   /**
-   * How far in the past Intelligent Agents should look for data.
+   * How far in the past Intelligent Agents should look for data, in
+   * milliseconds.
    */
   private static final int INTELLIGENT_AGENT_DELAY_LENGTH = 100;
 
@@ -60,6 +64,24 @@ public class Controller {
    * before additional actions are taken.
    */
   private static final int INTELLIGENT_AGENT_THRESHOLD = 200;
+
+  /**
+   * How often the average profit over all should be logged, in milliseconds.
+   */
+  private static final int INTELLIGENT_AGENT_PROFIT_LOG_FREQUENCY =
+    1000 * 60 * 10;
+
+  /**
+   * Location of the log file for intelligent agent average profits. It will be
+   * in the same directory as the order log files and named
+   * "IAProfits-{time}.csv".
+   */
+  private final String INTELLIGENT_AGENT_PROFIT_LOG_LOCATION;
+
+  /**
+   * Holds a list of intelligent agents.
+   */
+  private final ArrayList<IntelligentAgent> intelligentAgentList;
 
   // Specify the lambdas here in seconds
   private static final int FUND_BUYER_SELLER_LAMBDA_ORDER = 40;
@@ -150,32 +172,21 @@ public class Controller {
     this.matchingEngine = matchingEngine;
     poissonGeneratorNews = new PoissonDistribution(NEWS_FREQUENCY * 1000);
     lastNewsTime = NEWS_FREQUENCY * 1000;
-  }
+    intelligentAgentList = new ArrayList<IntelligentAgent>();
 
-  /**
-   * Update the delay data for intelligent agents. A positive number means that
-   * there are more buy orders than sell orders at the best bid/ask.
-   */
-  public void triggerHelperEvent() {
-    if (time >= (startupTime - INTELLIGENT_AGENT_DELAY_LENGTH)) {
-      intelligentAgentHelper.addData(matchingEngine.getBestBidQuantity()
-        - matchingEngine.getBestAskQuantity(), matchingEngine.getBestBid()
-        .getPrice(), matchingEngine.getBestAsk().getPrice());
-      if (INTELLIGENT_AGENT_THRESHOLD_ENABLE) {
-        IntelligentAgent.setOldThresholdState(intelligentAgentHelper
-          .getOldThresholdState());
-      }
-    }
-  }
+    File logFile = new File(graphFrame.getDest());
+    INTELLIGENT_AGENT_PROFIT_LOG_LOCATION =
+      logFile.getParent() + "\\IAProfits-" + graphFrame.getLogTime() + ".csv";
 
-  /**
-   * Updates a group of agents. Currently only updates the buy probabilities
-   * across all opportunistic traders.
-   */
-  public void triggerGroupEvent() {
-    if (time == lastNewsTime) {
-      OpporStratPoisson.calcNewBuyProbability();
-      lastNewsTime += poissonGeneratorNews.sample();
+    try {
+      FileWriter writer = new FileWriter(INTELLIGENT_AGENT_PROFIT_LOG_LOCATION);
+      writer.append("Time, IA Average Profit\n");
+      writer.flush();
+      writer.close();
+    } catch (IOException e) {
+      System.err.println("Error: Failed to create log file.");
+      e.printStackTrace();
+      System.exit(1);
     }
   }
 
@@ -251,6 +262,7 @@ public class Controller {
       for (int i = 0; i < INTELLIGENT_AGENT_COUNT; ++i) {
         intelligentAgent = new IntelligentAgent(matchingEngine);
         agentList.add(intelligentAgent);
+        intelligentAgentList.add(intelligentAgent);
       }
     }
 
@@ -311,6 +323,28 @@ public class Controller {
         }
       }
     }
+
+    // Check if profit logging should be done
+    if (time % INTELLIGENT_AGENT_PROFIT_LOG_FREQUENCY == 0) {
+      // Take log the average profit over all intelligent agents.
+      int totalProfit = IntelligentAgent.getTotalProfit();
+      for (IntelligentAgent a : intelligentAgentList) {
+        totalProfit += a.getInventory() * (matchingEngine.getLastTradePrice());
+      }
+      FileWriter writer;
+      try {
+        writer = new FileWriter(INTELLIGENT_AGENT_PROFIT_LOG_LOCATION, true);
+        writer.append(time + ","
+          + (totalProfit / (INTELLIGENT_AGENT_COUNT * 100.0)) + "\n");
+        writer.flush();
+        writer.close();
+      } catch (IOException e) {
+        System.err.println("Error: Failed to update log.");
+        e.printStackTrace();
+        System.exit(1);
+      }
+    }
+
     time++;
     matchingEngine.incrementTime();
 

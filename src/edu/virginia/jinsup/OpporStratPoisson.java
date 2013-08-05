@@ -89,7 +89,6 @@ public class OpporStratPoisson extends PoissonAgent {
     if (currBuyProbability > 0.80) {
       currBuyProbability = 0.80;
     }
-    System.out.println(currBuyProbability);
   }
 
   /**

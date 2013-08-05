@@ -13,6 +13,11 @@ import edu.virginia.jinsup.IntelligentAgentHelper.ThresholdState;
 public class IntelligentAgent extends Agent {
 
   /**
+   * The total profit of all intelligent agents in the simulation.
+   */
+  private static int totalProfit = 0;
+
+  /**
    * How often the agent should act, in milliseconds.
    */
   private static final int INTERVAL = 1;
@@ -196,14 +201,17 @@ public class IntelligentAgent extends Agent {
    * Notifies the agent that one of its orders has been traded.
    * 
    * @param arguments
-   *          The first argument shall be the price of the order traded. The
-   *          second argument shall be the time the order was traded.
+   *          1) Price of the order traded. 2) Time the order was traded, in
+   *          milliseconds. 3) Volume traded (for profit logging). 4) True if
+   *          buy order was traded.
    * 
    */
   @Override
   public void notify(Object... arguments) {
     long timeOfTrade = (Long) arguments[1];
     int priceOfOrderTraded = (Integer) arguments[0];
+    int volumeTraded = (Integer) arguments[2];
+    boolean buyOrderTraded = (Boolean) arguments[3];
     // Check if acted yet
     if (getNextActTime() <= timeOfTrade) {
       orderBuffer.add(priceOfOrderTraded);
@@ -211,6 +219,9 @@ public class IntelligentAgent extends Agent {
       potentialOrdersPricesToCover.get(intelligentAgentHelper.getOldestIndex())
         .add(priceOfOrderTraded);
     }
+    // Update total profit
+    totalProfit +=
+      (buyOrderTraded ? -1 : 1) * priceOfOrderTraded * volumeTraded;
   }
 
   /**
@@ -277,6 +288,10 @@ public class IntelligentAgent extends Agent {
    */
   public static void setOldThresholdState(ThresholdState newState) {
     oldThresholdState = newState;
+  }
+
+  public static int getTotalProfit() {
+    return totalProfit;
   }
 
 }

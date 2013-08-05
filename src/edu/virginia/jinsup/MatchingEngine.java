@@ -891,8 +891,8 @@ public class MatchingEngine {
     agentMap.get(passOrder.getCreatorID()).setLastOrderTraded(true,
       -inventoryChange);
 
-    checkIntelligentAgentOrder(agOrder);
-    checkIntelligentAgentOrder(passOrder);
+    checkIntelligentAgentOrder(agOrder, volumeTraded);
+    checkIntelligentAgentOrder(passOrder, volumeTraded);
 
     return volumeTraded;
   }
@@ -903,9 +903,10 @@ public class MatchingEngine {
    * 
    * @param order
    */
-  private void checkIntelligentAgentOrder(Order order) {
+  private void checkIntelligentAgentOrder(Order order, int volumeTraded) {
     if (agentMap.get(order.getCreatorID()) instanceof IntelligentAgent) {
-      agentMap.get(order.getCreatorID()).notify(order.getPrice(), time);
+      agentMap.get(order.getCreatorID()).notify(order.getPrice(), time,
+        volumeTraded, order.isBuyOrder());
     }
   }
 }
