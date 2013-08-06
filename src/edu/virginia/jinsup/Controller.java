@@ -66,7 +66,8 @@ public class Controller {
   private static final int INTELLIGENT_AGENT_THRESHOLD = 200;
 
   /**
-   * How often the average profit over all should be logged, in milliseconds.
+   * How often the average profit over all intelligent agents should be logged,
+   * in milliseconds.
    */
   private static final int INTELLIGENT_AGENT_PROFIT_LOG_FREQUENCY =
     1000 * 60 * 10;
@@ -326,7 +327,7 @@ public class Controller {
 
     // Check if profit logging should be done
     if (time % INTELLIGENT_AGENT_PROFIT_LOG_FREQUENCY == 0) {
-      // Take log the average profit over all intelligent agents.
+      // Log the average profit over all intelligent agents.
       int totalProfit = IntelligentAgent.getTotalProfit();
       for (IntelligentAgent a : intelligentAgentList) {
         totalProfit += a.getInventory() * (matchingEngine.getLastTradePrice());
