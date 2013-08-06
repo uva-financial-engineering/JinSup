@@ -177,7 +177,8 @@ public class Controller {
 
     File logFile = new File(graphFrame.getDest());
     INTELLIGENT_AGENT_PROFIT_LOG_LOCATION =
-      logFile.getParent() + "\\IAProfits-" + graphFrame.getLogTime() + ".csv";
+      logFile.getAbsoluteFile().getParent() + File.separator + "IAProfits-"
+        + graphFrame.getLogTime() + ".csv";
 
     try {
       FileWriter writer = new FileWriter(INTELLIGENT_AGENT_PROFIT_LOG_LOCATION);
@@ -328,10 +329,13 @@ public class Controller {
     // Check if profit logging should be done
     if (time % INTELLIGENT_AGENT_PROFIT_LOG_FREQUENCY == 0) {
       // Log the average profit over all intelligent agents.
-      int totalProfit = IntelligentAgent.getTotalProfit();
+      int totalProfit = 0;
       for (IntelligentAgent a : intelligentAgentList) {
-        totalProfit += a.getInventory() * (matchingEngine.getLastTradePrice());
+        totalProfit += a.getInventory();
       }
+      totalProfit =
+        totalProfit * matchingEngine.getLastTradePrice()
+          + IntelligentAgent.getTotalProfit();
       FileWriter writer;
       try {
         writer = new FileWriter(INTELLIGENT_AGENT_PROFIT_LOG_LOCATION, true);

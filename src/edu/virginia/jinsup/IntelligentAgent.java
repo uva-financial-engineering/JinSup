@@ -221,7 +221,8 @@ public class IntelligentAgent extends Agent {
     }
     // Update total profit
     totalProfit +=
-      (buyOrderTraded ? -1 : 1) * priceOfOrderTraded * volumeTraded;
+      (buyOrderTraded ? -priceOfOrderTraded : priceOfOrderTraded)
+        * volumeTraded;
   }
 
   /**
