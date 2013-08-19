@@ -101,7 +101,7 @@ public class GraphFrame extends JFrame {
    * Create the graph window and show dialogs if input was not provided via
    * command line.
    */
-  public GraphFrame(boolean optionsSet) {
+  public GraphFrame(boolean optionsSet, String logDest) {
     super("JinSup");
 
     needResize = true;
@@ -158,6 +158,12 @@ public class GraphFrame extends JFrame {
 
     if (optionsSet) {
       dest = JinSup.settings.getDest();
+      if (logDest != null) {
+        File logFile = new File(logDest);
+        dest =
+          logFile.getAbsoluteFile().getParent() + File.separator + "log-"
+            + logTime + ".csv";
+      }
     } else {
       // Show dialogs to obtain in information that wasn't provided via command
       // line
