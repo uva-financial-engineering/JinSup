@@ -6,6 +6,8 @@ package edu.virginia.jinsup;
 // import org.apache.commons.math3.distribution.PoissonDistribution;
 // import org.apache.commons.math3.util.FastMath;
 
+import java.awt.Frame;
+
 import com.beust.jcommander.JCommander;
 
 public class JinSup {
@@ -34,6 +36,10 @@ public class JinSup {
     int startTime;
     int endTime;
 
+    // IA Parameters, delay in ms
+    int threshold = 0;
+    int delay = 0;
+
     // Store directory information when in batch mode
     String logDest;
 
@@ -43,6 +49,8 @@ public class JinSup {
       buyPrice = (int) settings.getBuyPrice().doubleValue() * 100;
       startTime = settings.getStartTime() * 1000;
       endTime = startTime + settings.getTradeTime() * 1000;
+      threshold = settings.getThreshold();
+      delay = settings.getDelay();
     } else {
       Controller.graphFrame = new GraphFrame(false, null);
       buyPrice = Controller.graphFrame.getBuyPrice();
@@ -66,9 +74,13 @@ public class JinSup {
       Controller.graphFrame.dispose();
       for (int i = 0; i < NUMBER_OF_RUNS; i++) {
         Controller.graphFrame = new GraphFrame(true, logDest);
+        Controller.graphFrame.setState(Frame.ICONIFIED);
         matchingEngine = new MatchingEngine(buyPrice, startTime, TEST_MODE);
+
         controller =
-          new Controller(startTime, endTime, matchingEngine, TEST_MODE);
+          (settings.isSet() ? new Controller(startTime, endTime,
+            matchingEngine, TEST_MODE, threshold, delay) : new Controller(
+            startTime, endTime, matchingEngine, TEST_MODE));
         System.out.println("Starting simulator, run " + (i + 1) + " of "
           + NUMBER_OF_RUNS + " ...");
         controller.runSimulator();

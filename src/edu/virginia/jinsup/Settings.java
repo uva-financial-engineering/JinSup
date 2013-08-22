@@ -1,4 +1,5 @@
 package edu.virginia.jinsup;
+
 import com.beust.jcommander.Parameter;
 
 public class Settings {
@@ -20,6 +21,14 @@ public class Settings {
     required = false)
   private String dest;
 
+  @Parameter(names = "-threshold", description = "Threshold for IAs",
+    required = false)
+  private Integer threshold;
+
+  @Parameter(names = "-delay", description = "Delay for IAs, in ms",
+    required = false)
+  private Integer delay;
+
   public Double getBuyPrice() {
     return buyPrice;
   }
@@ -36,8 +45,17 @@ public class Settings {
     return dest;
   }
 
+  public Integer getThreshold() {
+    return threshold;
+  }
+
+  public Integer getDelay() {
+    return delay;
+  }
+
   public boolean isSet() {
-    return (buyPrice != null && startTime != null && tradeTime != null && dest != null);
+    return (buyPrice != null && startTime != null && tradeTime != null
+      && dest != null && threshold != null && delay != null);
   }
 
 }

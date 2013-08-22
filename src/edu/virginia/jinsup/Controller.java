@@ -51,7 +51,7 @@ public class Controller {
    * How far in the past Intelligent Agents should look for data, in
    * milliseconds.
    */
-  private static final int INTELLIGENT_AGENT_DELAY_LENGTH = 500;
+  private static final int INTELLIGENT_AGENT_DELAY_LENGTH = 1000;
 
   /**
    * To speed up the simulation with infinite thresholds, set this to false.
@@ -137,6 +137,12 @@ public class Controller {
    */
   private final long endTime;
 
+  private int threshold;
+
+  private int delay;
+
+  private boolean setViaCommandLine;
+
   /**
    * The MatchingEngine used for this simulation.
    */
@@ -180,6 +186,7 @@ public class Controller {
     poissonGeneratorNews = new PoissonDistribution(NEWS_FREQUENCY * 1000);
     lastNewsTime = NEWS_FREQUENCY * 1000;
     intelligentAgentList = new ArrayList<IntelligentAgent>();
+    setViaCommandLine = false;
 
     File logFile = new File(graphFrame.getDest());
     INTELLIGENT_AGENT_PROFIT_LOG_LOCATION =
@@ -196,6 +203,18 @@ public class Controller {
       e.printStackTrace();
       System.exit(1);
     }
+  }
+
+  /**
+   * Creates a controller with no agents but specifies IA parameters
+   */
+  public Controller(long startupTime, long endTime,
+    MatchingEngine matchingEngine, boolean testing, int threshold, int delay) {
+    this(startupTime, endTime, matchingEngine, testing);
+    this.threshold = threshold;
+    this.delay = delay;
+    setViaCommandLine = true;
+
   }
 
   /**
@@ -266,8 +285,13 @@ public class Controller {
 
       IntelligentAgent intelligentAgent;
       // Explicitly set delay, threshold, and helper.
-      IntelligentAgent.setDelay(INTELLIGENT_AGENT_DELAY_LENGTH);
-      IntelligentAgent.setThreshold(INTELLIGENT_AGENT_THRESHOLD);
+      if (setViaCommandLine) {
+        IntelligentAgent.setDelay(delay);
+        IntelligentAgent.setThreshold(threshold);
+      } else {
+        IntelligentAgent.setDelay(INTELLIGENT_AGENT_DELAY_LENGTH);
+        IntelligentAgent.setThreshold(INTELLIGENT_AGENT_THRESHOLD);
+      }
       IntelligentAgent.setIntelligentAgentHelper(intelligentAgentHelper);
       IntelligentAgent.setTotalProfit(0);
       for (int i = 0; i < INTELLIGENT_AGENT_COUNT; ++i) {
