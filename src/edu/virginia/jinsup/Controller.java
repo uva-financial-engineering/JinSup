@@ -51,7 +51,7 @@ public class Controller {
    * How far in the past Intelligent Agents should look for data, in
    * milliseconds.
    */
-  private static final int INTELLIGENT_AGENT_DELAY_LENGTH = 1000;
+  private static final int INTELLIGENT_AGENT_DELAY_LENGTH = 500;
 
   /**
    * To speed up the simulation with infinite thresholds, set this to false.
@@ -207,6 +207,8 @@ public class Controller {
 
     // Create agents
 
+    Order.setNextOrderID(0);
+
     graphFrame.updateTitleBar(0, "Creating agents...");
 
     FundBuyerPoisson fundBuyerPoisson;
@@ -267,6 +269,7 @@ public class Controller {
       IntelligentAgent.setDelay(INTELLIGENT_AGENT_DELAY_LENGTH);
       IntelligentAgent.setThreshold(INTELLIGENT_AGENT_THRESHOLD);
       IntelligentAgent.setIntelligentAgentHelper(intelligentAgentHelper);
+      IntelligentAgent.setTotalProfit(0);
       for (int i = 0; i < INTELLIGENT_AGENT_COUNT; ++i) {
         intelligentAgent = new IntelligentAgent(matchingEngine);
         agentList.add(intelligentAgent);

@@ -219,4 +219,8 @@ public class Order implements Comparator<Order> {
   public static long getNextOrderID() {
     return nextOrderID;
   }
+
+  public static void setNextOrderID(int newNextOrderID) {
+    nextOrderID = newNextOrderID;
+  }
 }

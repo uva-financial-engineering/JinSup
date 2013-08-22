@@ -295,4 +295,8 @@ public class IntelligentAgent extends Agent {
     return totalProfit;
   }
 
+  public static void setTotalProfit(int newTotalProfit) {
+    totalProfit = newTotalProfit;
+  }
+
 }

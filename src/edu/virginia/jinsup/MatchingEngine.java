@@ -27,7 +27,7 @@ public class MatchingEngine {
    */
   private static final int MOVING_AVERAGE_LENGTH = 500;
 
-  private static int tradeMatchID = 0;
+  private int tradeMatchID;
 
   /**
    * All the orders in the simulation, grouped by agent ID.
@@ -151,6 +151,7 @@ public class MatchingEngine {
     lastTradePrice = buyPrice;
     startingPeriod = true;
     movingSum = 0;
+    tradeMatchID = 0;
     this.startupTime = startupTime;
     random = new Random();
     this.buyPrice = buyPrice;
