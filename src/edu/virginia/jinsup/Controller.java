@@ -43,7 +43,7 @@ public class Controller {
   /**
    * Number of intelligent agents
    */
-  private static final int INTELLIGENT_AGENT_COUNT = 1;
+  private static final int INTELLIGENT_AGENT_COUNT = 10;
 
   // Specify parameters for intelligent agents here
 
@@ -51,7 +51,7 @@ public class Controller {
    * How far in the past Intelligent Agents should look for data, in
    * milliseconds.
    */
-  private static final int INTELLIGENT_AGENT_DELAY_LENGTH = 100;
+  private static final int INTELLIGENT_AGENT_DELAY_LENGTH = 1000;
 
   /**
    * To speed up the simulation with infinite thresholds, set this to false.
@@ -162,15 +162,21 @@ public class Controller {
   private int lastNewsTime;
 
   /**
+   * If true, does not write to trading log. IA logging still enabled.
+   */
+  private final boolean testing;
+
+  /**
    * Creates a controller with no agents.
    */
   public Controller(long startupTime, long endTime,
-    MatchingEngine matchingEngine) {
+    MatchingEngine matchingEngine, boolean testing) {
     agentList = new ArrayList<Agent>();
     time = 0;
     this.startupTime = startupTime;
     this.endTime = endTime;
     this.matchingEngine = matchingEngine;
+    this.testing = testing;
     poissonGeneratorNews = new PoissonDistribution(NEWS_FREQUENCY * 1000);
     lastNewsTime = NEWS_FREQUENCY * 1000;
     intelligentAgentList = new ArrayList<IntelligentAgent>();
@@ -282,7 +288,9 @@ public class Controller {
     }
 
     // write remaining entries to the log
-    matchingEngine.writeToLog();
+    if (!testing) {
+      matchingEngine.writeToLog();
+    }
 
     System.out.println("The simulation has ended.");
     graphFrame.updateTitleBar(time, "Simulation Finished");
