@@ -8,7 +8,7 @@ public class MarketMakerPoisson extends PoissonAgent {
   /**
    * Limits the number of shares owned by the agent.
    */
-  private static final int INVENTORY_LIMIT = 5;
+  private static final int INVENTORY_LIMIT = 30;
 
   /**
    * Whether or not agent owns more shares than INVENTORY_LIMIT or has a deficit

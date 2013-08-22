@@ -11,7 +11,7 @@ public class OpporStratPoisson extends PoissonAgent {
   /**
    * Limits the number of shares owned by the agent.
    */
-  private static final int INVENTORY_LIMIT = 5;
+  private static final int INVENTORY_LIMIT = 30;
 
   /**
    * Whether or not agent owns more shares than INVENTORY_LIMIT or has a deficit
@@ -83,11 +83,11 @@ public class OpporStratPoisson extends PoissonAgent {
       currBuyProbability + (new UniformRealDistribution(-0.2, 0.2)).sample();
 
     // prevent the probability from going over the limit
-    if (currBuyProbability < 0.20) {
-      currBuyProbability = 0.20;
+    if (currBuyProbability < 0.30) {
+      currBuyProbability = 0.30;
     }
-    if (currBuyProbability > 0.80) {
-      currBuyProbability = 0.80;
+    if (currBuyProbability > 0.70) {
+      currBuyProbability = 0.70;
     }
   }
 

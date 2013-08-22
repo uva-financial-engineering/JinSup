@@ -9,7 +9,7 @@ public class HFTPoisson extends PoissonAgent {
   /**
    * Limits the number of shares owned by the agent.
    */
-  private static final int INVENTORY_LIMIT = 10;
+  private static final int INVENTORY_LIMIT = 150;
 
   /**
    * Whether or not agent owns more shares than INVENTORY_LIMIT or has a deficit

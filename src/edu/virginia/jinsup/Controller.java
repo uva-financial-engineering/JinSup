@@ -28,12 +28,12 @@ public class Controller {
   /**
    * Number of oppor strat traders
    */
-  private static final int OPPOR_STRAT_COUNT = 96;
+  private static final int OPPOR_STRAT_COUNT = 120;
 
   /**
    * Number of HFT traders
    */
-  private static final int HFT_COUNT = 6;
+  private static final int HFT_COUNT = 8;
 
   /**
    * Number of small traders
@@ -43,7 +43,7 @@ public class Controller {
   /**
    * Number of intelligent agents
    */
-  private static final int INTELLIGENT_AGENT_COUNT = 10;
+  private static final int INTELLIGENT_AGENT_COUNT = 1;
 
   // Specify parameters for intelligent agents here
 
@@ -63,7 +63,7 @@ public class Controller {
    * Maximum difference between the total volume at the best bid/ask allowed
    * before additional actions are taken.
    */
-  private static final int INTELLIGENT_AGENT_THRESHOLD = 200;
+  private static final int INTELLIGENT_AGENT_THRESHOLD = 100;
 
   /**
    * How often the average profit over all intelligent agents should be logged,
@@ -97,7 +97,7 @@ public class Controller {
 
   private static final int OPPOR_STRAT_LAMBDA_CANCEL = 40;
 
-  private static final double HFT_LAMBDA_ORDER = 0.6;
+  private static final double HFT_LAMBDA_ORDER = 0.35;
 
   private static final double HFT_LAMBDA_CANCEL = 0.4;
 
@@ -109,7 +109,7 @@ public class Controller {
    * How often buy probabilities for poisson opportunistic traders should
    * change, in seconds.
    */
-  private static final int NEWS_FREQUENCY = 300;
+  private static final int NEWS_FREQUENCY = 60;
 
   /**
    * List of all agents in the simulator

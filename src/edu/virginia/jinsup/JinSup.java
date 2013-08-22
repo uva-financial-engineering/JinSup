@@ -12,9 +12,15 @@ public class JinSup {
 
   public static Settings settings;
 
-  public static final boolean BATCH_MODE = true;
+  public static final boolean BATCH_MODE = false;
 
-  public static final int NUMBER_OF_RUNS = 10;
+  public static final int NUMBER_OF_RUNS = 30;
+
+  /**
+   * If true, no trade logging information will be saved and graphs will not be
+   * updated. Other logging may still be done, however (e.g. IA profit).
+   */
+  public static final boolean TEST_MODE = true;
 
   public static void main(String[] args) {
 
@@ -49,7 +55,7 @@ public class JinSup {
     Controller controller;
 
     if (!BATCH_MODE) {
-      matchingEngine = new MatchingEngine(buyPrice, startTime, false);
+      matchingEngine = new MatchingEngine(buyPrice, startTime, TEST_MODE);
       controller = new Controller(startTime, endTime, matchingEngine);
       System.out.println("Starting simulator...");
       long elapsedTime = System.nanoTime();
@@ -59,7 +65,7 @@ public class JinSup {
       Controller.graphFrame.dispose();
       for (int i = 0; i < NUMBER_OF_RUNS; i++) {
         Controller.graphFrame = new GraphFrame(true, logDest);
-        matchingEngine = new MatchingEngine(buyPrice, startTime, false);
+        matchingEngine = new MatchingEngine(buyPrice, startTime, TEST_MODE);
         controller = new Controller(startTime, endTime, matchingEngine);
         System.out.println("Starting simulator, run " + (i + 1) + " of "
           + NUMBER_OF_RUNS + " ...");
