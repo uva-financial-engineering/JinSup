@@ -1,5 +1,7 @@
 package edu.virginia.jinsup;
 
+import java.util.ArrayList;
+
 import org.apache.commons.math3.distribution.ExponentialDistribution;
 
 /**
@@ -153,17 +155,17 @@ public abstract class PoissonAgent extends Agent {
    *          e.g. P[1 tick], P[2 tick], etc.
    */
   void createPoissonOrder(boolean isBuying, int quantity,
-    double... probabilities) {
+    ArrayList<Double> probabilities) {
     double probability = Math.random();
 
-    if (probability < probabilities[0]) {
+    if (probability < probabilities.get(0)) {
       // create a market order
       createMarketOrder(quantity, isBuying);
       return;
     }
 
-    double cumulativeProb = probabilities[0] + probabilities[1];
-    for (int i = 1; i < probabilities.length; ++i) {
+    double cumulativeProb = probabilities.get(0) + probabilities.get(1);
+    for (int i = 1; i < probabilities.size(); ++i) {
       if (probability < cumulativeProb) {
         // create a limit order; if the agent is buying, then as the tick
         // increases, the lower the buy price
@@ -171,7 +173,7 @@ public abstract class PoissonAgent extends Agent {
           - ((isBuying ? 1 : -1) * TICK_SIZE * i), quantity, isBuying);
         return;
       }
-      cumulativeProb += probabilities[i + 1];
+      cumulativeProb += probabilities.get(i + 1);
     }
   }
 
@@ -185,17 +187,17 @@ public abstract class PoissonAgent extends Agent {
    *          the order quantity, e.g. P[Q=1], P[Q=2], etc.
    * @return The quantity to issue an order for.
    */
-  int getOrderSize(double... probabilities) {
+  int getOrderSize(ArrayList<Double> probabilities) {
     double probability = Math.random();
     double cumulativeProb = 0;
     int i = 0;
     do {
-      cumulativeProb += probabilities[i];
+      cumulativeProb += probabilities.get(i);
       if (probability < cumulativeProb) {
         return i + 1;
       }
       ++i;
-    } while (i < probabilities.length);
+    } while (i < probabilities.size());
     System.err
       .println("Order size probabilites do not add up to 1.0 for poisson agent");
     return 0;

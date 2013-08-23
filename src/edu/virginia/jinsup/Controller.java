@@ -16,63 +16,6 @@ import org.apache.commons.math3.distribution.PoissonDistribution;
 public class Controller {
 
   /**
-   * Number of fund buyers (equal to number of fund sellers)
-   */
-  private static final int FUND_BUYER_SELLER_COUNT = 84;
-
-  /**
-   * Number of market makers
-   */
-  private static final int MARKET_MAKER_COUNT = 19;
-
-  /**
-   * Number of oppor strat traders
-   */
-  private static final int OPPOR_STRAT_COUNT = 120;
-
-  /**
-   * Number of HFT traders
-   */
-  private static final int HFT_COUNT = 8;
-
-  /**
-   * Number of small traders
-   */
-  private static final int SMALL_TRADER_COUNT = 421;
-
-  /**
-   * Number of intelligent agents
-   */
-  private static final int INTELLIGENT_AGENT_COUNT = 10;
-
-  // Specify parameters for intelligent agents here
-
-  /**
-   * How far in the past Intelligent Agents should look for data, in
-   * milliseconds.
-   */
-  private static final int INTELLIGENT_AGENT_DELAY_LENGTH = 1000;
-
-  /**
-   * To speed up the simulation with infinite thresholds, set this to false.
-   * Takes precedence over INTELLIGENT_AGENT_THRESHOLD.
-   */
-  private static final boolean INTELLIGENT_AGENT_THRESHOLD_ENABLE = true;
-
-  /**
-   * Maximum difference between the total volume at the best bid/ask allowed
-   * before additional actions are taken.
-   */
-  private static final int INTELLIGENT_AGENT_THRESHOLD = 100;
-
-  /**
-   * How often the average profit over all intelligent agents should be logged,
-   * in milliseconds.
-   */
-  private static final int INTELLIGENT_AGENT_PROFIT_LOG_FREQUENCY =
-    1000 * 60 * 10;
-
-  /**
    * Location of the log file for intelligent agent average profits. It will be
    * in the same directory as the order log files and named
    * "IAProfits-{time}.csv".
@@ -83,33 +26,6 @@ public class Controller {
    * Holds a list of intelligent agents.
    */
   private final ArrayList<IntelligentAgent> intelligentAgentList;
-
-  // Specify the lambdas here in seconds
-  private static final int FUND_BUYER_SELLER_LAMBDA_ORDER = 40;
-
-  private static final int FUND_BUYER_SELLER_LAMBDA_CANCEL = 60;
-
-  private static final int MARKET_MAKER_LAMBDA_ORDER = 3;
-
-  private static final int MARKET_MAKER_LAMBDA_CANCEL = 2;
-
-  private static final int OPPOR_STRAT_LAMBDA_ORDER = 30;
-
-  private static final int OPPOR_STRAT_LAMBDA_CANCEL = 40;
-
-  private static final double HFT_LAMBDA_ORDER = 0.35;
-
-  private static final double HFT_LAMBDA_CANCEL = 0.4;
-
-  private static final int SMALL_TRADER_LAMBDA_ORDER = 1500;
-
-  private static final int SMALL_TRADER_LAMBDA_CANCEL = 1000;
-
-  /**
-   * How often buy probabilities for poisson opportunistic traders should
-   * change, in seconds.
-   */
-  private static final int NEWS_FREQUENCY = 60;
 
   /**
    * List of all agents in the simulator
@@ -183,8 +99,10 @@ public class Controller {
     this.endTime = endTime;
     this.matchingEngine = matchingEngine;
     this.testing = testing;
-    poissonGeneratorNews = new PoissonDistribution(NEWS_FREQUENCY * 1000);
-    lastNewsTime = NEWS_FREQUENCY * 1000;
+
+    poissonGeneratorNews =
+      new PoissonDistribution(Parameters.opporStratNewsFreq * 1000);
+    lastNewsTime = Parameters.opporStratNewsFreq * 1000;
     intelligentAgentList = new ArrayList<IntelligentAgent>();
     setViaCommandLine = false;
 
@@ -232,56 +150,67 @@ public class Controller {
 
     FundBuyerPoisson fundBuyerPoisson;
     FundSellerPoisson fundSellerPoisson;
-    for (int i = 0; i < FUND_BUYER_SELLER_COUNT; ++i) {
+    for (int i = 0; i < Parameters.fundCount; ++i) {
       fundBuyerPoisson =
-        new FundBuyerPoisson(matchingEngine, FUND_BUYER_SELLER_LAMBDA_ORDER,
-          FUND_BUYER_SELLER_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
+        new FundBuyerPoisson(matchingEngine,
+          (int) Parameters.fundamentalArrivalRate,
+          (int) Parameters.fundamentalCancelRate,
+          (long) (Math.random() * startupTime));
       fundSellerPoisson =
-        new FundSellerPoisson(matchingEngine, FUND_BUYER_SELLER_LAMBDA_ORDER,
-          FUND_BUYER_SELLER_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
+        new FundSellerPoisson(matchingEngine,
+          (int) Parameters.fundamentalArrivalRate,
+          (int) Parameters.fundamentalCancelRate,
+          (long) (Math.random() * startupTime));
       agentList.add(fundBuyerPoisson);
       agentList.add(fundSellerPoisson);
     }
 
     MarketMakerPoisson marketMakerPoisson;
-    for (int i = 0; i < MARKET_MAKER_COUNT; ++i) {
+    for (int i = 0; i < Parameters.marketMakerCount; ++i) {
       marketMakerPoisson =
-        new MarketMakerPoisson(matchingEngine, MARKET_MAKER_LAMBDA_ORDER,
-          MARKET_MAKER_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
+        new MarketMakerPoisson(matchingEngine,
+          (int) Parameters.marketMakerArrivalRate,
+          (int) Parameters.marketMakerCancelRate,
+          (long) (Math.random() * startupTime));
       agentList.add(marketMakerPoisson);
     }
 
     OpporStratPoisson opporStratPoisson;
     // Explicitly set global buy probability.
-    OpporStratPoisson.setBuyProbability(0.50);
-    for (int i = 0; i < OPPOR_STRAT_COUNT; ++i) {
+    OpporStratPoisson.setBuyProbability(Parameters.initialBuyProbability);
+    for (int i = 0; i < Parameters.opporStratCount; ++i) {
       opporStratPoisson =
-        new OpporStratPoisson(matchingEngine, OPPOR_STRAT_LAMBDA_ORDER,
-          OPPOR_STRAT_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
+        new OpporStratPoisson(matchingEngine,
+          (int) Parameters.opporStratArrivalRate,
+          (int) Parameters.opporStratCancelRate,
+          (long) (Math.random() * startupTime));
       agentList.add(opporStratPoisson);
     }
 
     HFTPoisson hftPoisson;
-    for (int i = 0; i < HFT_COUNT; ++i) {
+    for (int i = 0; i < Parameters.hftCount; ++i) {
       hftPoisson =
-        new HFTPoisson(matchingEngine, HFT_LAMBDA_ORDER, HFT_LAMBDA_CANCEL,
-          (long) (Math.random() * startupTime));
+        new HFTPoisson(matchingEngine, Parameters.hftArrivalRate,
+          Parameters.hftCancelRate, (long) (Math.random() * startupTime));
       agentList.add(hftPoisson);
     }
 
     SmallTrader smallTrader;
-    for (int i = 0; i < SMALL_TRADER_COUNT; ++i) {
+    for (int i = 0; i < Parameters.smallTraderCount; ++i) {
       smallTrader =
-        new SmallTrader(matchingEngine, SMALL_TRADER_LAMBDA_ORDER,
-          SMALL_TRADER_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
+        new SmallTrader(matchingEngine,
+          (int) Parameters.smallTraderArrivalRate,
+          (int) Parameters.smallTraderCancelRate,
+          (long) (Math.random() * startupTime));
       agentList.add(smallTrader);
     }
 
-    if (INTELLIGENT_AGENT_COUNT != 0) {
+    if (Parameters.intelligentAgentCount != 0) {
       intelligentAgentHelper =
-        new IntelligentAgentHelper(INTELLIGENT_AGENT_DELAY_LENGTH,
-          INTELLIGENT_AGENT_THRESHOLD, matchingEngine.getLastTradePrice(),
-          INTELLIGENT_AGENT_THRESHOLD_ENABLE);
+        new IntelligentAgentHelper(Parameters.intelligentAgentDelay,
+          Parameters.intelligentAgentThreshold,
+          matchingEngine.getLastTradePrice(),
+          Parameters.intelligentAgentThresholdEnable);
 
       IntelligentAgent intelligentAgent;
       // Explicitly set delay, threshold, and helper.
@@ -289,12 +218,12 @@ public class Controller {
         IntelligentAgent.setDelay(delay);
         IntelligentAgent.setThreshold(threshold);
       } else {
-        IntelligentAgent.setDelay(INTELLIGENT_AGENT_DELAY_LENGTH);
-        IntelligentAgent.setThreshold(INTELLIGENT_AGENT_THRESHOLD);
+        IntelligentAgent.setDelay(Parameters.intelligentAgentDelay);
+        IntelligentAgent.setThreshold(Parameters.intelligentAgentThreshold);
       }
       IntelligentAgent.setIntelligentAgentHelper(intelligentAgentHelper);
       IntelligentAgent.setTotalProfit(0);
-      for (int i = 0; i < INTELLIGENT_AGENT_COUNT; ++i) {
+      for (int i = 0; i < Parameters.intelligentAgentCount; ++i) {
         intelligentAgent = new IntelligentAgent(matchingEngine);
         agentList.add(intelligentAgent);
         intelligentAgentList.add(intelligentAgent);
@@ -347,14 +276,14 @@ public class Controller {
     // Moving average is not used for poisson trading.
     // matchingEngine.storeMovingAverage();
     matchingEngine.reset();
-    if (INTELLIGENT_AGENT_COUNT != 0) {
+    if (Parameters.intelligentAgentCount != 0) {
       // Update the delay data for intelligent agents. A positive number means
       // that there are more buy orders than sell orders at the best bid/ask.
-      if (time >= (startupTime - INTELLIGENT_AGENT_DELAY_LENGTH)) {
+      if (time >= (startupTime - Parameters.intelligentAgentDelay)) {
         intelligentAgentHelper.addData(matchingEngine.getBestBidQuantity()
           - matchingEngine.getBestAskQuantity(), matchingEngine.getBestBid()
           .getPrice(), matchingEngine.getBestAsk().getPrice());
-        if (INTELLIGENT_AGENT_THRESHOLD_ENABLE) {
+        if (Parameters.intelligentAgentThresholdEnable) {
           IntelligentAgent.setOldThresholdState(intelligentAgentHelper
             .getOldThresholdState());
         }
@@ -362,7 +291,7 @@ public class Controller {
     }
 
     // Check if profit logging should be done
-    if (time % INTELLIGENT_AGENT_PROFIT_LOG_FREQUENCY == 0) {
+    if (time % Parameters.intelligentAgentLogFreq == 0) {
       // Log the average profit over all intelligent agents.
       int totalProfit = 0;
       for (IntelligentAgent a : intelligentAgentList) {
@@ -375,7 +304,7 @@ public class Controller {
       try {
         writer = new FileWriter(INTELLIGENT_AGENT_PROFIT_LOG_LOCATION, true);
         writer.append(time + ","
-          + (totalProfit / (INTELLIGENT_AGENT_COUNT * 100.0)) + "\n");
+          + (totalProfit / (Parameters.intelligentAgentCount * 100.0)) + "\n");
         writer.flush();
         writer.close();
       } catch (IOException e) {

@@ -42,18 +42,12 @@ public class GraphFrame extends JFrame {
    * Minimum number of ms to wait before allowing order graph to be refreshed.
    */
   private static long REFRESH_INTERVAL = 200;
+
   /**
-   * Buy price in cents.
+   * Location of the simulation config file.
    */
-  private int buyPrice;
-  /**
-   * Starting time in ms.
-   */
-  private int startTime;
-  /**
-   * End time in ms.
-   */
-  private int endTime;
+  private String configLocation;
+
   /**
    * Destination to write log file.
    */
@@ -167,60 +161,25 @@ public class GraphFrame extends JFrame {
     } else {
       // Show dialogs to obtain in information that wasn't provided via command
       // line
-      String buyPriceMsg =
-        "Buy price in dollars (must be in increments of $0.25):";
-      String startTimeMsg = "Starting period length in seconds:";
-      String endTimeMsg = "Trading period length in seconds:";
-      String error = "Error: Input must be a number!\n";
-      String buyPriceErrorMsg = error + buyPriceMsg;
-      String startTimeErrorMsg = error + startTimeMsg;
-      String endTimeErrorMsg = error + endTimeMsg;
-      boolean validInput = false;
-      String input;
-      while (!validInput) {
-        try {
-          input =
-            JOptionPane.showInputDialog(this, buyPriceMsg, "Step 1 of 4",
-              JOptionPane.PLAIN_MESSAGE);
-          if (input == null) {
-            System.exit(0);
-          }
-          buyPrice = (int) (100 * Double.parseDouble(input));
-          validInput = true;
-        } catch (NumberFormatException e) {
-          buyPriceMsg = buyPriceErrorMsg;
-        }
+
+      JFileChooser configLocationDialog = new JFileChooser();
+      configLocationDialog.setCurrentDirectory(new File("."));
+      configLocationDialog
+        .setDialogTitle("Step 1 of 2: Locate the configuration file");
+      int locateResult = configLocationDialog.showOpenDialog(this);
+      switch (locateResult) {
+        case JFileChooser.APPROVE_OPTION:
+          configLocation =
+            configLocationDialog.getSelectedFile().getAbsolutePath();
+          break;
+        case JFileChooser.CANCEL_OPTION:
+          System.exit(0);
+          break;
+        default:
+          System.exit(0);
+          break;
       }
-      validInput = false;
-      while (!validInput) {
-        try {
-          input =
-            JOptionPane.showInputDialog(this, startTimeMsg, "Step 2 of 4",
-              JOptionPane.PLAIN_MESSAGE);
-          if (input == null) {
-            System.exit(0);
-          }
-          startTime = 1000 * Integer.parseInt(input);
-          validInput = true;
-        } catch (NumberFormatException e) {
-          startTimeMsg = startTimeErrorMsg;
-        }
-      }
-      validInput = false;
-      while (!validInput) {
-        try {
-          input =
-            JOptionPane.showInputDialog(this, endTimeMsg, "Step 3 of 4",
-              JOptionPane.PLAIN_MESSAGE);
-          if (input == null) {
-            System.exit(0);
-          }
-          endTime = startTime + 1000 * Integer.parseInt(input);
-          validInput = true;
-        } catch (NumberFormatException e) {
-          endTimeMsg = endTimeErrorMsg;
-        }
-      }
+
       JFileChooser saveDialog = new JFileChooser();
       saveDialog.setCurrentDirectory(new File("."));
       saveDialog
@@ -241,16 +200,8 @@ public class GraphFrame extends JFrame {
     }
   }
 
-  public int getBuyPrice() {
-    return buyPrice;
-  }
-
-  public int getStartTime() {
-    return startTime;
-  }
-
-  public int getEndTime() {
-    return endTime;
+  public String getConfigLocation() {
+    return configLocation;
   }
 
   public String getDest() {

@@ -11,7 +11,17 @@ public class OpporStratPoisson extends PoissonAgent {
   /**
    * Limits the number of shares owned by the agent.
    */
-  private static final int INVENTORY_LIMIT = 30;
+  private static final int INVENTORY_LIMIT =
+    Parameters.opporStratInventoryLimit;
+
+  private static final double LOWER_UNIFORM_BOUND =
+    Parameters.lowerUniformBound;
+  private static final double UPPER_UNIFORM_BOUND =
+    Parameters.upperUniformBound;
+  private static final double MIN_BUY_PROBABILITY =
+    Parameters.minBuyProbability;
+  private static final double MAX_BUY_PROBABILITY =
+    Parameters.maxBuyProbability;
 
   /**
    * Whether or not agent owns more shares than INVENTORY_LIMIT or has a deficit
@@ -71,8 +81,8 @@ public class OpporStratPoisson extends PoissonAgent {
     }
 
     createPoissonOrder(willBuy,
-      getOrderSize(0.66, 0.16, 0.05, 0.04, 0.03, 0.03, 0.03), 0.35, 0.20, 0.05,
-      0.05, 0.05, 0.05, 0.07, 0.05, 0.05, 0.06, 0.04);
+      getOrderSize(Parameters.opporStratOrderSizeProbabilities),
+      Parameters.opporStratTickProbabilities);
   }
 
   /**
@@ -80,14 +90,16 @@ public class OpporStratPoisson extends PoissonAgent {
    */
   public static void calcNewBuyProbability() {
     currBuyProbability =
-      currBuyProbability + (new UniformRealDistribution(-0.2, 0.2)).sample();
+      currBuyProbability
+        + (new UniformRealDistribution(LOWER_UNIFORM_BOUND, UPPER_UNIFORM_BOUND))
+          .sample();
 
     // prevent the probability from going over the limit
-    if (currBuyProbability < 0.30) {
-      currBuyProbability = 0.30;
+    if (currBuyProbability < MIN_BUY_PROBABILITY) {
+      currBuyProbability = MIN_BUY_PROBABILITY;
     }
-    if (currBuyProbability > 0.70) {
-      currBuyProbability = 0.70;
+    if (currBuyProbability > MAX_BUY_PROBABILITY) {
+      currBuyProbability = MAX_BUY_PROBABILITY;
     }
   }
 
