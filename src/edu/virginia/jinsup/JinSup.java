@@ -1,21 +1,12 @@
 package edu.virginia.jinsup;
 
-// import java.security.SecureRandom;
-
-// import org.apache.commons.math3.distribution.ExponentialDistribution;
-// import org.apache.commons.math3.distribution.PoissonDistribution;
-// import org.apache.commons.math3.util.FastMath;
-
 import java.awt.Frame;
 
 import com.beust.jcommander.JCommander;
 
 public class JinSup {
 
-  public static Settings settings;
-
   public static final boolean BATCH_MODE = true;
-
   public static final int NUMBER_OF_RUNS = 30;
 
   /**
@@ -26,8 +17,7 @@ public class JinSup {
 
   public static void main(String[] args) {
 
-    settings = new Settings();
-    new JCommander(settings, args);
+    new JCommander(new Settings(), args);
 
     // Price in dollars
     int buyPrice;
@@ -40,17 +30,14 @@ public class JinSup {
     int threshold = 0;
     int delay = 0;
 
-    // Store directory information when in batch mode
-    String logDest;
-
     // Time conversion from seconds to milliseconds
-    if (settings.isSet()) {
+    if (Settings.isSet()) {
       Controller.graphFrame = new GraphFrame(true, null);
-      buyPrice = (int) settings.getBuyPrice().doubleValue() * 100;
-      startTime = settings.getStartTime() * 1000;
-      endTime = startTime + settings.getTradeTime() * 1000;
-      threshold = settings.getThreshold();
-      delay = settings.getDelay();
+      buyPrice = (int) Settings.buyPrice.doubleValue() * 100;
+      startTime = Settings.startTime * 1000;
+      endTime = startTime + Settings.tradeTime * 1000;
+      threshold = Settings.threshold;
+      delay = Settings.delay;
     } else {
       Controller.graphFrame = new GraphFrame(false, null);
       buyPrice = Controller.graphFrame.getBuyPrice();
@@ -58,7 +45,6 @@ public class JinSup {
       endTime = Controller.graphFrame.getEndTime();
     }
 
-    logDest = Controller.graphFrame.getDest();
     MatchingEngine matchingEngine;
     Controller controller;
 
@@ -73,12 +59,12 @@ public class JinSup {
     } else {
       Controller.graphFrame.dispose();
       for (int i = 0; i < NUMBER_OF_RUNS; i++) {
-        Controller.graphFrame = new GraphFrame(true, logDest);
+        Controller.graphFrame = new GraphFrame(true, Settings.dest);
         Controller.graphFrame.setState(Frame.ICONIFIED);
         matchingEngine = new MatchingEngine(buyPrice, startTime, TEST_MODE);
 
         controller =
-          (settings.isSet() ? new Controller(startTime, endTime,
+          (Settings.isSet() ? new Controller(startTime, endTime,
             matchingEngine, TEST_MODE, threshold, delay) : new Controller(
             startTime, endTime, matchingEngine, TEST_MODE));
         System.out.println("Starting simulator, run " + (i + 1) + " of "

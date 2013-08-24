@@ -54,10 +54,6 @@ public class GraphFrame extends JFrame {
    * End time in ms.
    */
   private int endTime;
-  /**
-   * Destination to write log file.
-   */
-  private String dest;
 
   /**
    * Date and time of the log in String.
@@ -157,10 +153,9 @@ public class GraphFrame extends JFrame {
         calendar.get(Calendar.SECOND));
 
     if (optionsSet) {
-      dest = JinSup.settings.getDest();
       if (logDest != null) {
         File logFile = new File(logDest);
-        dest =
+        Settings.dest =
           logFile.getAbsoluteFile().getParent() + File.separator + "log-"
             + logTime + ".csv";
       }
@@ -229,7 +224,7 @@ public class GraphFrame extends JFrame {
       int saveResult = saveDialog.showSaveDialog(this);
       switch (saveResult) {
         case JFileChooser.APPROVE_OPTION:
-          dest = saveDialog.getSelectedFile().getAbsolutePath();
+          Settings.dest = saveDialog.getSelectedFile().getAbsolutePath();
           break;
         case JFileChooser.CANCEL_OPTION:
           System.exit(0);
@@ -251,10 +246,6 @@ public class GraphFrame extends JFrame {
 
   public int getEndTime() {
     return endTime;
-  }
-
-  public String getDest() {
-    return dest;
   }
 
   public String getLogTime() {

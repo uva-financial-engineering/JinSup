@@ -188,7 +188,7 @@ public class Controller {
     intelligentAgentList = new ArrayList<IntelligentAgent>();
     setViaCommandLine = false;
 
-    File logFile = new File(graphFrame.getDest());
+    File logFile = new File(Settings.dest);
     INTELLIGENT_AGENT_PROFIT_LOG_LOCATION =
       logFile.getAbsoluteFile().getParent() + File.separator + "IAProfits-"
         + graphFrame.getLogTime() + ".csv";
