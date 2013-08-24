@@ -20,10 +20,10 @@ public class Settings {
   public static String dest;
 
   @Parameter(names = {"--threshold"}, description = "Threshold for IAs")
-  public static Integer threshold;
+  public static Integer threshold = 0;
 
   @Parameter(names = {"--delay"}, description = "Delay for IAs, in ms")
-  public static Integer delay;
+  public static Integer delay = 0;
 
   public static boolean isSet() {
     return (buyPrice != null && startTime != null && tradeTime != null
