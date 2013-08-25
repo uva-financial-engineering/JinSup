@@ -16,9 +16,9 @@ public class JinSup {
 
     // Time conversion from seconds to milliseconds
     Controller.graphFrame = new GraphFrame();
-    int buyPrice = Controller.graphFrame.getBuyPrice();
-    int startTime = Controller.graphFrame.getStartTime();
-    int endTime = Controller.graphFrame.getEndTime();
+    int buyPrice = (int) (Settings.buyPrice * 100);
+    int startTime = Settings.startTime * 1000;
+    int endTime = startTime + Settings.tradeTime * 1000;
 
     MatchingEngine matchingEngine;
     Controller controller;
