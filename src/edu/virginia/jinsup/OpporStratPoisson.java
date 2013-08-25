@@ -45,6 +45,7 @@ public class OpporStratPoisson extends PoissonAgent {
     overLimit = false;
   }
 
+  @Override
   public void makeOrder() {
     boolean willBuy = true;
     // Whether or not to skip factor checking
@@ -72,7 +73,7 @@ public class OpporStratPoisson extends PoissonAgent {
 
     createPoissonOrder(willBuy,
       getOrderSize(0.66, 0.16, 0.05, 0.04, 0.03, 0.03, 0.03), 0.35, 0.20, 0.05,
-      0.05, 0.05, 0.05, 0.07, 0.05, 0.05, 0.06, 0.04);
+      0.05, 0.05, 0.05, 0.07, 0.05, 0.05, 0.05, 0.03);
   }
 
   /**
