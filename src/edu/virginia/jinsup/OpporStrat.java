@@ -1,4 +1,5 @@
 package edu.virginia.jinsup;
+
 /**
  * A Market Maker. The acting methodology for the agent is exactly the same as
  * was specified in the testing document given.
@@ -26,7 +27,8 @@ public class OpporStrat extends Agent {
 
     setWillAct(false);
     // calculate next act time (+/- 500 ms) with variation of 10%
-    setNextActTime(getNextActTime() + (long) (Math.random() * 50 + 475));
+    setNextActTime(getNextActTime()
+      + (long) (JinSup.rand.nextDouble() * 50 + 475));
     return;
   }
 }

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Random;
 import java.util.TreeSet;
 
 /**
@@ -123,8 +122,6 @@ public class MatchingEngine {
    */
   private long time;
 
-  private final Random random;
-
   /**
    * Creates a matching engine with empty fields. Everything is initialized to
    * zero. Also initializes the log file.
@@ -149,7 +146,6 @@ public class MatchingEngine {
     movingSum = 0;
     tradeMatchID = 0;
     this.startupTime = startupTime;
-    random = new Random();
     this.buyPrice = buyPrice;
 
     // 2^19 lines before writing to file
@@ -708,7 +704,7 @@ public class MatchingEngine {
       return null;
     }
     return orderMap.get(agentID).get(
-      random.nextInt(orderMap.get(agentID).size()));
+      JinSup.rand.nextInt(orderMap.get(agentID).size()));
   }
 
   /**

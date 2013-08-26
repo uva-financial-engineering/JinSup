@@ -154,7 +154,7 @@ public abstract class PoissonAgent extends Agent {
    */
   void createPoissonOrder(boolean isBuying, int quantity,
     double... probabilities) {
-    double probability = Math.random();
+    double probability = JinSup.rand.nextDouble();
 
     if (probability < probabilities[0]) {
       // create a market order
@@ -186,7 +186,7 @@ public abstract class PoissonAgent extends Agent {
    * @return The quantity to issue an order for.
    */
   int getOrderSize(double... probabilities) {
-    double probability = Math.random();
+    double probability = JinSup.rand.nextDouble();
     double cumulativeProb = 0;
     int i = 0;
     do {

@@ -68,7 +68,7 @@ public class OpporStratPoisson extends PoissonAgent {
       override = false;
     }
     if (!override) {
-      willBuy = (Math.random() < currBuyProbability);
+      willBuy = (JinSup.rand.nextFloat() < currBuyProbability);
     }
 
     createPoissonOrder(willBuy,

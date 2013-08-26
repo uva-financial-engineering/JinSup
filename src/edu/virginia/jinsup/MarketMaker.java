@@ -1,4 +1,5 @@
 package edu.virginia.jinsup;
+
 /**
  * A Market Maker. The acting methodology for the agent deviates a bit from the
  * testing document given since the agent will buy 1 share for the ten highest
@@ -34,7 +35,8 @@ public class MarketMaker extends Agent {
     setWillAct(false);
 
     // calculate next act time (+/- 1 seconds) with variation of 10%
-    setNextActTime(getNextActTime() + (long) (Math.random() * 100 + 950));
+    setNextActTime(getNextActTime()
+      + (long) (JinSup.rand.nextDouble() * 100 + 950));
     return;
   }
 }

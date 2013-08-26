@@ -1,4 +1,5 @@
 package edu.virginia.jinsup;
+
 /**
  * A Fundamental Buyer. The acting methodology for the agent deviates a bit from
  * the testing document given since the agent will buy 2 shares for the 10
@@ -19,6 +20,7 @@ public class FundBuyer extends Agent {
     super(matchEng);
   }
 
+  @Override
   public void act() {
     for (int i = 0; i < 10; i++) {
       // request to BUY 2 shares for the 10 highest buy prices
@@ -32,12 +34,13 @@ public class FundBuyer extends Agent {
 
     // ten percent chance of issuing a market buy order... assuming that this
     // can occur only once per turn.
-    if (Math.random() < 0.1) {
+    if (JinSup.rand.nextFloat() < 0.1) {
       createMarketOrder(2, true);
     }
     setWillAct(false);
 
     // calculate next act time (+/- 5 seconds) with variation of 10%
-    setNextActTime(getNextActTime() + (long) (Math.random() * 500 + 4750));
+    setNextActTime(getNextActTime()
+      + (long) (JinSup.rand.nextDouble() * 500 + 4750));
   }
 }

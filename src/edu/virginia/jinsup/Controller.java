@@ -208,10 +208,12 @@ public class Controller {
     for (int i = 0; i < FUND_BUYER_SELLER_COUNT; ++i) {
       fundBuyerPoisson =
         new FundBuyerPoisson(matchingEngine, FUND_BUYER_SELLER_LAMBDA_ORDER,
-          FUND_BUYER_SELLER_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
+          FUND_BUYER_SELLER_LAMBDA_CANCEL,
+          (long) (JinSup.rand.nextDouble() * startupTime));
       fundSellerPoisson =
         new FundSellerPoisson(matchingEngine, FUND_BUYER_SELLER_LAMBDA_ORDER,
-          FUND_BUYER_SELLER_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
+          FUND_BUYER_SELLER_LAMBDA_CANCEL,
+          (long) (JinSup.rand.nextDouble() * startupTime));
       agentList.add(fundBuyerPoisson);
       agentList.add(fundSellerPoisson);
     }
@@ -220,7 +222,8 @@ public class Controller {
     for (int i = 0; i < MARKET_MAKER_COUNT; ++i) {
       marketMakerPoisson =
         new MarketMakerPoisson(matchingEngine, MARKET_MAKER_LAMBDA_ORDER,
-          MARKET_MAKER_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
+          MARKET_MAKER_LAMBDA_CANCEL,
+          (long) (JinSup.rand.nextDouble() * startupTime));
       agentList.add(marketMakerPoisson);
     }
 
@@ -230,7 +233,8 @@ public class Controller {
     for (int i = 0; i < OPPOR_STRAT_COUNT; ++i) {
       opporStratPoisson =
         new OpporStratPoisson(matchingEngine, OPPOR_STRAT_LAMBDA_ORDER,
-          OPPOR_STRAT_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
+          OPPOR_STRAT_LAMBDA_CANCEL,
+          (long) (JinSup.rand.nextDouble() * startupTime));
       agentList.add(opporStratPoisson);
     }
 
@@ -238,7 +242,7 @@ public class Controller {
     for (int i = 0; i < HFT_COUNT; ++i) {
       hftPoisson =
         new HFTPoisson(matchingEngine, HFT_LAMBDA_ORDER, HFT_LAMBDA_CANCEL,
-          (long) (Math.random() * startupTime));
+          (long) (JinSup.rand.nextDouble() * startupTime));
       agentList.add(hftPoisson);
     }
 
@@ -246,7 +250,8 @@ public class Controller {
     for (int i = 0; i < SMALL_TRADER_COUNT; ++i) {
       smallTrader =
         new SmallTrader(matchingEngine, SMALL_TRADER_LAMBDA_ORDER,
-          SMALL_TRADER_LAMBDA_CANCEL, (long) (Math.random() * startupTime));
+          SMALL_TRADER_LAMBDA_CANCEL,
+          (long) (JinSup.rand.nextDouble() * startupTime));
       agentList.add(smallTrader);
     }
 

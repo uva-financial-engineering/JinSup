@@ -65,7 +65,7 @@ public class HFTPoisson extends PoissonAgent {
 
     // determine buy probability from the trend
     if (!override && factor < 0.9) {
-      willBuy = 10 * Math.random() < ((int) (factor * 10 + 1));
+      willBuy = 10 * JinSup.rand.nextFloat() < ((int) (factor * 10 + 1));
     }
 
     createPoissonOrder(willBuy,
