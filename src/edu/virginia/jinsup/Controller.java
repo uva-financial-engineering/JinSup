@@ -309,7 +309,7 @@ public class Controller {
         actingAgents.add(a);
       }
     }
-    Collections.shuffle(actingAgents);
+    Collections.shuffle(actingAgents, JinSup.rand);
     for (Agent a : actingAgents) {
       // Enable the agent to act until it no longer needs to act.
       a.setWillAct(true);
