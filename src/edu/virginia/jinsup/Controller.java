@@ -182,10 +182,8 @@ public class Controller {
     intelligentAgentList = new ArrayList<IntelligentAgent>();
     setViaCommandLine = false;
 
-    File logFile = new File(Settings.dest);
-    INTELLIGENT_AGENT_PROFIT_LOG_LOCATION =
-      logFile.getAbsoluteFile().getParent() + File.separator + "IAProfits-"
-        + graphFrame.getLogTime() + ".csv";
+    File logFile = new File(Settings.getDestIAProfitFile());
+    INTELLIGENT_AGENT_PROFIT_LOG_LOCATION = logFile.getAbsolutePath();
 
     try {
       FileWriter writer = new FileWriter(INTELLIGENT_AGENT_PROFIT_LOG_LOCATION);
@@ -208,7 +206,6 @@ public class Controller {
     this.threshold = threshold;
     this.delay = delay;
     setViaCommandLine = true;
-
   }
 
   /**
@@ -309,7 +306,7 @@ public class Controller {
     }
 
     // write remaining entries to the log
-    if (!Settings.testMode) {
+    if (!Settings.isTestMode()) {
       matchingEngine.writeToLog();
     }
 

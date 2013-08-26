@@ -54,11 +54,6 @@ public class GraphFrame extends JFrame {
    */
   private int endTime;
 
-  /**
-   * Date and time of the log in String.
-   */
-  private final String logTime;
-
   private final BarRenderer orderRenderer;
 
   /**
@@ -142,19 +137,6 @@ public class GraphFrame extends JFrame {
     pack();
     RefineryUtilities.centerFrameOnScreen(this);
     setVisible(true);
-
-    // Save current time as string
-    Calendar calendar = Calendar.getInstance();
-    logTime =
-      String.format("%2d%02d%02d-%02d%02d%02d", calendar.get(Calendar.YEAR),
-        calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH),
-        calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE),
-        calendar.get(Calendar.SECOND));
-
-    File logFile = new File(Settings.dest);
-    Settings.dest =
-      logFile.getAbsoluteFile().getParent() + File.separator + "log-" + logTime
-        + ".csv";
   }
 
   public int getBuyPrice() {
@@ -167,10 +149,6 @@ public class GraphFrame extends JFrame {
 
   public int getEndTime() {
     return endTime;
-  }
-
-  public String getLogTime() {
-    return logTime;
   }
 
   public void showFinished(long nanoseconds) {

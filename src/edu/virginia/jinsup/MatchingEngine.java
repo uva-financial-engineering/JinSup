@@ -1,5 +1,6 @@
 package edu.virginia.jinsup;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -153,10 +154,11 @@ public class MatchingEngine {
 
     // 2^19 lines before writing to file
     logBuffer = new ArrayList<String>(LOG_BUFFER_SIZE);
-    if (!Settings.testMode) {
+    if (!Settings.isTestMode()) {
       // create the CSV file
+      File logFile = new File(Settings.getDestTradeFile());
       try {
-        FileWriter writer = new FileWriter(Settings.dest);
+        FileWriter writer = new FileWriter(logFile.getAbsoluteFile());
         writer.append("Time, Agent ID, Message, Buy/Sell, Order ID, "
           + "Original Quantity, Price, Type, Leaves Quantity, Trade Price, "
           + "Quantity Filled, Aggressor, Trade Match ID\n");
@@ -480,7 +482,7 @@ public class MatchingEngine {
     }
 
     // Update trading graph
-    if (!Settings.testMode) {
+    if (!Settings.isTestMode()) {
       Controller.graphFrame.addTrade(Controller.time * 0.001, price);
     }
     return true;
@@ -582,7 +584,7 @@ public class MatchingEngine {
    */
   public void logOrder(Order order, int messageType, boolean market,
     int quantChanged, int priceChanged) {
-    if (!Settings.testMode) {
+    if (!Settings.isTestMode()) {
       switch (messageType) {
         case 1:
           Controller.graphFrame.addOrder(order.isBuyOrder(),
@@ -634,7 +636,7 @@ public class MatchingEngine {
    */
   public void logTrade(Order order, boolean market, int tradePrice, int volume,
     boolean aggressor, long matchID) {
-    if (!Settings.testMode) {
+    if (!Settings.isTestMode()) {
       if (order.isBuyOrder()) {
         currAgVolumeBuySide += volume;
       } else {
@@ -663,7 +665,7 @@ public class MatchingEngine {
    */
   public void writeToLog() {
     try {
-      FileWriter writer = new FileWriter(Settings.dest, true);
+      FileWriter writer = new FileWriter(Settings.getDestTradeFile(), true);
       for (int i = 0; i < logBuffer.size(); i++) {
         writer.append(logBuffer.get(i));
       }
