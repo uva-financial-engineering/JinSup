@@ -40,7 +40,6 @@ public class JinSup {
     Controller controller =
       new Controller(startTime, endTime, matchingEngine,
         Settings.getThreshold(), Settings.getDelay());
-    System.out.println("Starting simulator...");
     long elapsedTime = System.nanoTime();
     controller.runSimulator();
     if (!Settings.isTestMode()) {

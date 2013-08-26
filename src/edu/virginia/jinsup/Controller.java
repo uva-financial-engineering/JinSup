@@ -278,14 +278,11 @@ public class Controller {
       }
     }
 
-    System.out.println("Done! Simulation has started");
-
     // run simulator until endTime is reached.
     while (time < startupTime) {
       moveTime();
     }
     matchingEngine.setStartingPeriod(false);
-    System.out.println("Trading Enabled!");
     state = "Trading Period";
     while (time < endTime) {
       moveTime();
@@ -296,8 +293,6 @@ public class Controller {
       matchingEngine.writeToLog();
       graphFrame.updateTitleBar(time, "Simulation Finished");
     }
-
-    System.out.println("The simulation has ended.");
   }
 
   /**

@@ -602,7 +602,7 @@ public class MatchingEngine {
             order.getPrice());
           break;
         default:
-          System.out.println("Message type " + messageType + " is invalid.");
+          System.err.println("Message type " + messageType + " is invalid.");
           System.exit(1);
           break;
       }
