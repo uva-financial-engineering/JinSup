@@ -7,16 +7,25 @@ import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
 
 public class JinSup {
 
-  // Initialize reusable PRNG instance
-  public static RandomGenerator randGen = new MersenneTwister();
-  public static Random rand = new RandomAdaptor(randGen);
+  public static RandomGenerator randGen;
+  public static Random rand;
 
   public static void main(String[] args) {
     // Read command-line flags
-    new JCommander(new Settings(), args);
+    try {
+      new JCommander(new Settings(), args);
+    } catch (ParameterException e) {
+      System.err.println(e.getMessage());
+      System.exit(1);
+    }
+
+    // Initialize reusable PRNG instance
+    randGen = new MersenneTwister(Settings.getSeed());
+    rand = new RandomAdaptor(randGen);
 
     // Time conversion from seconds to milliseconds
     Controller.graphFrame = new GraphFrame();

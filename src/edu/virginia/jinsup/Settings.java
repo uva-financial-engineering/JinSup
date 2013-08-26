@@ -19,11 +19,11 @@ public class Settings {
 
   @Parameter(names = {"--start", "-s"},
     description = "Length of starting period in seconds", required = true)
-  private static Integer startTime;
+  private static int startTime;
 
   @Parameter(names = {"--trade", "-t"},
     description = "Length of trading period in seconds", required = true)
-  private static Integer tradeTime;
+  private static int tradeTime;
 
   @Parameter(names = {"--destTradeFile", "-dt"},
     description = "File to write trade log data", required = false)
@@ -35,11 +35,14 @@ public class Settings {
 
   @Parameter(names = {"--threshold", "-th"}, description = "Threshold for IAs",
     required = true)
-  private static Integer threshold = 0;
+  private static int threshold = 0;
 
   @Parameter(names = {"--delay", "-d"}, description = "Delay for IAs, in ms",
     required = true)
-  private static Integer delay = 0;
+  private static int delay = 0;
+
+  @Parameter(names = {"--seed"}, description = "PRNG seed", required = false)
+  private static long seed = System.currentTimeMillis();
 
   /**
    * If true, no trade logging information will be saved and graphs will not be
@@ -53,11 +56,11 @@ public class Settings {
     return buyPrice;
   }
 
-  public static Integer getStartTime() {
+  public static int getStartTime() {
     return startTime;
   }
 
-  public static Integer getTradeTime() {
+  public static int getTradeTime() {
     return tradeTime;
   }
 
@@ -69,12 +72,16 @@ public class Settings {
     return destIAProfitFile;
   }
 
-  public static Integer getThreshold() {
+  public static int getThreshold() {
     return threshold;
   }
 
-  public static Integer getDelay() {
+  public static int getDelay() {
     return delay;
+  }
+
+  public static long getSeed() {
+    return seed;
   }
 
   public static boolean isTestMode() {
