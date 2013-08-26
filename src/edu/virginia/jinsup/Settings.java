@@ -1,8 +1,6 @@
 package edu.virginia.jinsup;
 
-import java.io.File;
 import java.util.Calendar;
-
 import com.beust.jcommander.Parameter;
 
 public class Settings {

@@ -45,25 +45,11 @@ public class Controller {
    */
   private static final int INTELLIGENT_AGENT_COUNT = 10;
 
-  // Specify parameters for intelligent agents here
-
-  /**
-   * How far in the past Intelligent Agents should look for data, in
-   * milliseconds.
-   */
-  private static final int INTELLIGENT_AGENT_DELAY_LENGTH = 1000;
-
   /**
    * To speed up the simulation with infinite thresholds, set this to false.
    * Takes precedence over INTELLIGENT_AGENT_THRESHOLD.
    */
   private static final boolean INTELLIGENT_AGENT_THRESHOLD_ENABLE = true;
-
-  /**
-   * Maximum difference between the total volume at the best bid/ask allowed
-   * before additional actions are taken.
-   */
-  private static final int INTELLIGENT_AGENT_THRESHOLD = 100;
 
   /**
    * How often the average profit over all intelligent agents should be logged,
@@ -137,11 +123,17 @@ public class Controller {
    */
   private final long endTime;
 
-  private int threshold;
+  /**
+   * Maximum difference between the total volume at the best bid/ask allowed - *
+   * before additional actions are taken.
+   */
+  private final int threshold;
 
-  private int delay;
-
-  private boolean setViaCommandLine;
+  /**
+   * How far in the past Intelligent Agents should look for data, in - *
+   * milliseconds.
+   */
+  private final int delay;
 
   /**
    * The MatchingEngine used for this simulation.
@@ -171,7 +163,7 @@ public class Controller {
    * Creates a controller with no agents.
    */
   public Controller(long startupTime, long endTime,
-    MatchingEngine matchingEngine) {
+    MatchingEngine matchingEngine, int threshold, int delay) {
     agentList = new ArrayList<Agent>();
     time = 0;
     this.startupTime = startupTime;
@@ -180,10 +172,11 @@ public class Controller {
     poissonGeneratorNews = new PoissonDistribution(NEWS_FREQUENCY * 1000);
     lastNewsTime = NEWS_FREQUENCY * 1000;
     intelligentAgentList = new ArrayList<IntelligentAgent>();
-    setViaCommandLine = false;
-
     File logFile = new File(Settings.getDestIAProfitFile());
     INTELLIGENT_AGENT_PROFIT_LOG_LOCATION = logFile.getAbsolutePath();
+
+    this.delay = delay;
+    this.threshold = threshold;
 
     try {
       FileWriter writer = new FileWriter(INTELLIGENT_AGENT_PROFIT_LOG_LOCATION);
@@ -195,17 +188,6 @@ public class Controller {
       e.printStackTrace();
       System.exit(1);
     }
-  }
-
-  /**
-   * Creates a controller with no agents but specifies IA parameters
-   */
-  public Controller(long startupTime, long endTime,
-    MatchingEngine matchingEngine, boolean testing, int threshold, int delay) {
-    this(startupTime, endTime, matchingEngine);
-    this.threshold = threshold;
-    this.delay = delay;
-    setViaCommandLine = true;
   }
 
   /**
@@ -270,19 +252,15 @@ public class Controller {
 
     if (INTELLIGENT_AGENT_COUNT != 0) {
       intelligentAgentHelper =
-        new IntelligentAgentHelper(INTELLIGENT_AGENT_DELAY_LENGTH,
-          INTELLIGENT_AGENT_THRESHOLD, matchingEngine.getLastTradePrice(),
+        new IntelligentAgentHelper(delay, threshold,
+          matchingEngine.getLastTradePrice(),
           INTELLIGENT_AGENT_THRESHOLD_ENABLE);
 
       IntelligentAgent intelligentAgent;
       // Explicitly set delay, threshold, and helper.
-      if (setViaCommandLine) {
-        IntelligentAgent.setDelay(delay);
-        IntelligentAgent.setThreshold(threshold);
-      } else {
-        IntelligentAgent.setDelay(INTELLIGENT_AGENT_DELAY_LENGTH);
-        IntelligentAgent.setThreshold(INTELLIGENT_AGENT_THRESHOLD);
-      }
+      IntelligentAgent.setDelay(delay);
+      IntelligentAgent.setThreshold(threshold);
+
       IntelligentAgent.setIntelligentAgentHelper(intelligentAgentHelper);
       IntelligentAgent.setTotalProfit(0);
       for (int i = 0; i < INTELLIGENT_AGENT_COUNT; ++i) {
@@ -341,7 +319,7 @@ public class Controller {
     if (INTELLIGENT_AGENT_COUNT != 0) {
       // Update the delay data for intelligent agents. A positive number means
       // that there are more buy orders than sell orders at the best bid/ask.
-      if (time >= (startupTime - INTELLIGENT_AGENT_DELAY_LENGTH)) {
+      if (time >= (startupTime - delay)) {
         intelligentAgentHelper.addData(matchingEngine.getBestBidQuantity()
           - matchingEngine.getBestAskQuantity(), matchingEngine.getBestBid()
           .getPrice(), matchingEngine.getBestAsk().getPrice());

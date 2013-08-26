@@ -75,12 +75,6 @@ public class IntelligentAgent extends Agent {
    * 
    * @param matchEng
    *          The MatchingEngine of the simulator.
-   * @param delayLength
-   *          How long in the past the agent should look for market information,
-   *          in milliseconds.
-   * @param threshold
-   *          Maximum difference between the total volume at the best bid/ask
-   *          allowed before additional actions are taken.
    */
   public IntelligentAgent(MatchingEngine matchEng) {
     super(matchEng);

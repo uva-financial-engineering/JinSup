@@ -21,7 +21,9 @@ public class JinSup {
     Controller controller;
 
     matchingEngine = new MatchingEngine(buyPrice, startTime);
-    controller = new Controller(startTime, endTime, matchingEngine);
+    controller =
+      new Controller(startTime, endTime, matchingEngine,
+        Settings.getThreshold(), Settings.getDelay());
     System.out.println("Starting simulator...");
     long elapsedTime = System.nanoTime();
     controller.runSimulator();
