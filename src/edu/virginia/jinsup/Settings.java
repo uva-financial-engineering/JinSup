@@ -25,6 +25,13 @@ public class Settings {
   @Parameter(names = {"--delay"}, description = "Delay for IAs, in ms")
   public static Integer delay = 0;
 
+  /**
+   * If true, no trade logging information will be saved and graphs will not be
+   * updated. Other logging may still be done, however (e.g. IA profit).
+   */
+  @Parameter(names = {"--test"}, description = "Enable test mode")
+  public static boolean testMode;
+
   public static boolean isSet() {
     return (buyPrice != null && startTime != null && tradeTime != null
       && dest != null && threshold != null && delay != null);
