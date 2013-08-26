@@ -198,13 +198,13 @@ public class Controller {
    * at a specified time specified by the user.
    */
   public void runSimulator() {
-    graphFrame.setTradePeriod(startupTime, endTime);
+    if (!Settings.isTestMode()) {
+      graphFrame.setTradePeriod(startupTime, endTime);
+      graphFrame.updateTitleBar(0, "Creating agents...");
+    }
 
     // Create agents
-
     Order.setNextOrderID(0);
-
-    graphFrame.updateTitleBar(0, "Creating agents...");
 
     FundBuyerPoisson fundBuyerPoisson;
     FundSellerPoisson fundSellerPoisson;
@@ -294,10 +294,10 @@ public class Controller {
     // write remaining entries to the log
     if (!Settings.isTestMode()) {
       matchingEngine.writeToLog();
+      graphFrame.updateTitleBar(time, "Simulation Finished");
     }
 
     System.out.println("The simulation has ended.");
-    graphFrame.updateTitleBar(time, "Simulation Finished");
   }
 
   /**
@@ -372,7 +372,7 @@ public class Controller {
       lastNewsTime += poissonGeneratorNews.sample();
     }
 
-    if (time % 500 == 0) {
+    if (!Settings.isTestMode() && time % 500 == 0) {
       graphFrame.updateTitleBar(time, state);
     }
   }

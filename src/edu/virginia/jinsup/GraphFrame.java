@@ -2,8 +2,6 @@ package edu.virginia.jinsup;
 
 import java.awt.Color;
 import java.awt.GridLayout;
-import java.io.File;
-import java.util.Calendar;
 import java.util.Map;
 import java.util.TreeMap;
 

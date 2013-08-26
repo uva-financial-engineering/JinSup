@@ -27,22 +27,24 @@ public class JinSup {
     randGen = new MersenneTwister(Settings.getSeed());
     rand = new RandomAdaptor(randGen);
 
+    if (!Settings.isTestMode()) {
+      Controller.graphFrame = new GraphFrame();
+    }
+
     // Time conversion from seconds to milliseconds
-    Controller.graphFrame = new GraphFrame();
     int buyPrice = (int) (Settings.getBuyPrice() * 100);
     int startTime = Settings.getStartTime() * 1000;
     int endTime = startTime + Settings.getTradeTime() * 1000;
 
-    MatchingEngine matchingEngine;
-    Controller controller;
-
-    matchingEngine = new MatchingEngine(buyPrice, startTime);
-    controller =
+    MatchingEngine matchingEngine = new MatchingEngine(buyPrice, startTime);
+    Controller controller =
       new Controller(startTime, endTime, matchingEngine,
         Settings.getThreshold(), Settings.getDelay());
     System.out.println("Starting simulator...");
     long elapsedTime = System.nanoTime();
     controller.runSimulator();
-    Controller.graphFrame.showFinished(System.nanoTime() - elapsedTime);
+    if (!Settings.isTestMode()) {
+      Controller.graphFrame.showFinished(System.nanoTime() - elapsedTime);
+    }
   }
 }
