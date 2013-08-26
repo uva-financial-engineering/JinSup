@@ -1,14 +1,21 @@
 package edu.virginia.jinsup;
 
-import java.security.SecureRandom;
+import java.util.Random;
+
+import org.apache.commons.math3.random.MersenneTwister;
+import org.apache.commons.math3.random.RandomAdaptor;
+import org.apache.commons.math3.random.RandomGenerator;
+
 import com.beust.jcommander.JCommander;
 
 public class JinSup {
 
-  public static SecureRandom rand = new SecureRandom();
+  // Initialize reusable PRNG instance
+  public static RandomGenerator randGen = new MersenneTwister();
+  public static Random rand = new RandomAdaptor(randGen);
 
   public static void main(String[] args) {
-
+    // Read command-line flags
     new JCommander(new Settings(), args);
 
     // Time conversion from seconds to milliseconds

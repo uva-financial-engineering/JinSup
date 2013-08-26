@@ -169,7 +169,10 @@ public class Controller {
     this.startupTime = startupTime;
     this.endTime = endTime;
     this.matchingEngine = matchingEngine;
-    poissonGeneratorNews = new PoissonDistribution(NEWS_FREQUENCY * 1000);
+    poissonGeneratorNews =
+      new PoissonDistribution(JinSup.randGen, NEWS_FREQUENCY * 1000,
+        PoissonDistribution.DEFAULT_EPSILON,
+        PoissonDistribution.DEFAULT_MAX_ITERATIONS);
     lastNewsTime = NEWS_FREQUENCY * 1000;
     intelligentAgentList = new ArrayList<IntelligentAgent>();
     File logFile = new File(Settings.getDestIAProfitFile());

@@ -45,8 +45,12 @@ public abstract class PoissonAgent extends Agent {
     this.lambdaOrder = lambdaOrder * 1000;
     this.lambdaCancel = lambdaCancel * 1000;
 
-    this.orderDist = new ExponentialDistribution(1 / this.lambdaOrder);
-    this.cancelDist = new ExponentialDistribution(1 / this.lambdaCancel);
+    this.orderDist =
+      new ExponentialDistribution(JinSup.randGen, 1 / this.lambdaOrder,
+        ExponentialDistribution.DEFAULT_INVERSE_ABSOLUTE_ACCURACY);
+    this.cancelDist =
+      new ExponentialDistribution(JinSup.randGen, 1 / this.lambdaCancel,
+        ExponentialDistribution.DEFAULT_INVERSE_ABSOLUTE_ACCURACY);
 
     // set agents to create an order before canceling one
     setNextAction(Action.ORDER);

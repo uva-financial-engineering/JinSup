@@ -81,7 +81,8 @@ public class OpporStratPoisson extends PoissonAgent {
    */
   public static void calcNewBuyProbability() {
     currBuyProbability =
-      currBuyProbability + (new UniformRealDistribution(-0.2, 0.2)).sample();
+      currBuyProbability
+        + (new UniformRealDistribution(JinSup.randGen, -0.2, 0.2)).sample();
 
     // prevent the probability from going over the limit
     if (currBuyProbability < 0.30) {
