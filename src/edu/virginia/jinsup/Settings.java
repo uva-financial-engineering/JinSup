@@ -1,11 +1,16 @@
 package edu.virginia.jinsup;
 
 import java.util.Calendar;
+
 import com.beust.jcommander.Parameter;
 
 public class Settings {
 
-  public static Calendar calendar = Calendar.getInstance();
+  private static Calendar calendar = Calendar.getInstance();
+  private static String timestamp = String.format("%2d%02d%02d-%02d%02d%02d",
+    calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+    calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY),
+    calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND));
 
   @Parameter(names = {"--buy", "-b"},
     description = "Buy price in dollars (must be in increments of $0.25)",
@@ -22,19 +27,11 @@ public class Settings {
 
   @Parameter(names = {"--destTradeFile", "-dt"},
     description = "File to write trade log data", required = false)
-  private static String destTradeFile = "log-"
-    + String.format("%2d%02d%02d-%02d%02d%02d", calendar.get(Calendar.YEAR),
-      calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH),
-      calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE),
-      calendar.get(Calendar.SECOND)) + ".csv";
+  private static String destTradeFile = "log-" + timestamp + ".csv";
 
   @Parameter(names = {"--destIAProfitFile", "-dia"},
     description = "File to write IA profits", required = false)
-  private static String destIAProfitFile = "IAProfits-"
-    + String.format("%2d%02d%02d-%02d%02d%02d", calendar.get(Calendar.YEAR),
-      calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH),
-      calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE),
-      calendar.get(Calendar.SECOND)) + ".csv";
+  private static String destIAProfitFile = "IAProfits-" + timestamp + ".csv";
 
   @Parameter(names = {"--threshold", "-th"}, description = "Threshold for IAs",
     required = true)
