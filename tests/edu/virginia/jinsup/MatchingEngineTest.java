@@ -1,12 +1,9 @@
 package edu.virginia.jinsup;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.TreeSet;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +19,7 @@ public class MatchingEngineTest {
 
   @Before
   public void setUp() throws Exception {
-    matchingEngine = new MatchingEngine(TRADE_PRICE, 0, true);
+    matchingEngine = new MatchingEngine(TRADE_PRICE, 0);
     fundBuyer = new FundBuyer(matchingEngine);
     fundSeller = new FundSeller(matchingEngine);
     matchingEngine.setStartingPeriod(false);

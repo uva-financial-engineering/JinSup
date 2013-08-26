@@ -168,21 +168,15 @@ public class Controller {
   private int lastNewsTime;
 
   /**
-   * If true, does not write to trading log. IA logging still enabled.
-   */
-  private final boolean testing;
-
-  /**
    * Creates a controller with no agents.
    */
   public Controller(long startupTime, long endTime,
-    MatchingEngine matchingEngine, boolean testing) {
+    MatchingEngine matchingEngine) {
     agentList = new ArrayList<Agent>();
     time = 0;
     this.startupTime = startupTime;
     this.endTime = endTime;
     this.matchingEngine = matchingEngine;
-    this.testing = testing;
     poissonGeneratorNews = new PoissonDistribution(NEWS_FREQUENCY * 1000);
     lastNewsTime = NEWS_FREQUENCY * 1000;
     intelligentAgentList = new ArrayList<IntelligentAgent>();
@@ -210,7 +204,7 @@ public class Controller {
    */
   public Controller(long startupTime, long endTime,
     MatchingEngine matchingEngine, boolean testing, int threshold, int delay) {
-    this(startupTime, endTime, matchingEngine, testing);
+    this(startupTime, endTime, matchingEngine);
     this.threshold = threshold;
     this.delay = delay;
     setViaCommandLine = true;
@@ -315,7 +309,7 @@ public class Controller {
     }
 
     // write remaining entries to the log
-    if (!testing) {
+    if (!Settings.testMode) {
       matchingEngine.writeToLog();
     }
 

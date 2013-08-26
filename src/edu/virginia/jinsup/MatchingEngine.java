@@ -125,11 +125,6 @@ public class MatchingEngine {
   private final Random random;
 
   /**
-   * If true, then no logging is done.
-   */
-  private final boolean testing;
-
-  /**
    * Creates a matching engine with empty fields. Everything is initialized to
    * zero. Also initializes the log file.
    * 
@@ -140,7 +135,7 @@ public class MatchingEngine {
    * @param testing
    *          If true, no logging will be done.
    */
-  public MatchingEngine(int buyPrice, int startupTime, boolean testing) {
+  public MatchingEngine(int buyPrice, int startupTime) {
     orderMap = new HashMap<Long, ArrayList<Order>>();
     buyOrders = new TreeSet<Order>(Order.highestFirstComparator);
     sellOrders = new TreeSet<Order>(Order.highestFirstComparator);
@@ -155,12 +150,10 @@ public class MatchingEngine {
     this.startupTime = startupTime;
     random = new Random();
     this.buyPrice = buyPrice;
-    this.testing = testing;
 
     // 2^19 lines before writing to file
     logBuffer = new ArrayList<String>(LOG_BUFFER_SIZE);
-    if (!testing) {
-
+    if (!Settings.testMode) {
       // create the CSV file
       try {
         FileWriter writer = new FileWriter(Settings.dest);
@@ -487,7 +480,7 @@ public class MatchingEngine {
     }
 
     // Update trading graph
-    if (!testing) {
+    if (!Settings.testMode) {
       Controller.graphFrame.addTrade(Controller.time * 0.001, price);
     }
     return true;
@@ -589,7 +582,7 @@ public class MatchingEngine {
    */
   public void logOrder(Order order, int messageType, boolean market,
     int quantChanged, int priceChanged) {
-    if (!testing) {
+    if (!Settings.testMode) {
       switch (messageType) {
         case 1:
           Controller.graphFrame.addOrder(order.isBuyOrder(),
@@ -641,7 +634,7 @@ public class MatchingEngine {
    */
   public void logTrade(Order order, boolean market, int tradePrice, int volume,
     boolean aggressor, long matchID) {
-    if (!testing) {
+    if (!Settings.testMode) {
       if (order.isBuyOrder()) {
         currAgVolumeBuySide += volume;
       } else {
