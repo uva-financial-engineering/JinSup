@@ -39,7 +39,8 @@ public class JinSup {
     MatchingEngine matchingEngine = new MatchingEngine(buyPrice, startTime);
     Controller controller =
       new Controller(startTime, endTime, matchingEngine,
-        Settings.getThreshold(), Settings.getDelay());
+        Settings.getThreshold(), Settings.getDelay(),
+        Settings.getNumIntelligentAgents());
     long elapsedTime = System.nanoTime();
     controller.runSimulator();
     if (!Settings.isTestMode()) {

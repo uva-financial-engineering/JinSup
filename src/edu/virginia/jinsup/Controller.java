@@ -41,11 +41,6 @@ public class Controller {
   private static final int SMALL_TRADER_COUNT = 421;
 
   /**
-   * Number of intelligent agents
-   */
-  private static final int INTELLIGENT_AGENT_COUNT = 10;
-
-  /**
    * To speed up the simulation with infinite thresholds, set this to false.
    * Takes precedence over INTELLIGENT_AGENT_THRESHOLD.
    */
@@ -124,6 +119,11 @@ public class Controller {
   private final long endTime;
 
   /**
+   * Number of intelligent agents.
+   */
+  private final int numIntelligentAgents;
+
+  /**
    * Maximum difference between the total volume at the best bid/ask allowed - *
    * before additional actions are taken.
    */
@@ -163,7 +163,8 @@ public class Controller {
    * Creates a controller with no agents.
    */
   public Controller(long startupTime, long endTime,
-    MatchingEngine matchingEngine, int threshold, int delay) {
+    MatchingEngine matchingEngine, int threshold, int delay,
+    int numIntelligentAgents) {
     agentList = new ArrayList<Agent>();
     time = 0;
     this.startupTime = startupTime;
@@ -180,6 +181,7 @@ public class Controller {
 
     this.delay = delay;
     this.threshold = threshold;
+    this.numIntelligentAgents = numIntelligentAgents;
 
     try {
       FileWriter writer = new FileWriter(INTELLIGENT_AGENT_PROFIT_LOG_LOCATION);
@@ -258,7 +260,7 @@ public class Controller {
       agentList.add(smallTrader);
     }
 
-    if (INTELLIGENT_AGENT_COUNT != 0) {
+    if (numIntelligentAgents != 0) {
       intelligentAgentHelper =
         new IntelligentAgentHelper(delay, threshold,
           matchingEngine.getLastTradePrice(),
@@ -271,7 +273,7 @@ public class Controller {
 
       IntelligentAgent.setIntelligentAgentHelper(intelligentAgentHelper);
       IntelligentAgent.setTotalProfit(0);
-      for (int i = 0; i < INTELLIGENT_AGENT_COUNT; ++i) {
+      for (int i = 0; i < numIntelligentAgents; ++i) {
         intelligentAgent = new IntelligentAgent(matchingEngine);
         agentList.add(intelligentAgent);
         intelligentAgentList.add(intelligentAgent);
@@ -319,7 +321,7 @@ public class Controller {
     // Moving average is not used for poisson trading.
     // matchingEngine.storeMovingAverage();
     matchingEngine.reset();
-    if (INTELLIGENT_AGENT_COUNT != 0) {
+    if (numIntelligentAgents != 0) {
       // Update the delay data for intelligent agents. A positive number means
       // that there are more buy orders than sell orders at the best bid/ask.
       if (time >= (startupTime - delay)) {
@@ -347,7 +349,7 @@ public class Controller {
       try {
         writer = new FileWriter(INTELLIGENT_AGENT_PROFIT_LOG_LOCATION, true);
         writer.append(time + ","
-          + (totalProfit / (INTELLIGENT_AGENT_COUNT * 100.0)) + "\n");
+          + (totalProfit / (numIntelligentAgents * 100.0)) + "\n");
         writer.flush();
         writer.close();
       } catch (IOException e) {

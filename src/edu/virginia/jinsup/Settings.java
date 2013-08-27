@@ -33,6 +33,10 @@ public class Settings {
     description = "File to write IA profits", required = false)
   private static String destIAProfitFile = "IAProfits-" + timestamp + ".csv";
 
+  @Parameter(names = {"--numIntelligentAgents", "-nia"},
+    description = "Number of intelligent agents", required = true)
+  private static int numIntelligentAgents;
+
   @Parameter(names = {"--threshold", "-th"}, description = "Threshold for IAs",
     required = true)
   private static int threshold = 0;
@@ -70,6 +74,10 @@ public class Settings {
 
   public static String getDestIAProfitFile() {
     return destIAProfitFile;
+  }
+
+  public static int getNumIntelligentAgents() {
+    return numIntelligentAgents;
   }
 
   public static int getThreshold() {
