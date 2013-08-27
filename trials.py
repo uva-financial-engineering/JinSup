@@ -2,7 +2,7 @@
 
 import os
 
-numIntelligentAgents = [5, 10]
+numIntelligentAgents = [1, 5, 10]
 threshold            = [100, 300, 500, 700]
 delay                = [1000, 500, 250, 100, 50, 10, 5]
 

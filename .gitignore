@@ -2,3 +2,4 @@ bin/
 doc/
 log*
 *.csv
+*.sh
