@@ -23,11 +23,11 @@ public class FundSeller extends Agent {
   public void act() {
     for (int i = 0; i < 10; i++) {
       // request to SELL 2 shares for the 10 lowest sell prices
-      createNewOrder(getBuyPrice() + ((i + 1) * 25), 2, false);
+      createNewOrder(Settings.getBuyPrice() + ((i + 1) * 25), 2, false);
 
       // request to BUY 1 share for the 9 second highest buy prices
       if (i < 9) {
-        createNewOrder(getBuyPrice() - ((i) * 25) - 25, 1, true);
+        createNewOrder(Settings.getBuyPrice() - ((i) * 25) - 25, 1, true);
       }
     }
 

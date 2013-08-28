@@ -98,13 +98,13 @@ public class IntelligentAgent extends Agent {
     orderBuffer = new ArrayList<Integer>();
 
     for (int i = 0; i < HALF_TICK_WIDTH; i++) {
-      createNewOrder(matchEng.getBuyPrice() - ((i + 1) * TICK_SIZE),
+      createNewOrder(Settings.getBuyPrice() - ((i + 1) * TICK_SIZE),
         ORDER_SIZE, true);
-      createNewOrder(matchEng.getBuyPrice() + ((i + 1) * TICK_SIZE),
+      createNewOrder(Settings.getBuyPrice() + ((i + 1) * TICK_SIZE),
         ORDER_SIZE, false);
 
       // Do not act until the market opens.
-      setNextActTime(matchEng.getStartupTime());
+      setNextActTime(Settings.getStartTime());
     }
   }
 

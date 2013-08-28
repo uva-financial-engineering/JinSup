@@ -96,16 +96,7 @@ public class JinSup {
       Controller.graphFrame = new GraphFrame();
     }
 
-    // Time conversion from seconds to milliseconds
-    int buyPrice = Settings.getBuyPrice();
-    long startTime = Settings.getStartTime();
-    long endTime = Settings.getEndTime();
-
-    MatchingEngine matchingEngine = new MatchingEngine(buyPrice, startTime);
-    Controller controller =
-      new Controller(startTime, endTime, matchingEngine,
-        Settings.getThreshold(), Settings.getDelay(),
-        Settings.getNumIntelligentAgents());
+    Controller controller = new Controller(new MatchingEngine());
     long elapsedTime = System.nanoTime();
     controller.runSimulator();
     if (!Settings.isTestMode()) {

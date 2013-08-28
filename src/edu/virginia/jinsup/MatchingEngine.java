@@ -87,11 +87,6 @@ public class MatchingEngine {
   private boolean startingPeriod;
 
   /**
-   * The buy price (CENTS) for a share, specified by the user.
-   */
-  private final int buyPrice;
-
-  /**
    * A temporary buffer in memory used to keep logging information so that the
    * program does not have write to the log file every time an order is made,
    * traded, etc. Writes are made to the log file either when the simulator is
@@ -112,11 +107,6 @@ public class MatchingEngine {
   private int movingSum;
 
   /**
-   * Startup time of the simulation in milliseconds.
-   */
-  private final long startupTime;
-
-  /**
    * Time in milliseconds that an action occurs. This is kept in sync with the
    * controller's time. Used as a time-stamp for the log.
    */
@@ -133,7 +123,7 @@ public class MatchingEngine {
    * @param testing
    *          If true, no logging will be done.
    */
-  public MatchingEngine(int buyPrice, long startupTime) {
+  public MatchingEngine() {
     orderMap = new HashMap<Long, ArrayList<Order>>();
     buyOrders = new TreeSet<Order>(Order.highestFirstComparator);
     sellOrders = new TreeSet<Order>(Order.highestFirstComparator);
@@ -141,12 +131,10 @@ public class MatchingEngine {
     midpoints = new LinkedList<Integer>();
     lastAgVolumeBuySide = 0;
     lastAgVolumeSellSide = 0;
-    lastTradePrice = buyPrice;
+    lastTradePrice = Settings.getBuyPrice();
     startingPeriod = true;
     movingSum = 0;
     tradeMatchID = 0;
-    this.startupTime = startupTime;
-    this.buyPrice = buyPrice;
 
     // 2^19 lines before writing to file
     logBuffer = new ArrayList<String>(LOG_BUFFER_SIZE);
@@ -523,13 +511,6 @@ public class MatchingEngine {
   }
 
   /**
-   * @return The buy price for a share.
-   */
-  public int getBuyPrice() {
-    return buyPrice;
-  }
-
-  /**
    * Stores lastAgVolumeBuySide and lastAgVolumeSellSideResets for the previous
    * millisecond of trading and resets currAgVolumeBuySide and
    * currAgVolumeSellSide.
@@ -547,7 +528,8 @@ public class MatchingEngine {
    */
   public void storeMovingAverage() {
     int midpoint =
-      (getBestBid() == null || getBestAsk() == null) ? buyPrice + 12
+      (getBestBid() == null || getBestAsk() == null)
+        ? Settings.getBuyPrice() + 12
         : ((getBestBid().getPrice() + getBestAsk().getPrice()) / 2);
     if (midpoints.size() > MOVING_AVERAGE_LENGTH) {
       movingSum -= midpoints.poll();
@@ -771,13 +753,6 @@ public class MatchingEngine {
         currIndex++;
       }
     }
-  }
-
-  /**
-   * @return The startup period in milliseconds.
-   */
-  public long getStartupTime() {
-    return startupTime;
   }
 
   /**

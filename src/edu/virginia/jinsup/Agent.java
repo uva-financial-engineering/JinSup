@@ -221,13 +221,6 @@ public abstract class Agent {
   }
 
   /**
-   * @return The buy price (CENTS) that was specified by the user.
-   */
-  public int getBuyPrice() {
-    return matchingEngine.getBuyPrice();
-  }
-
-  /**
    * @return Midpoint between the best ask price and best bid price
    */
   public int getMidPoint() {
@@ -330,7 +323,7 @@ public abstract class Agent {
    */
   public int getBestBuyPrice() {
     if (matchingEngine.isStartingPeriod()) {
-      return matchingEngine.getBuyPrice() - TICK_SIZE;
+      return Settings.getBuyPrice() - TICK_SIZE;
     }
     return matchingEngine.getBestBid().getPrice();
   }
@@ -340,7 +333,7 @@ public abstract class Agent {
    */
   public int getBestSellPrice() {
     if (matchingEngine.isStartingPeriod()) {
-      return matchingEngine.getBuyPrice() + TICK_SIZE;
+      return Settings.getBuyPrice() + TICK_SIZE;
     }
     return matchingEngine.getBestAsk().getPrice();
   }
@@ -372,7 +365,7 @@ public abstract class Agent {
    * @return The startup period of the simulation, in milliseconds.
    */
   public long getStartupTime() {
-    return matchingEngine.getStartupTime();
+    return Settings.getStartTime();
   }
 
   /**

@@ -108,34 +108,6 @@ public class Controller {
   public static GraphFrame graphFrame;
 
   /**
-   * The time when the simulation should end the startup period and allow agents
-   * to trade in ms.
-   */
-  private final long startupTime;
-
-  /**
-   * The time to stop the simulator in ms.
-   */
-  private final long endTime;
-
-  /**
-   * Number of intelligent agents.
-   */
-  private final int numIntelligentAgents;
-
-  /**
-   * Maximum difference between the total volume at the best bid/ask allowed - *
-   * before additional actions are taken.
-   */
-  private final int threshold;
-
-  /**
-   * How far in the past Intelligent Agents should look for data, in - *
-   * milliseconds.
-   */
-  private final int delay;
-
-  /**
    * The MatchingEngine used for this simulation.
    */
   private final MatchingEngine matchingEngine;
@@ -162,13 +134,9 @@ public class Controller {
   /**
    * Creates a controller with no agents.
    */
-  public Controller(long startupTime, long endTime,
-    MatchingEngine matchingEngine, int threshold, int delay,
-    int numIntelligentAgents) {
+  public Controller(MatchingEngine matchingEngine) {
     agentList = new ArrayList<Agent>();
     time = 0;
-    this.startupTime = startupTime;
-    this.endTime = endTime;
     this.matchingEngine = matchingEngine;
     poissonGeneratorNews =
       new PoissonDistribution(JinSup.randGen, NEWS_FREQUENCY * 1000,
@@ -178,10 +146,6 @@ public class Controller {
     intelligentAgentList = new ArrayList<IntelligentAgent>();
     File logFile = new File(Settings.getDestIAProfitFile());
     INTELLIGENT_AGENT_PROFIT_LOG_LOCATION = logFile.getAbsolutePath();
-
-    this.delay = delay;
-    this.threshold = threshold;
-    this.numIntelligentAgents = numIntelligentAgents;
 
     try {
       FileWriter writer = new FileWriter(INTELLIGENT_AGENT_PROFIT_LOG_LOCATION);
@@ -201,7 +165,7 @@ public class Controller {
    */
   public void runSimulator() {
     if (!Settings.isTestMode()) {
-      graphFrame.setTradePeriod(startupTime, endTime);
+      graphFrame.setTradePeriod(Settings.getStartTime(), Settings.getEndTime());
       graphFrame.updateTitleBar(0, "Creating agents...");
     }
 
@@ -214,11 +178,11 @@ public class Controller {
       fundBuyerPoisson =
         new FundBuyerPoisson(matchingEngine, FUND_BUYER_SELLER_LAMBDA_ORDER,
           FUND_BUYER_SELLER_LAMBDA_CANCEL,
-          (long) (JinSup.rand.nextDouble() * startupTime));
+          (long) (JinSup.rand.nextDouble() * Settings.getStartTime()));
       fundSellerPoisson =
         new FundSellerPoisson(matchingEngine, FUND_BUYER_SELLER_LAMBDA_ORDER,
           FUND_BUYER_SELLER_LAMBDA_CANCEL,
-          (long) (JinSup.rand.nextDouble() * startupTime));
+          (long) (JinSup.rand.nextDouble() * Settings.getStartTime()));
       agentList.add(fundBuyerPoisson);
       agentList.add(fundSellerPoisson);
     }
@@ -228,7 +192,7 @@ public class Controller {
       marketMakerPoisson =
         new MarketMakerPoisson(matchingEngine, MARKET_MAKER_LAMBDA_ORDER,
           MARKET_MAKER_LAMBDA_CANCEL,
-          (long) (JinSup.rand.nextDouble() * startupTime));
+          (long) (JinSup.rand.nextDouble() * Settings.getStartTime()));
       agentList.add(marketMakerPoisson);
     }
 
@@ -239,7 +203,7 @@ public class Controller {
       opporStratPoisson =
         new OpporStratPoisson(matchingEngine, OPPOR_STRAT_LAMBDA_ORDER,
           OPPOR_STRAT_LAMBDA_CANCEL,
-          (long) (JinSup.rand.nextDouble() * startupTime));
+          (long) (JinSup.rand.nextDouble() * Settings.getStartTime()));
       agentList.add(opporStratPoisson);
     }
 
@@ -247,7 +211,7 @@ public class Controller {
     for (int i = 0; i < HFT_COUNT; ++i) {
       hftPoisson =
         new HFTPoisson(matchingEngine, HFT_LAMBDA_ORDER, HFT_LAMBDA_CANCEL,
-          (long) (JinSup.rand.nextDouble() * startupTime));
+          (long) (JinSup.rand.nextDouble() * Settings.getStartTime()));
       agentList.add(hftPoisson);
     }
 
@@ -256,37 +220,37 @@ public class Controller {
       smallTrader =
         new SmallTrader(matchingEngine, SMALL_TRADER_LAMBDA_ORDER,
           SMALL_TRADER_LAMBDA_CANCEL,
-          (long) (JinSup.rand.nextDouble() * startupTime));
+          (long) (JinSup.rand.nextDouble() * Settings.getStartTime()));
       agentList.add(smallTrader);
     }
 
-    if (numIntelligentAgents != 0) {
+    if (Settings.getNumIntelligentAgents() != 0) {
       intelligentAgentHelper =
-        new IntelligentAgentHelper(delay, threshold,
-          matchingEngine.getLastTradePrice(),
+        new IntelligentAgentHelper(Settings.getDelay(),
+          Settings.getThreshold(), matchingEngine.getLastTradePrice(),
           INTELLIGENT_AGENT_THRESHOLD_ENABLE);
 
       IntelligentAgent intelligentAgent;
       // Explicitly set delay, threshold, and helper.
-      IntelligentAgent.setDelay(delay);
-      IntelligentAgent.setThreshold(threshold);
+      IntelligentAgent.setDelay(Settings.getDelay());
+      IntelligentAgent.setThreshold(Settings.getThreshold());
 
       IntelligentAgent.setIntelligentAgentHelper(intelligentAgentHelper);
       IntelligentAgent.setTotalProfit(0);
-      for (int i = 0; i < numIntelligentAgents; ++i) {
+      for (int i = 0; i < Settings.getNumIntelligentAgents(); ++i) {
         intelligentAgent = new IntelligentAgent(matchingEngine);
         agentList.add(intelligentAgent);
         intelligentAgentList.add(intelligentAgent);
       }
     }
 
-    // run simulator until endTime is reached.
-    while (time < startupTime) {
+    // run simulator until Settings.getEndTime() is reached.
+    while (time < Settings.getStartTime()) {
       moveTime();
     }
     matchingEngine.setStartingPeriod(false);
     state = "Trading Period";
-    while (time < endTime) {
+    while (time < Settings.getEndTime()) {
       moveTime();
     }
 
@@ -321,10 +285,10 @@ public class Controller {
     // Moving average is not used for poisson trading.
     // matchingEngine.storeMovingAverage();
     matchingEngine.reset();
-    if (numIntelligentAgents != 0) {
+    if (Settings.getNumIntelligentAgents() != 0) {
       // Update the delay data for intelligent agents. A positive number means
       // that there are more buy orders than sell orders at the best bid/ask.
-      if (time >= (startupTime - delay)) {
+      if (time >= (Settings.getStartTime() - Settings.getDelay())) {
         intelligentAgentHelper.addData(matchingEngine.getBestBidQuantity()
           - matchingEngine.getBestAskQuantity(), matchingEngine.getBestBid()
           .getPrice(), matchingEngine.getBestAsk().getPrice());
@@ -348,8 +312,10 @@ public class Controller {
       FileWriter writer;
       try {
         writer = new FileWriter(INTELLIGENT_AGENT_PROFIT_LOG_LOCATION, true);
-        writer.append(time + ","
-          + (totalProfit / (numIntelligentAgents * 100.0)) + "\n");
+        writer
+          .append(time + ","
+            + (totalProfit / (Settings.getNumIntelligentAgents() * 100.0))
+            + "\n");
         writer.flush();
         writer.close();
       } catch (IOException e) {

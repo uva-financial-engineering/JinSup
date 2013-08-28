@@ -23,11 +23,11 @@ public class MarketMaker extends Agent {
   @Override
   public void act() {
     for (int i = 0; i < 10; i++) {
-      while (createNewOrder(getBuyPrice() - i * 25, 1, true)) {
-        createNewOrder(getBuyPrice() - i * 25, 1, true);
+      while (createNewOrder(Settings.getBuyPrice() - i * 25, 1, true)) {
+        createNewOrder(Settings.getBuyPrice() - i * 25, 1, true);
       }
-      while (createNewOrder(getBuyPrice() + (i + 1) * 25, 1, false)) {
-        createNewOrder(getBuyPrice() + (i + 1) * 25, 1, false);
+      while (createNewOrder(Settings.getBuyPrice() + (i + 1) * 25, 1, false)) {
+        createNewOrder(Settings.getBuyPrice() + (i + 1) * 25, 1, false);
       }
     }
 
