@@ -18,8 +18,7 @@ public class Settings {
    * If true, no trade logging information will be saved and graphs will not be
    * updated. Other logging may still be done, however (e.g. IA profit).
    */
-  @Parameter(names = {"--test"}, description = "Enable test mode",
-    required = false)
+  @Parameter(names = {"--test"}, description = "Enable test mode")
   private static boolean testMode;
 
   // Time
@@ -39,17 +38,21 @@ public class Settings {
 
   // Random
 
-  @Parameter(names = {"--seed"}, description = "PRNG seed", required = false)
+  @Parameter(names = {"--randomGenerator", "-rng"},
+    description = "Random number generation algorithm")
+  private static String rng = "jdk";
+
+  @Parameter(names = {"--seed"}, description = "PRNG seed")
   private static long seed = System.currentTimeMillis();
 
   // Logs
 
   @Parameter(names = {"--destTradeFile", "-dt"},
-    description = "File to write trade log data", required = false)
+    description = "File to write trade log data")
   private static String destTradeFile = "log-" + timestamp + ".csv";
 
   @Parameter(names = {"--destIAProfitFile", "-dia"},
-    description = "File to write IA profits", required = false)
+    description = "File to write IA profits")
   private static String destIAProfitFile = "IAProfits-" + timestamp + ".csv";
 
   // Agents
