@@ -9,6 +9,13 @@ package edu.virginia.jinsup;
 
 public abstract class Agent {
 
+  // Constants
+  protected static final int WILL_BUY = 0;
+
+  protected static final int OVER_LIMIT = 1;
+
+  protected static final int OVERRIDE = 2;
+
   /**
    * The ID that should be assigned to the next agent created.
    */
@@ -401,5 +408,33 @@ public abstract class Agent {
    */
   public long getID() {
     return id;
+  }
+
+  protected boolean[] checkInventory(int currentInventory, int inventoryLimit,
+    boolean overLimit) {
+    boolean[] results = {true, true, true};
+    if (currentInventory > inventoryLimit) {
+      results[OVER_LIMIT] = true;
+      results[WILL_BUY] = false;
+      cancelAllBuyOrders();
+    } else if (currentInventory < -inventoryLimit) {
+      results[OVER_LIMIT] = true;
+      results[WILL_BUY] = true;
+      cancelAllSellOrders();
+    } else if (currentInventory > inventoryLimit / 2 && overLimit) {
+      results[WILL_BUY] = false;
+    } else if (currentInventory < -inventoryLimit / 2 && overLimit) {
+      results[WILL_BUY] = true;
+    } else if (Math.abs(currentInventory) <= inventoryLimit / 2) {
+      results[OVER_LIMIT] = false;
+      results[OVERRIDE] = false;
+    } else if (Math.abs(currentInventory) <= inventoryLimit && !overLimit) {
+      results[OVERRIDE] = false;
+      results[OVER_LIMIT] = false;
+    } else {
+      System.err.println("Error with inventory checking.");
+      System.exit(1);
+    }
+    return results;
   }
 }

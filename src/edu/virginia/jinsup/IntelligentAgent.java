@@ -13,6 +13,17 @@ import edu.virginia.jinsup.IntelligentAgentHelper.ThresholdState;
 public class IntelligentAgent extends Agent {
 
   /**
+   * Limits the number of shares owned by the agent.
+   */
+  private static final int INVENTORY_LIMIT = 30;
+
+  /**
+   * Whether or not agent owns more shares than INVENTORY_LIMIT or has a deficit
+   * of more than -INVENTORY_LIMIT.
+   */
+  private boolean overLimit;
+
+  /**
    * The total profit of all intelligent agents in the simulation.
    */
   private static int totalProfit = 0;
@@ -174,6 +185,31 @@ public class IntelligentAgent extends Agent {
       default:
         System.err.println("Error: Invalid threshold state...exiting.");
         System.exit(1);
+    }
+
+    // Deal with inventory limit
+    boolean[] inventoryResults =
+      checkInventory(getInventory(), INVENTORY_LIMIT, overLimit);
+    overLimit = inventoryResults[OVER_LIMIT];
+
+    if (inventoryResults[OVERRIDE]) {
+      ArrayList<Integer> pricesToRemove = new ArrayList<Integer>();
+      if (inventoryResults[WILL_BUY]) {
+        // Do not sell orders
+        for (Integer i : pricesToOrder) {
+          if (i >= bestAskPriceToFill) {
+            pricesToRemove.add(i);
+          }
+        }
+      } else {
+        // Do not buy orders
+        for (Integer i : pricesToOrder) {
+          if (i <= bestBidPriceToFill) {
+            pricesToRemove.add(i);
+          }
+        }
+      }
+      pricesToOrder.removeAll(pricesToRemove);
     }
 
     // Fill all remaining orders
