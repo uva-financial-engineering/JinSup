@@ -30,11 +30,11 @@ public class Settings {
 
   @Parameter(names = {"--start", "-s"},
     description = "Length of starting period in milliseconds", required = true)
-  private static int startTime;
+  private static long startTime;
 
   @Parameter(names = {"--trade", "-t"},
     description = "Length of trading period in milliseconds", required = true)
-  private static int tradeTime;
+  private static long tradeTime;
 
   // Random
 
@@ -79,11 +79,11 @@ public class Settings {
     return buyPrice;
   }
 
-  public static int getStartTime() {
+  public static long getStartTime() {
     return startTime;
   }
 
-  public static int getTradeTime() {
+  public static long getTradeTime() {
     return tradeTime;
   }
 

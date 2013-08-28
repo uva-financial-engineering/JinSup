@@ -371,7 +371,7 @@ public abstract class Agent {
    * 
    * @return The startup period of the simulation, in milliseconds.
    */
-  public int getStartupTime() {
+  public long getStartupTime() {
     return matchingEngine.getStartupTime();
   }
 

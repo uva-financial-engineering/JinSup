@@ -114,7 +114,7 @@ public class MatchingEngine {
   /**
    * Startup time of the simulation in milliseconds.
    */
-  private final int startupTime;
+  private final long startupTime;
 
   /**
    * Time in milliseconds that an action occurs. This is kept in sync with the
@@ -133,7 +133,7 @@ public class MatchingEngine {
    * @param testing
    *          If true, no logging will be done.
    */
-  public MatchingEngine(int buyPrice, int startupTime) {
+  public MatchingEngine(int buyPrice, long startupTime) {
     orderMap = new HashMap<Long, ArrayList<Order>>();
     buyOrders = new TreeSet<Order>(Order.highestFirstComparator);
     sellOrders = new TreeSet<Order>(Order.highestFirstComparator);
@@ -776,7 +776,7 @@ public class MatchingEngine {
   /**
    * @return The startup period in milliseconds.
    */
-  public int getStartupTime() {
+  public long getStartupTime() {
     return startupTime;
   }
 
