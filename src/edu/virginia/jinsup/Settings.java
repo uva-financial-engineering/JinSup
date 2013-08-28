@@ -12,6 +12,18 @@ public class Settings {
     calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY),
     calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND));
 
+  // UI
+
+  /**
+   * If true, no trade logging information will be saved and graphs will not be
+   * updated. Other logging may still be done, however (e.g. IA profit).
+   */
+  @Parameter(names = {"--test"}, description = "Enable test mode",
+    required = false)
+  private static boolean testMode;
+
+  // Time
+
   @Parameter(names = {"--buy", "-b"},
     description = "Buy price in dollars (must be in increments of $0.25)",
     required = true)
@@ -25,6 +37,13 @@ public class Settings {
     description = "Length of trading period in seconds", required = true)
   private static int tradeTime;
 
+  // Random
+
+  @Parameter(names = {"--seed"}, description = "PRNG seed", required = false)
+  private static long seed = System.currentTimeMillis();
+
+  // Logs
+
   @Parameter(names = {"--destTradeFile", "-dt"},
     description = "File to write trade log data", required = false)
   private static String destTradeFile = "log-" + timestamp + ".csv";
@@ -32,6 +51,8 @@ public class Settings {
   @Parameter(names = {"--destIAProfitFile", "-dia"},
     description = "File to write IA profits", required = false)
   private static String destIAProfitFile = "IAProfits-" + timestamp + ".csv";
+
+  // Agents
 
   @Parameter(names = {"--numIntelligentAgents", "-nia"},
     description = "Number of intelligent agents", required = true)
@@ -45,16 +66,7 @@ public class Settings {
     required = true)
   private static int delay = 0;
 
-  @Parameter(names = {"--seed"}, description = "PRNG seed", required = false)
-  private static long seed = System.currentTimeMillis();
-
-  /**
-   * If true, no trade logging information will be saved and graphs will not be
-   * updated. Other logging may still be done, however (e.g. IA profit).
-   */
-  @Parameter(names = {"--test"}, description = "Enable test mode",
-    required = false)
-  private static boolean testMode;
+  // Getters
 
   public static Double getBuyPrice() {
     return buyPrice;
