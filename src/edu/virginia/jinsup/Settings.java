@@ -24,16 +24,16 @@ public class Settings {
   // Time
 
   @Parameter(names = {"--buy", "-b"},
-    description = "Buy price in dollars (must be in increments of $0.25)",
+    description = "Buy price in cents (must be multiple of 25)",
     required = true)
-  private static Double buyPrice;
+  private static int buyPrice;
 
   @Parameter(names = {"--start", "-s"},
-    description = "Length of starting period in seconds", required = true)
+    description = "Length of starting period in milliseconds", required = true)
   private static int startTime;
 
   @Parameter(names = {"--trade", "-t"},
-    description = "Length of trading period in seconds", required = true)
+    description = "Length of trading period in milliseconds", required = true)
   private static int tradeTime;
 
   // Random
@@ -75,7 +75,7 @@ public class Settings {
     return testMode;
   }
 
-  public static Double getBuyPrice() {
+  public static int getBuyPrice() {
     return buyPrice;
   }
 

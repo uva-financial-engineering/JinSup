@@ -96,9 +96,9 @@ public class JinSup {
     }
 
     // Time conversion from seconds to milliseconds
-    int buyPrice = (int) (Settings.getBuyPrice() * 100);
-    int startTime = Settings.getStartTime() * 1000;
-    int endTime = startTime + Settings.getTradeTime() * 1000;
+    int buyPrice = Settings.getBuyPrice();
+    int startTime = Settings.getStartTime();
+    int endTime = startTime + Settings.getTradeTime();
 
     MatchingEngine matchingEngine = new MatchingEngine(buyPrice, startTime);
     Controller controller =
