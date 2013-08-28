@@ -38,7 +38,7 @@ public class GraphFrame extends JFrame {
   /**
    * Minimum number of ms to wait before allowing order graph to be refreshed.
    */
-  private static long REFRESH_INTERVAL = 200;
+  private static long REFRESH_INTERVAL = 50;
   /**
    * Buy price in cents.
    */

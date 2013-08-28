@@ -37,34 +37,16 @@ public class HFTPoisson extends PoissonAgent {
 
   @Override
   void makeOrder() {
-
+    boolean[] inventoryResults =
+      checkInventory(getInventory(), INVENTORY_LIMIT, overLimit);
+    overLimit = inventoryResults[OVER_LIMIT];
     // Fetch qBuy once only
     double qBuy = getBestBidQuantity();
     double factor = qBuy / (qBuy + getBestAskQuantity());
-    boolean willBuy = true;
-
-    // Whether or not to skip factor checking
-    boolean override = true;
-
-    if (getInventory() > INVENTORY_LIMIT) {
-      overLimit = true;
-      willBuy = false;
-      cancelAllBuyOrders();
-    } else if (getInventory() < -INVENTORY_LIMIT) {
-      overLimit = true;
-      willBuy = true;
-      cancelAllSellOrders();
-    } else if (getInventory() > INVENTORY_LIMIT / 2 && overLimit) {
-      willBuy = false;
-    } else if (getInventory() < -INVENTORY_LIMIT / 2 && overLimit) {
-      willBuy = true;
-    } else if (getInventory() < Math.abs(INVENTORY_LIMIT) / 2) {
-      overLimit = false;
-      override = false;
-    }
+    boolean willBuy = inventoryResults[WILL_BUY];
 
     // determine buy probability from the trend
-    if (!override && factor < 0.9) {
+    if (!inventoryResults[OVERRIDE] && factor < 0.9) {
       willBuy = 10 * JinSup.rand.nextFloat() < ((int) (factor * 10 + 1));
     }
 

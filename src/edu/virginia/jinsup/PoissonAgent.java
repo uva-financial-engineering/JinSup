@@ -6,6 +6,14 @@ import org.apache.commons.math3.distribution.ExponentialDistribution;
  * Agent that implements a poisson trading distribution.
  */
 public abstract class PoissonAgent extends Agent {
+
+  // Constants
+  protected static final int WILL_BUY = 0;
+
+  protected static final int OVER_LIMIT = 1;
+
+  protected static final int OVERRIDE = 2;
+
   /**
    * Mean time between orders.
    */
@@ -203,5 +211,34 @@ public abstract class PoissonAgent extends Agent {
     System.err
       .println("Order size probabilites do not add up to 1.0 for poisson agent");
     return 0;
+  }
+
+  boolean[] checkInventory(int currentInventory, int inventoryLimit,
+    boolean overLimit) {
+    boolean[] results = {true, true, true};
+    if (currentInventory > inventoryLimit) {
+      results[OVER_LIMIT] = true;
+      results[WILL_BUY] = false;
+      cancelAllBuyOrders();
+    } else if (currentInventory < -inventoryLimit) {
+      results[OVER_LIMIT] = true;
+      results[WILL_BUY] = true;
+      cancelAllSellOrders();
+    } else if (currentInventory > inventoryLimit / 2 && overLimit) {
+      results[WILL_BUY] = false;
+    } else if (currentInventory < -inventoryLimit / 2 && overLimit) {
+      results[WILL_BUY] = true;
+    } else if (Math.abs(currentInventory) <= inventoryLimit / 2) {
+      results[OVER_LIMIT] = false;
+      results[OVERRIDE] = false;
+    } else if (Math.abs(currentInventory) <= inventoryLimit && !overLimit) {
+      results[OVERRIDE] = false;
+      results[OVER_LIMIT] = false;
+    } else {
+      System.out.println(currentInventory + " " + inventoryLimit + " "
+        + overLimit);
+    }
+
+    return results;
   }
 }
