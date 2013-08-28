@@ -15,28 +15,38 @@ import com.beust.jcommander.ParameterException;
 
 public class JinSup {
 
+  public static final String RUN_COMMAND = "java -jar jinsup.jar";
+
   public static RandomGenerator randGen;
   public static Random rand;
 
   public static void main(String[] args) {
     // Read command-line flags
     try {
-      new JCommander(new Settings(), args);
+      JCommander jcommander = new JCommander(new Settings(), args);
       Settings.setEndTime(Settings.getStartTime() + Settings.getTradeTime());
+
+      // Show help and exit if help flag was given
+      if (Settings.showHelp()) {
+        jcommander.setProgramName(RUN_COMMAND);
+        jcommander.usage();
+        System.exit(0);
+      }
     } catch (ParameterException e) {
-      System.err.println(e.getMessage());
+      System.err.println(e.getMessage()
+        + "\nUse --help to display usage information.");
       System.exit(1);
     }
 
     // Initialize reusable RNG instance
     String rng = Settings.getRNG().toLowerCase();
-    if (rng.equals("mersenne")) {
+    if (rng.equals("mersenne")) { // Mersenne Twister
       randGen = new MersenneTwister(Settings.getSeed());
       rand = new RandomAdaptor(randGen);
-    } else if (rng.equals("well19937c")) {
+    } else if (rng.equals("well19937c")) { // Well19937c
       randGen = new Well19937c(Settings.getSeed());
       rand = new RandomAdaptor(randGen);
-    } else if (rng.equals("secure")) {
+    } else if (rng.equals("secure")) { // SecureRandom
       rand = new SecureRandom();
       rand.setSeed(Settings.getSeed());
       randGen = new AbstractRandomGenerator() {
@@ -85,7 +95,7 @@ public class JinSup {
           rand.setSeed(seed);
         }
       };
-    } else {
+    } else { // Random
       randGen = new JDKRandomGenerator();
       randGen.setSeed(Settings.getSeed());
       rand = new RandomAdaptor(randGen);

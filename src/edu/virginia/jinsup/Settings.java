@@ -71,6 +71,12 @@ public class Settings {
     required = true)
   private static int delay = 0;
 
+  // Help
+
+  @Parameter(names = {"--help"}, description = "Show this usage information",
+    help = true)
+  private static boolean help;
+
   // Getters
 
   public static boolean isTestMode() {
@@ -123,5 +129,9 @@ public class Settings {
 
   public static int getDelay() {
     return delay;
+  }
+
+  public static boolean showHelp() {
+    return help;
   }
 }
