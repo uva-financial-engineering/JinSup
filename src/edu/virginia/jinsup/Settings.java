@@ -36,6 +36,8 @@ public class Settings {
     description = "Length of trading period in milliseconds", required = true)
   private static long tradeTime;
 
+  private static long endTime;
+
   // Random
 
   @Parameter(names = {"--randomGenerator", "-rng"},
@@ -85,6 +87,14 @@ public class Settings {
 
   public static long getTradeTime() {
     return tradeTime;
+  }
+
+  public static long getEndTime() {
+    return endTime;
+  }
+
+  public static void setEndTime(long n) {
+    endTime = n;
   }
 
   public static String getRNG() {

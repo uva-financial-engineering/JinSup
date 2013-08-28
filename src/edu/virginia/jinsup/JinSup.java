@@ -22,6 +22,7 @@ public class JinSup {
     // Read command-line flags
     try {
       new JCommander(new Settings(), args);
+      Settings.setEndTime(Settings.getStartTime() + Settings.getTradeTime());
     } catch (ParameterException e) {
       System.err.println(e.getMessage());
       System.exit(1);
@@ -98,7 +99,7 @@ public class JinSup {
     // Time conversion from seconds to milliseconds
     int buyPrice = Settings.getBuyPrice();
     long startTime = Settings.getStartTime();
-    long endTime = startTime + Settings.getTradeTime();
+    long endTime = Settings.getEndTime();
 
     MatchingEngine matchingEngine = new MatchingEngine(buyPrice, startTime);
     Controller controller =
