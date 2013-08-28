@@ -40,7 +40,7 @@ public class Settings {
 
   @Parameter(names = {"--randomGenerator", "-rng"},
     description = "Random number generation algorithm")
-  private static String rng = "jdk";
+  private static String rng = "mersenne";
 
   @Parameter(names = {"--seed"}, description = "PRNG seed")
   private static long seed = System.currentTimeMillis();
@@ -71,6 +71,10 @@ public class Settings {
 
   // Getters
 
+  public static boolean isTestMode() {
+    return testMode;
+  }
+
   public static Double getBuyPrice() {
     return buyPrice;
   }
@@ -81,6 +85,14 @@ public class Settings {
 
   public static int getTradeTime() {
     return tradeTime;
+  }
+
+  public static String getRNG() {
+    return rng;
+  }
+
+  public static long getSeed() {
+    return seed;
   }
 
   public static String getDestTradeFile() {
@@ -101,13 +113,5 @@ public class Settings {
 
   public static int getDelay() {
     return delay;
-  }
-
-  public static long getSeed() {
-    return seed;
-  }
-
-  public static boolean isTestMode() {
-    return testMode;
   }
 }
