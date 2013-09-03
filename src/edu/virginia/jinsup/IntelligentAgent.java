@@ -24,9 +24,9 @@ public class IntelligentAgent extends Agent {
   private boolean overLimit;
 
   /**
-   * The total profit of all intelligent agents in the simulation.
+   * The total profit this Intelligent Agent.
    */
-  private static int totalProfit = 0;
+  private int totalProfit = 0;
 
   /**
    * How often the agent should act, in milliseconds.
@@ -53,12 +53,12 @@ public class IntelligentAgent extends Agent {
    * How long in the past the agent should look for market information, in
    * milliseconds.
    */
-  private static int delayLength = 500;
+  private int delayLength = 500;
 
   /**
    * Helper class for all Intelligent Agents.
    */
-  private static IntelligentAgentHelper intelligentAgentHelper;
+  private IntelligentAgentHelper intelligentAgentHelper;
 
   /**
    * The threshold state at time t = now - delay.
@@ -285,8 +285,8 @@ public class IntelligentAgent extends Agent {
    * @param delayLength
    *          The delay time, in milliseconds.
    */
-  public static void setDelay(int delayLength) {
-    IntelligentAgent.delayLength = delayLength;
+  public void setDelay(int delayLength) {
+    this.delayLength = delayLength;
   }
 
   /**
@@ -307,8 +307,8 @@ public class IntelligentAgent extends Agent {
    * @param iah
    *          The IntelligentAgentHelper class.
    */
-  public static void setIntelligentAgentHelper(IntelligentAgentHelper iah) {
-    intelligentAgentHelper = iah;
+  public void setIntelligentAgentHelper(IntelligentAgentHelper iah) {
+    this.intelligentAgentHelper = iah;
   }
 
   /**
@@ -321,11 +321,11 @@ public class IntelligentAgent extends Agent {
     oldThresholdState = newState;
   }
 
-  public static int getTotalProfit() {
+  public int getTotalProfit() {
     return totalProfit;
   }
 
-  public static void setTotalProfit(int newTotalProfit) {
+  public void setTotalProfit(int newTotalProfit) {
     totalProfit = newTotalProfit;
   }
 
