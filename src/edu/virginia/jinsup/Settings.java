@@ -1,6 +1,7 @@
 package edu.virginia.jinsup;
 
 import java.util.Calendar;
+import java.util.List;
 
 import com.beust.jcommander.Parameter;
 
@@ -67,9 +68,9 @@ public class Settings {
     required = true)
   private static int threshold = 0;
 
-  @Parameter(names = {"--delay", "-d"}, description = "Delay for IAs, in ms",
-    required = true)
-  private static int delay = 0;
+  @Parameter(names = {"--delays", "-d"}, variableArity = true,
+    description = "Delays for IAs, in ms", required = true)
+  private static List<Integer> delays = null;
 
   // Help
 
@@ -127,8 +128,8 @@ public class Settings {
     return threshold;
   }
 
-  public static int getDelay() {
-    return delay;
+  public static List<Integer> getDelays() {
+    return delays;
   }
 
   public static boolean showHelp() {

@@ -60,11 +60,6 @@ public class Controller {
    */
   private final String INTELLIGENT_AGENT_PROFIT_LOG_LOCATION;
 
-  /**
-   * Holds a list of intelligent agents.
-   */
-  private final ArrayList<IntelligentAgent> intelligentAgentList;
-
   // Specify the lambdas here in seconds
   private static final int FUND_BUYER_SELLER_LAMBDA_ORDER = 40;
 
@@ -112,7 +107,12 @@ public class Controller {
    */
   private final MatchingEngine matchingEngine;
 
-  private IntelligentAgentHelper intelligentAgentHelper;
+  // Intelligent Agent fields for multiple delays
+  private ArrayList<ArrayList<IntelligentAgent>> intelligentAgentByDelay;
+
+  private ArrayList<String> intelligentAgentProfitFileNames;
+
+  private ArrayList<IntelligentAgentHelper> intelligentAgentHelpers;
 
   /**
    * State of the simulation to be displayed on the title bar.
@@ -143,20 +143,11 @@ public class Controller {
         PoissonDistribution.DEFAULT_EPSILON,
         PoissonDistribution.DEFAULT_MAX_ITERATIONS);
     lastNewsTime = NEWS_FREQUENCY * 1000;
-    intelligentAgentList = new ArrayList<IntelligentAgent>();
     File logFile = new File(Settings.getDestIAProfitFile());
     INTELLIGENT_AGENT_PROFIT_LOG_LOCATION = logFile.getAbsolutePath();
-
-    try {
-      FileWriter writer = new FileWriter(INTELLIGENT_AGENT_PROFIT_LOG_LOCATION);
-      writer.append("Time, IA Average Profit\n");
-      writer.flush();
-      writer.close();
-    } catch (IOException e) {
-      System.err.println("Error: Failed to create log file.");
-      e.printStackTrace();
-      System.exit(1);
-    }
+    intelligentAgentByDelay = new ArrayList<ArrayList<IntelligentAgent>>();
+    intelligentAgentProfitFileNames = new ArrayList<String>();
+    intelligentAgentHelpers = new ArrayList<IntelligentAgentHelper>();
   }
 
   /**
@@ -224,40 +215,62 @@ public class Controller {
       agentList.add(smallTrader);
     }
 
-    if (Settings.getNumIntelligentAgents() != 0) {
-      intelligentAgentHelper =
-        new IntelligentAgentHelper(Settings.getDelay(),
-          Settings.getThreshold(), matchingEngine.getLastTradePrice(),
-          INTELLIGENT_AGENT_THRESHOLD_ENABLE);
+    System.out.println(Settings.getDelays());
 
+    if (Settings.getNumIntelligentAgents() != 0) {
+      // Set up appropriate number of log files, depending on number of delays
+      IntelligentAgentHelper currentIAH;
       IntelligentAgent intelligentAgent;
-      // Explicitly set delay, threshold, and helper.
-      IntelligentAgent.setDelay(Settings.getDelay());
+      String fileName;
+      for (Integer l : Settings.getDelays()) {
+        try {
+          fileName =
+            INTELLIGENT_AGENT_PROFIT_LOG_LOCATION.split(".csv")[0] + "-Delay"
+              + l + ".csv";
+          FileWriter writer = new FileWriter(fileName);
+          writer.append("Time, IA Average Profit\n");
+          writer.flush();
+          writer.close();
+          intelligentAgentProfitFileNames.add(fileName);
+        } catch (IOException e) {
+          System.err.println("Error: Failed to create log file.");
+          e.printStackTrace();
+          System.exit(1);
+        }
+        currentIAH =
+          new IntelligentAgentHelper((int) l, Settings.getThreshold(),
+            Settings.getBuyPrice(), INTELLIGENT_AGENT_THRESHOLD_ENABLE);
+
+        intelligentAgentHelpers.add(currentIAH);
+        ArrayList<IntelligentAgent> intelligentAgentList =
+          new ArrayList<IntelligentAgent>();
+        for (int i = 0; i < Settings.getNumIntelligentAgents()
+          / Settings.getDelays().size(); i++) {
+          intelligentAgent =
+            new IntelligentAgent(matchingEngine, currentIAH, l);
+          intelligentAgentList.add(intelligentAgent);
+          agentList.add(intelligentAgent);
+        }
+        intelligentAgentByDelay.add(intelligentAgentList);
+      }
+
       IntelligentAgent.setThreshold(Settings.getThreshold());
 
-      IntelligentAgent.setIntelligentAgentHelper(intelligentAgentHelper);
-      IntelligentAgent.setTotalProfit(0);
-      for (int i = 0; i < Settings.getNumIntelligentAgents(); ++i) {
-        intelligentAgent = new IntelligentAgent(matchingEngine);
-        agentList.add(intelligentAgent);
-        intelligentAgentList.add(intelligentAgent);
+      // run simulator until Settings.getEndTime() is reached.
+      while (time < Settings.getStartTime()) {
+        moveTime();
       }
-    }
+      matchingEngine.setStartingPeriod(false);
+      state = "Trading Period";
+      while (time < Settings.getEndTime()) {
+        moveTime();
+      }
 
-    // run simulator until Settings.getEndTime() is reached.
-    while (time < Settings.getStartTime()) {
-      moveTime();
-    }
-    matchingEngine.setStartingPeriod(false);
-    state = "Trading Period";
-    while (time < Settings.getEndTime()) {
-      moveTime();
-    }
-
-    // write remaining entries to the log
-    if (!Settings.isTestMode()) {
-      matchingEngine.writeToLog();
-      graphFrame.updateTitleBar(time, "Simulation Finished");
+      // write remaining entries to the log
+      if (!Settings.isTestMode()) {
+        matchingEngine.writeToLog();
+        graphFrame.updateTitleBar(time, "Simulation Finished");
+      }
     }
   }
 
@@ -288,40 +301,46 @@ public class Controller {
     if (Settings.getNumIntelligentAgents() != 0) {
       // Update the delay data for intelligent agents. A positive number means
       // that there are more buy orders than sell orders at the best bid/ask.
-      if (time >= (Settings.getStartTime() - Settings.getDelay())) {
-        intelligentAgentHelper.addData(matchingEngine.getBestBidQuantity()
-          - matchingEngine.getBestAskQuantity(), matchingEngine.getBestBid()
-          .getPrice(), matchingEngine.getBestAsk().getPrice());
-        if (INTELLIGENT_AGENT_THRESHOLD_ENABLE) {
-          IntelligentAgent.setOldThresholdState(intelligentAgentHelper
-            .getOldThresholdState());
+      for (int i = 0; i < Settings.getDelays().size(); i++) {
+        if (time >= (Settings.getStartTime() - Settings.getDelays().get(i))) {
+          intelligentAgentHelpers.get(i).addData(
+            matchingEngine.getBestBidQuantity()
+              - matchingEngine.getBestAskQuantity(),
+            matchingEngine.getBestBid().getPrice(),
+            matchingEngine.getBestAsk().getPrice());
+          if (INTELLIGENT_AGENT_THRESHOLD_ENABLE) {
+            for (IntelligentAgent a : intelligentAgentByDelay.get(i)) {
+              a.setOldThresholdState(intelligentAgentHelpers.get(i)
+                .getOldThresholdState());
+            }
+          }
         }
       }
     }
 
     // Check if profit logging should be done
     if (time % INTELLIGENT_AGENT_PROFIT_LOG_FREQUENCY == 0) {
-      // Log the average profit over all intelligent agents.
-      int totalProfit = 0;
-      for (IntelligentAgent a : intelligentAgentList) {
-        totalProfit += a.getInventory();
-      }
-      totalProfit =
-        totalProfit * matchingEngine.getLastTradePrice()
-          + IntelligentAgent.getTotalProfit();
+      // Log the average profit over all intelligent agents, based on delay
+      int totalProfit;
+      int totalInventory;
       FileWriter writer;
-      try {
-        writer = new FileWriter(INTELLIGENT_AGENT_PROFIT_LOG_LOCATION, true);
-        writer
-          .append(time + ","
-            + (totalProfit / (Settings.getNumIntelligentAgents() * 100.0))
-            + "\n");
-        writer.flush();
-        writer.close();
-      } catch (IOException e) {
-        System.err.println("Error: Failed to update log.");
-        e.printStackTrace();
-        System.exit(1);
+      for (int i = 0; i < Settings.getDelays().size(); i++) {
+        totalProfit = 0;
+        totalInventory = 0;
+        for (IntelligentAgent a : intelligentAgentByDelay.get(i)) {
+          totalProfit += a.getProfit();
+          totalInventory += a.getInventory();
+        }
+        totalProfit =
+          totalProfit + totalInventory * matchingEngine.getLastTradePrice();
+        try {
+          writer = new FileWriter(intelligentAgentProfitFileNames.get(i), true);
+          writer.append(time + ','
+            + (totalProfit / (intelligentAgentByDelay.size() * 100.0)) + "\n");
+        } catch (IOException e) {
+          System.err.println("Error: Failed to update log.");
+          System.exit(1);
+        }
       }
     }
 

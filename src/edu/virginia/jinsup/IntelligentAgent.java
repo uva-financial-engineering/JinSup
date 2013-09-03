@@ -26,7 +26,7 @@ public class IntelligentAgent extends Agent {
   /**
    * The total profit this Intelligent Agent.
    */
-  private int totalProfit = 0;
+  private int profit = 0;
 
   /**
    * How often the agent should act, in milliseconds.
@@ -53,7 +53,7 @@ public class IntelligentAgent extends Agent {
    * How long in the past the agent should look for market information, in
    * milliseconds.
    */
-  private int delayLength = 500;
+  private int delayLength;
 
   /**
    * Helper class for all Intelligent Agents.
@@ -63,8 +63,7 @@ public class IntelligentAgent extends Agent {
   /**
    * The threshold state at time t = now - delay.
    */
-  private static ThresholdState oldThresholdState =
-    ThresholdState.BELOW_THRESHOLD;
+  private ThresholdState oldThresholdState = ThresholdState.BELOW_THRESHOLD;
 
   /**
    * List of order prices over time that were traded that may need to be covered
@@ -87,8 +86,11 @@ public class IntelligentAgent extends Agent {
    * @param matchEng
    *          The MatchingEngine of the simulator.
    */
-  public IntelligentAgent(MatchingEngine matchEng) {
+  public IntelligentAgent(MatchingEngine matchEng, IntelligentAgentHelper iah,
+    int delayLength) {
     super(matchEng);
+    this.intelligentAgentHelper = iah;
+    this.delayLength = delayLength;
 
     potentialOrdersPricesToCover = new ArrayList<ArrayList<Integer>>();
     for (int i = 0; i < delayLength; i++) {
@@ -250,7 +252,7 @@ public class IntelligentAgent extends Agent {
         .add(priceOfOrderTraded);
     }
     // Update total profit
-    totalProfit +=
+    profit +=
       (buyOrderTraded ? -priceOfOrderTraded : priceOfOrderTraded)
         * volumeTraded;
   }
@@ -317,16 +319,11 @@ public class IntelligentAgent extends Agent {
    * @param newState
    *          The new state at time t = now - delayLength.
    */
-  public static void setOldThresholdState(ThresholdState newState) {
+  public void setOldThresholdState(ThresholdState newState) {
     oldThresholdState = newState;
   }
 
-  public int getTotalProfit() {
-    return totalProfit;
+  public int getProfit() {
+    return profit;
   }
-
-  public void setTotalProfit(int newTotalProfit) {
-    totalProfit = newTotalProfit;
-  }
-
 }
