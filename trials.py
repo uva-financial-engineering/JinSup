@@ -17,7 +17,7 @@ for i in numIntelligentAgents:
         #PBS -m e\n\
         #PBS -M spt9np@virginia.edu\n\
         cd \$PBS_O_WORKDIR\n\
-        java -jar jinsup.jar --destIAProfitFile " + os.path.join(dirname, str(m + 1).zfill(2)) + ".csv --buy 160000 --start 300000 --trade 21700000 --threshold " + str(j) + " --delay " + str(k) + " --test --numIntelligentAgents " + str(i) + "\n"
+        java -jar jinsup.jar --destIAProfitFile " + os.path.join(dirname, str(m + 1).zfill(2)) + ".csv --buy 160000 --start 300000 --trade 21700000 --threshold " + str(j) + " --delays " + str(k) + " --test --numIntelligentAgents " + str(i) + "\n"
 
         f = open('job.sh', 'w')
         f.write(job)
