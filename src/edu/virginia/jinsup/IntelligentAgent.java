@@ -26,7 +26,7 @@ public class IntelligentAgent extends Agent {
   /**
    * The total profit this Intelligent Agent.
    */
-  private int profit = 0;
+  private int profit;
 
   /**
    * How often the agent should act, in milliseconds.
@@ -42,18 +42,6 @@ public class IntelligentAgent extends Agent {
    * The quantity of each order the agent orders.
    */
   private static final int ORDER_SIZE = 1;
-
-  /**
-   * Maximum difference between the total volume at the best bid/ask allowed
-   * before additional actions are taken.
-   */
-  private static int threshold = 200;
-
-  /**
-   * How long in the past the agent should look for market information, in
-   * milliseconds.
-   */
-  private int delayLength;
 
   /**
    * Helper class for all Intelligent Agents.
@@ -89,9 +77,8 @@ public class IntelligentAgent extends Agent {
   public IntelligentAgent(MatchingEngine matchEng, IntelligentAgentHelper iah,
     int delayLength) {
     super(matchEng);
+    this.profit = 0;
     this.intelligentAgentHelper = iah;
-    this.delayLength = delayLength;
-
     potentialOrdersPricesToCover = new ArrayList<ArrayList<Integer>>();
     for (int i = 0; i < delayLength; i++) {
       potentialOrdersPricesToCover.add(new ArrayList<Integer>());
@@ -278,29 +265,6 @@ public class IntelligentAgent extends Agent {
     // Price within ask interval
     || (priceToCheck >= bestAskPrice && priceToCheck < bestAskPrice
       + (HALF_TICK_WIDTH * TICK_SIZE)));
-  }
-
-  /**
-   * Set the amount of time from the present that all Intelligent Agents should
-   * look for market information, in milliseconds.
-   * 
-   * @param delayLength
-   *          The delay time, in milliseconds.
-   */
-  public void setDelay(int delayLength) {
-    this.delayLength = delayLength;
-  }
-
-  /**
-   * Set the maximum difference between the total volume at the best bid/ask
-   * allowed before additional actions are taken by all Intelligent Agents.
-   * 
-   * @param threshold
-   *          The difference between the total volume at the best bid/ask
-   *          allowed.
-   */
-  public static void setThreshold(int threshold) {
-    IntelligentAgent.threshold = threshold;
   }
 
   /**

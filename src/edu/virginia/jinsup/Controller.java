@@ -215,8 +215,6 @@ public class Controller {
       agentList.add(smallTrader);
     }
 
-    System.out.println(Settings.getDelays());
-
     if (Settings.getNumIntelligentAgents() != 0) {
       // Set up appropriate number of log files, depending on number of delays
       IntelligentAgentHelper currentIAH;
@@ -253,8 +251,6 @@ public class Controller {
         }
         intelligentAgentByDelay.add(intelligentAgentList);
       }
-
-      IntelligentAgent.setThreshold(Settings.getThreshold());
 
       // run simulator until Settings.getEndTime() is reached.
       while (time < Settings.getStartTime()) {
@@ -335,8 +331,11 @@ public class Controller {
           totalProfit + totalInventory * matchingEngine.getLastTradePrice();
         try {
           writer = new FileWriter(intelligentAgentProfitFileNames.get(i), true);
-          writer.append(time + ','
-            + (totalProfit / (intelligentAgentByDelay.size() * 100.0)) + "\n");
+          writer.append(time + ","
+            + +(totalProfit / (intelligentAgentByDelay.get(i).size() * 100.0))
+            + "\n");
+          writer.flush();
+          writer.close();
         } catch (IOException e) {
           System.err.println("Error: Failed to update log.");
           System.exit(1);
