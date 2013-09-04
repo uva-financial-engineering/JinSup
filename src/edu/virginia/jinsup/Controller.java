@@ -332,7 +332,7 @@ public class Controller {
         try {
           writer = new FileWriter(intelligentAgentProfitFileNames.get(i), true);
           writer.append(time + ","
-            + +(totalProfit / (intelligentAgentByDelay.get(i).size() * 100.0))
+            + (totalProfit / (intelligentAgentByDelay.get(i).size() * 100.0))
             + "\n");
           writer.flush();
           writer.close();

@@ -173,7 +173,7 @@ public class IntelligentAgentHelper {
   private ThresholdState computeThresholdState(int volumeDifference) {
     if (Math.abs(volumeDifference) <= threshold) {
       return ThresholdState.BELOW_THRESHOLD;
-    } else if (volumeDifference < threshold) {
+    } else if (volumeDifference < -threshold) {
       return ThresholdState.SELL_ORDER_SURPLUS;
     } else {
       return ThresholdState.BUY_ORDER_SURPLUS;
