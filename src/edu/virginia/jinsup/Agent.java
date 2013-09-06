@@ -403,17 +403,25 @@ public abstract class Agent {
     return id;
   }
 
+  protected void processInventory(boolean override, boolean willBuy) {
+    if (override) {
+      if (willBuy) {
+        cancelAllSellOrders();
+      } else {
+        cancelAllBuyOrders();
+      }
+    }
+  }
+
   protected boolean[] checkInventory(int currentInventory, int inventoryLimit,
     boolean overLimit) {
     boolean[] results = {true, true, true};
     if (currentInventory > inventoryLimit) {
       results[OVER_LIMIT] = true;
       results[WILL_BUY] = false;
-      cancelAllBuyOrders();
     } else if (currentInventory < -inventoryLimit) {
       results[OVER_LIMIT] = true;
       results[WILL_BUY] = true;
-      cancelAllSellOrders();
     } else if (currentInventory > inventoryLimit / 2 && overLimit) {
       results[WILL_BUY] = false;
     } else if (currentInventory < -inventoryLimit / 2 && overLimit) {
