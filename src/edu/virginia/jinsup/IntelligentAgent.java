@@ -1,7 +1,9 @@
 package edu.virginia.jinsup;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 import edu.virginia.jinsup.IntelligentAgentHelper.ThresholdState;
 
@@ -16,6 +18,10 @@ public class IntelligentAgent extends Agent {
    * Limits the number of shares owned by the agent.
    */
   private static final int INVENTORY_LIMIT = 30;
+
+  public enum InventoryState {
+    BALANCED, SHARE_SURPLUS, SHARE_DEFICIT
+  };
 
   /**
    * Whether or not agent owns more shares than INVENTORY_LIMIT or has a deficit
@@ -55,16 +61,30 @@ public class IntelligentAgent extends Agent {
 
   /**
    * List of order prices over time that were traded that may need to be covered
-   * by the agent.
+   * by the agent. No duplicates allowed. This means that this is only valid for
+   * ORDER_SIZE = 1.
    */
-  private final ArrayList<ArrayList<Integer>> potentialOrdersPricesToCover;
+  private final ArrayList<HashSet<Integer>> potentialOrdersPricesToCover;
 
   /**
    * Holds the list of orders to cover at time t = now - delay. Used to keep
    * track of trades that happen before the agent has a chance to act at time t
    * = now.
+   * 
+   * No duplicates allowed. This means that this is only valid for ORDER_SIZE =
+   * 1.
    */
-  private final ArrayList<Integer> orderBuffer;
+  private final Set<Integer> orderBuffer;
+
+  private final Set<Integer> currentOrderBook;
+
+  private final int delayLength;
+
+  private final ArrayList<InventoryState> inventoryLimitHistory;
+
+  private int inventoryLimitIndex;
+
+  private InventoryState previousInventoryState = InventoryState.BALANCED;
 
   /**
    * Constructs an Intelligent Agent and initializes its order book so that
@@ -79,12 +99,19 @@ public class IntelligentAgent extends Agent {
     super(matchEng);
     this.profit = 0;
     this.intelligentAgentHelper = iah;
-    potentialOrdersPricesToCover = new ArrayList<ArrayList<Integer>>();
+    this.delayLength = delayLength;
+    potentialOrdersPricesToCover = new ArrayList<HashSet<Integer>>();
     for (int i = 0; i < delayLength; i++) {
-      potentialOrdersPricesToCover.add(new ArrayList<Integer>());
+      potentialOrdersPricesToCover.add(new HashSet<Integer>());
     }
 
-    orderBuffer = new ArrayList<Integer>();
+    inventoryLimitHistory =
+      new ArrayList<InventoryState>(Collections.nCopies(delayLength,
+        InventoryState.BALANCED));
+    inventoryLimitIndex = 0;
+
+    orderBuffer = new HashSet<Integer>();
+    currentOrderBook = new HashSet<Integer>();
 
     for (int i = 0; i < HALF_TICK_WIDTH; i++) {
       createNewOrder(Settings.getBuyPrice() - ((i + 1) * TICK_SIZE),
@@ -103,7 +130,8 @@ public class IntelligentAgent extends Agent {
   @Override
   void act() {
     // TODO Refactor this nightmare without breaking anything.
-    ArrayList<Integer> interestedList =
+
+    HashSet<Integer> interestedList =
       potentialOrdersPricesToCover.get(intelligentAgentHelper.getOldestIndex());
     Integer bestBidPriceToFill = intelligentAgentHelper.getOldBestBidPrice();
     Integer bestAskPriceToFill = intelligentAgentHelper.getOldBestAskPrice();
@@ -123,7 +151,7 @@ public class IntelligentAgent extends Agent {
     // that are no longer in the new best bid/ask interval.
     Integer currentPrice;
     for (int i = 0; i < HALF_TICK_WIDTH; ++i) {
-      // Iterate through old interval, best bid and under
+      // Iterate through old interval, best bid and under (buy orders)
       currentPrice = previousBestBidPrice - (i * TICK_SIZE);
       if (!interestedList.contains(currentPrice)) {
         if (isInInterval(currentPrice, bestBidPriceToFill, bestAskPriceToFill)) {
@@ -133,7 +161,7 @@ public class IntelligentAgent extends Agent {
         }
       }
 
-      // Iterate through old interval, best ask and above
+      // Iterate through old interval, best ask and above (sell orders)
       currentPrice = previousBestAskPrice + (i * TICK_SIZE);
       if (!interestedList.contains(currentPrice)) {
         if (isInInterval(currentPrice, bestBidPriceToFill, bestAskPriceToFill)) {
@@ -147,29 +175,46 @@ public class IntelligentAgent extends Agent {
     // Deal with threshold. Update orders to cover accordingly.
     switch (oldThresholdState) {
       case BELOW_THRESHOLD:
-        // Make sure best bid/ask are covered... they should be by default
-        // TODO Remove this case
-        break;
+        // Is this normally covered?
 
+        if (inventoryLimitHistory.get(inventoryLimitIndex) == InventoryState.BALANCED) {
+          if (previousInventoryState == InventoryState.SHARE_DEFICIT) {
+            pricesToOrder.add(bestAskPriceToFill);
+          } else if (previousInventoryState == InventoryState.SHARE_SURPLUS) {
+            pricesToOrder.add(bestBidPriceToFill);
+          }
+        }
+        break;
       case BUY_ORDER_SURPLUS:
         // Cancel best ask if it exists.
         pricesToOrder.remove(bestAskPriceToFill);
+        orderBuffer.add(bestAskPriceToFill);
         if (isInInterval(bestAskPriceToFill, previousBestBidPrice,
           previousBestAskPrice) && !interestedList.contains(bestAskPriceToFill)) {
           cancelOrder(bestAskPriceToFill);
         }
 
         // Make sure best bid is still covered... should be covered already
+        if (inventoryLimitHistory.get(inventoryLimitIndex) == InventoryState.BALANCED
+          && previousInventoryState == InventoryState.SHARE_SURPLUS) {
+          pricesToOrder.add(bestBidPriceToFill);
+        }
         break;
       case SELL_ORDER_SURPLUS:
         // Cancel best bid if it exists.
         pricesToOrder.remove(bestBidPriceToFill);
+        orderBuffer.add(bestBidPriceToFill);
         if (isInInterval(bestBidPriceToFill, previousBestBidPrice,
           previousBestAskPrice) && !interestedList.contains(bestBidPriceToFill)) {
           cancelOrder(bestBidPriceToFill);
         }
 
         // Make sure best ask is still covered... should be covered already
+        if (inventoryLimitHistory.get(inventoryLimitIndex) == InventoryState.BALANCED
+          && previousInventoryState == InventoryState.SHARE_DEFICIT) {
+          pricesToOrder.add(bestAskPriceToFill);
+        }
+
         break;
       default:
         System.err.println("Error: Invalid threshold state...exiting.");
@@ -177,33 +222,98 @@ public class IntelligentAgent extends Agent {
     }
 
     // Deal with inventory limit
-    boolean[] inventoryResults =
-      checkInventory(getInventory(), INVENTORY_LIMIT, overLimit);
-    overLimit = inventoryResults[OVER_LIMIT];
 
-    if (inventoryResults[OVERRIDE]) {
-      ArrayList<Integer> pricesToRemove = new ArrayList<Integer>();
-      if (inventoryResults[WILL_BUY]) {
-        // Do not sell orders
-        for (Integer i : pricesToOrder) {
-          if (i >= bestAskPriceToFill) {
-            pricesToRemove.add(i);
+    switch (inventoryLimitHistory.get(inventoryLimitIndex)) {
+      case BALANCED:
+        if (previousInventoryState == InventoryState.SHARE_SURPLUS) {
+          // Refill all buys except edge
+          for (int i = 1; i < HALF_TICK_WIDTH; i++) {
+            pricesToOrder.add(bestBidPriceToFill - (i * TICK_SIZE));
+          }
+        } else if (previousInventoryState == InventoryState.SHARE_DEFICIT) {
+          for (int i = 1; i < HALF_TICK_WIDTH; i++) {
+            pricesToOrder.add(bestAskPriceToFill + (i * TICK_SIZE));
+          }
+        } else {
+          // Continue normally
+        }
+        break;
+      case SHARE_SURPLUS:
+        if (previousInventoryState == InventoryState.SHARE_SURPLUS) {
+          // Remove buy prices from toOrder
+          for (int i = 0; i < HALF_TICK_WIDTH; i++) {
+            pricesToOrder.remove(bestBidPriceToFill - (i * TICK_SIZE));
+          }
+
+        } else if (previousInventoryState == InventoryState.SHARE_DEFICIT) {
+          // Fill sells and cancel buys
+          for (int i = 1; i < HALF_TICK_WIDTH; i++) {
+            pricesToOrder.add(bestAskPriceToFill + (i * TICK_SIZE));
+          }
+
+          for (int i = 0; i < HALF_TICK_WIDTH; i++) {
+            pricesToOrder.remove(bestBidPriceToFill - (i * TICK_SIZE));
+            cancelOrder(bestBidPriceToFill - (i * TICK_SIZE));
+          }
+        } else {
+          // Cancel ALL buys
+          for (int i = 0; i < HALF_TICK_WIDTH; i++) {
+            pricesToOrder.remove(bestBidPriceToFill - (i * TICK_SIZE));
+            cancelOrder(bestBidPriceToFill - (i * TICK_SIZE));
           }
         }
-      } else {
-        // Do not buy orders
-        for (Integer i : pricesToOrder) {
-          if (i <= bestBidPriceToFill) {
-            pricesToRemove.add(i);
+        break;
+      case SHARE_DEFICIT:
+        if (previousInventoryState == InventoryState.SHARE_SURPLUS) {
+          // Cancel all sells and refill buys
+          for (int i = 1; i < HALF_TICK_WIDTH; i++) {
+            pricesToOrder.add(bestBidPriceToFill - (i * TICK_SIZE));
+          }
+
+          for (int i = 0; i < HALF_TICK_WIDTH; i++) {
+            pricesToOrder.remove(bestBidPriceToFill + (i * TICK_SIZE));
+            cancelOrder(bestAskPriceToFill + (i * TICK_SIZE));
+          }
+
+        } else if (previousInventoryState == InventoryState.SHARE_DEFICIT) {
+          // Remove sell prices from toOrder
+          for (int i = 0; i < HALF_TICK_WIDTH; i++) {
+            pricesToOrder.remove(bestAskPriceToFill + (i * TICK_SIZE));
+          }
+        } else {
+          // Cancel all sells
+          for (int i = 0; i < HALF_TICK_WIDTH; i++) {
+            pricesToOrder.remove(bestAskPriceToFill + (i * TICK_SIZE));
+            cancelOrder(bestAskPriceToFill + (i * TICK_SIZE));
           }
         }
-      }
-      pricesToOrder.removeAll(pricesToRemove);
+        break;
+      default:
+        break;
     }
 
     // Fill all remaining orders
     for (Integer i : pricesToOrder) {
       createNewOrder(i, ORDER_SIZE, i <= bestBidPriceToFill);
+    }
+
+    // Replace inventory limit history
+
+    previousInventoryState = inventoryLimitHistory.get(inventoryLimitIndex);
+    boolean[] inventoryResults =
+      checkInventory(getInventory(), INVENTORY_LIMIT, overLimit);
+    overLimit = inventoryResults[OVER_LIMIT];
+
+    if (inventoryResults[OVERRIDE]) {
+      inventoryLimitHistory.set(inventoryLimitIndex, inventoryResults[WILL_BUY]
+        ? InventoryState.SHARE_DEFICIT : InventoryState.SHARE_SURPLUS);
+    } else {
+      inventoryLimitHistory.set(inventoryLimitIndex, InventoryState.BALANCED);
+    }
+
+    inventoryLimitIndex++;
+    if (inventoryLimitIndex >= delayLength) {
+      inventoryLimitIndex = 0;
     }
 
     // Load buffer to the main array and clear it.
@@ -239,9 +349,23 @@ public class IntelligentAgent extends Agent {
         .add(priceOfOrderTraded);
     }
     // Update total profit
+    currentOrderBook.remove(priceOfOrderTraded);
     profit +=
       (buyOrderTraded ? -priceOfOrderTraded : priceOfOrderTraded)
         * volumeTraded;
+  }
+
+  public boolean createNewOrder(int price, int initialQuant, boolean buyOrder) {
+    if (currentOrderBook.add(price)) {
+      return super.createNewOrder(price, initialQuant, buyOrder);
+    }
+    System.out.println("DUP");
+    return false;
+  }
+
+  public void cancelOrder(int price) {
+    currentOrderBook.remove(price);
+    super.cancelOrder(price);
   }
 
   /**
