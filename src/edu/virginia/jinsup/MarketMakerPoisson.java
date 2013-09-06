@@ -38,6 +38,7 @@ public class MarketMakerPoisson extends PoissonAgent {
   public void makeOrder() {
     boolean[] inventoryResults =
       checkInventory(getInventory(), INVENTORY_LIMIT, overLimit);
+    processInventory(inventoryResults[OVERRIDE], inventoryResults[WILL_BUY]);
     overLimit = inventoryResults[OVER_LIMIT];
     // bestBuyOrder/(bestBuyOrder + bestSellOrder)
     double bestBuyPrice = getBestBuyPrice();

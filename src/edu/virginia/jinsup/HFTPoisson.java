@@ -39,6 +39,7 @@ public class HFTPoisson extends PoissonAgent {
   void makeOrder() {
     boolean[] inventoryResults =
       checkInventory(getInventory(), INVENTORY_LIMIT, overLimit);
+    processInventory(inventoryResults[OVERRIDE], inventoryResults[WILL_BUY]);
     overLimit = inventoryResults[OVER_LIMIT];
     // Fetch qBuy once only
     double qBuy = getBestBidQuantity();
