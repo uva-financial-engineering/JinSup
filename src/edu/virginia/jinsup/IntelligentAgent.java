@@ -359,7 +359,6 @@ public class IntelligentAgent extends Agent {
     if (currentOrderBook.add(price)) {
       return super.createNewOrder(price, initialQuant, buyOrder);
     }
-    System.out.println("DUP");
     return false;
   }
 
