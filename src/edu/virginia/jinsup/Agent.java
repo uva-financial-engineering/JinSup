@@ -229,31 +229,6 @@ public abstract class Agent {
   }
 
   /**
-   * @return The moving average calculated by the matching engine. See the
-   *         getMovingAverage() method in the MatchingEngine class for more
-   *         details.
-   */
-  public int getMovAvg() {
-    return matchingEngine.getMovingAverage();
-  }
-
-  /**
-   * @return The volume of aggressive shares bought in the last millisecond of
-   *         trading.
-   */
-  public int getLastAgVolumeBuySide() {
-    return matchingEngine.getLastAgVolumeBuySide();
-  }
-
-  /**
-   * @return The volume of aggressive shares bought in the last millisecond of
-   *         trading.
-   */
-  public int getLastAgVolumeSellSide() {
-    return matchingEngine.getLastAgVolumeSellSide();
-  }
-
-  /**
    * @return The next time the agent will issue an order.
    */
   protected long getNextOrderTime() {

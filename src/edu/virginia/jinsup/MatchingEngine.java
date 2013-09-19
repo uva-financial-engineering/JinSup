@@ -50,31 +50,6 @@ public class MatchingEngine {
   private final TreeSet<Order> sellOrders;
 
   /**
-   * The volume of shares sold that were initiated by an aggressive buying agent
-   * in the last millisecond of trading.
-   * 
-   */
-  private int lastAgVolumeBuySide;
-
-  /**
-   * The volumes of shares sold that were initiated by an aggressive selling
-   * agent in the last millisecond of trading.
-   */
-  private int lastAgVolumeSellSide;
-
-  /**
-   * The current (per ms) volume of shares that were initiated by an aggressive
-   * buying agent in the last millisecond of trading.
-   */
-  private int currAgVolumeBuySide;
-
-  /**
-   * The current (per ms) volume of shares that were initiated by an aggressive
-   * selling agent in the last millisecond of trading.
-   */
-  private int currAgVolumeSellSide;
-
-  /**
    * The price (CENTS) that the share was last traded at. This should be plotted
    * every time it is updated (i.e. whenever a trade occurs).
    */
@@ -93,12 +68,6 @@ public class MatchingEngine {
    * done or when the buffer is full.
    */
   private final ArrayList<String> logBuffer;
-
-  /**
-   * Queue containing the midpoints of best bid and best ask prices. The length
-   * of the list is determined by the get moving average method.
-   */
-  private final LinkedList<Integer> midpoints;
 
   /**
    * Stores the moving sum, which is used to efficiently calculate moving the
@@ -128,9 +97,6 @@ public class MatchingEngine {
     buyOrders = new TreeSet<Order>(Order.highestFirstComparator);
     sellOrders = new TreeSet<Order>(Order.highestFirstComparator);
     agentMap = new HashMap<Long, Agent>();
-    midpoints = new LinkedList<Integer>();
-    lastAgVolumeBuySide = 0;
-    lastAgVolumeSellSide = 0;
     lastTradePrice = Settings.getBuyPrice();
     startingPeriod = true;
     movingSum = 0;
@@ -511,42 +477,6 @@ public class MatchingEngine {
   }
 
   /**
-   * Stores lastAgVolumeBuySide and lastAgVolumeSellSideResets for the previous
-   * millisecond of trading and resets currAgVolumeBuySide and
-   * currAgVolumeSellSide.
-   */
-  public void reset() {
-    lastAgVolumeBuySide = currAgVolumeBuySide;
-    lastAgVolumeSellSide = currAgVolumeSellSide;
-    currAgVolumeBuySide = 0;
-    currAgVolumeSellSide = 0;
-  }
-
-  /**
-   * A special method for opportunistic traders that returns the moving average
-   * for the last MOVING_AVERAGE_LENGTH number of milliseconds.
-   */
-  public void storeMovingAverage() {
-    int midpoint =
-      (getBestBid() == null || getBestAsk() == null)
-        ? Settings.getBuyPrice() + 12
-        : ((getBestBid().getPrice() + getBestAsk().getPrice()) / 2);
-    if (midpoints.size() > MOVING_AVERAGE_LENGTH) {
-      movingSum -= midpoints.poll();
-    }
-    movingSum += midpoint;
-    midpoints.add(midpoint);
-  }
-
-  /**
-   * Provides agents with the moving average with length of time specified by
-   * the calculateMovingAverage() method.
-   */
-  public int getMovingAverage() {
-    return movingSum / midpoints.size();
-  }
-
-  /**
    * Logs all the required information into the order book and updates graph
    * when an order is created, modified, or deleted. The CSV to be logged will
    * have the following fields: Agent ID, Message Type (1 = new order, 2 =
@@ -615,11 +545,6 @@ public class MatchingEngine {
   public void logTrade(Order order, boolean market, int tradePrice, int volume,
     boolean aggressor, long matchID) {
     if (!Settings.isTestMode()) {
-      if (order.isBuyOrder()) {
-        currAgVolumeBuySide += volume;
-      } else {
-        currAgVolumeSellSide += volume;
-      }
 
       Controller.graphFrame.addOrder(order.isBuyOrder(), -volume, tradePrice);
 
@@ -657,22 +582,6 @@ public class MatchingEngine {
     }
 
     logBuffer.clear();
-  }
-
-  /**
-   * @return The volume of aggressive shares bought in the last millisecond of
-   *         trading.
-   */
-  public int getLastAgVolumeBuySide() {
-    return lastAgVolumeBuySide;
-  }
-
-  /**
-   * @return The volume of aggressive shares sold in the last millisecond of
-   *         trading.
-   */
-  public int getLastAgVolumeSellSide() {
-    return lastAgVolumeSellSide;
   }
 
   /**

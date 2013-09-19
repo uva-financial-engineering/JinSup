@@ -293,7 +293,6 @@ public class Controller {
 
     // Moving average is not used for poisson trading.
     // matchingEngine.storeMovingAverage();
-    matchingEngine.reset();
     if (Settings.getNumIntelligentAgents() != 0) {
       // Update the delay data for intelligent agents. A positive number means
       // that there are more buy orders than sell orders at the best bid/ask.
