@@ -108,10 +108,19 @@ public class Controller {
   private final MatchingEngine matchingEngine;
 
   // Intelligent Agent fields for multiple delays
+  /**
+   * Lists the agents by delay.
+   */
   private ArrayList<ArrayList<IntelligentAgent>> intelligentAgentByDelay;
 
+  /**
+   * List of log files for each type of agent.
+   */
   private ArrayList<String> intelligentAgentProfitFileNames;
 
+  /**
+   * List of all intelligent agents.
+   */
   private ArrayList<IntelligentAgentHelper> intelligentAgentHelpers;
 
   /**
@@ -119,7 +128,6 @@ public class Controller {
    */
   private String state = "Starting up period";
 
-  // TODO Remove this and related material when done with poisson trading.
   /**
    * Poisson distribution used to space out calculation of buy probabilities for
    * poisson opportunistic traders.
@@ -291,8 +299,6 @@ public class Controller {
       } while (a.getWillAct());
     }
 
-    // Moving average is not used for poisson trading.
-    // matchingEngine.storeMovingAverage();
     if (Settings.getNumIntelligentAgents() != 0) {
       // Update the delay data for intelligent agents. A positive number means
       // that there are more buy orders than sell orders at the best bid/ask.

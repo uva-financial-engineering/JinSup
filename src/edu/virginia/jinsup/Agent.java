@@ -9,11 +9,22 @@ package edu.virginia.jinsup;
 
 public abstract class Agent {
 
-  // Constants
+  /**
+   * Constant used to index the results of the checkInventory() method.
+   * Indicates which side of the order book the agent should clear.
+   */
   protected static final int WILL_BUY = 0;
 
+  /**
+   * Constant used to index the results of the checkInventory() method.
+   * Indicates if an agent has broken the inventory limit.
+   */
   protected static final int OVER_LIMIT = 1;
 
+  /**
+   * Constant used to index the results of the checkInventory() method.
+   * Indicates if an agent should take further action after breaking the limit.
+   */
   protected static final int OVERRIDE = 2;
 
   /**
@@ -46,24 +57,30 @@ public abstract class Agent {
   private int inventory;
 
   /**
-   * Is true if an order in the last millisecond resulted in a trade with one of
-   * the agent's orders. False otherwise.
-   */
-  // private boolean lastOrderTraded;
-
-  /**
    * Minimum price interval between orders.
    */
   protected static final int TICK_SIZE = 25;
 
+  /**
+   * The next time the agent should place an order.
+   */
   private long nextOrderTime;
 
+  /**
+   * The next time the agent should cancel an order.
+   */
   private long nextCancelTime;
 
+  /**
+   * Enum holding the different types of action an agent can take.
+   */
   public enum Action {
     NULL, ORDER, CANCEL;
   }
 
+  /**
+   * The next action the agent should take.
+   */
   private Action nextAction;
 
   /**
@@ -378,6 +395,15 @@ public abstract class Agent {
     return id;
   }
 
+  /**
+   * Clears one side of the order book depending on whether which inventory
+   * limit the agent has broke.
+   * 
+   * @param override
+   *          True if the inventory limit was broken.
+   * @param willBuy
+   *          True if the negative limit was broken (too many shares sold).
+   */
   protected void processInventory(boolean override, boolean willBuy) {
     if (override) {
       if (willBuy) {
@@ -388,8 +414,23 @@ public abstract class Agent {
     }
   }
 
+  /**
+   * @param currentInventory
+   *          The number of shares the agent has at the moment.
+   * @param inventoryLimit
+   *          The inventory limit of the agent.
+   * @param previousOverLimitState
+   *          True if the agent broke the limit on the last occasion of
+   *          inventory checking.
+   * @return An array of boolean values corresponding to whether the agent has
+   *         broken the inventory limit, which side of the order book the agent
+   *         should clear if it did break the limit, and whether the agent
+   *         should perform extra tasks (override) as a result of crossing the
+   *         limit. The array should be accessed using the constants OVER_LIMIT,
+   *         OVER_LIMIT, and OVERRIDE respectively.
+   */
   protected boolean[] checkInventory(int currentInventory, int inventoryLimit,
-    boolean overLimit) {
+    boolean previousOverLimitState) {
     boolean[] results = {true, true, true};
     if (currentInventory > inventoryLimit) {
       results[OVER_LIMIT] = true;
@@ -397,14 +438,15 @@ public abstract class Agent {
     } else if (currentInventory < -inventoryLimit) {
       results[OVER_LIMIT] = true;
       results[WILL_BUY] = true;
-    } else if (currentInventory > inventoryLimit / 2 && overLimit) {
+    } else if (currentInventory > inventoryLimit / 2 && previousOverLimitState) {
       results[WILL_BUY] = false;
-    } else if (currentInventory < -inventoryLimit / 2 && overLimit) {
+    } else if (currentInventory < -inventoryLimit / 2 && previousOverLimitState) {
       results[WILL_BUY] = true;
     } else if (Math.abs(currentInventory) <= inventoryLimit / 2) {
       results[OVER_LIMIT] = false;
       results[OVERRIDE] = false;
-    } else if (Math.abs(currentInventory) <= inventoryLimit && !overLimit) {
+    } else if (Math.abs(currentInventory) <= inventoryLimit
+      && !previousOverLimitState) {
       results[OVERRIDE] = false;
       results[OVER_LIMIT] = false;
     } else {

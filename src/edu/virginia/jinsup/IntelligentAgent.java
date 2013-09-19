@@ -19,6 +19,9 @@ public class IntelligentAgent extends Agent {
    */
   private static final int INVENTORY_LIMIT = 30;
 
+  /**
+   * Different inventory states the intelligent agent can be in.
+   */
   public enum InventoryState {
     BALANCED, SHARE_SURPLUS, SHARE_DEFICIT
   };
@@ -76,14 +79,31 @@ public class IntelligentAgent extends Agent {
    */
   private final Set<Integer> orderBuffer;
 
+  /**
+   * Set that holds the current order book (prices) of the intelligent agent.
+   */
   private final Set<Integer> currentOrderBook;
 
+  /**
+   * How long the intelligent agent should wait before reacting to market
+   * conditions.
+   */
   private final int delayLength;
 
+  /**
+   * History of inventory states the intelligent agent has been in.
+   */
   private final ArrayList<InventoryState> inventoryLimitHistory;
 
+  /**
+   * Holds the index to access the inventoryLimitHistory to get the inventory
+   * state at time t = now - delay.
+   */
   private int inventoryLimitIndex;
 
+  /**
+   * The inventory state of the agent at time t = now - delay - 1.
+   */
   private InventoryState previousInventoryState = InventoryState.BALANCED;
 
   /**
@@ -125,7 +145,15 @@ public class IntelligentAgent extends Agent {
   }
 
   /**
-   * See the wiki for details on the algorithm.
+   * First, the intelligent agent will assume that it will have to fill orders
+   * at 10 ticks above and below the best bid and ask price. It will then
+   * eliminate orders at prices it knows the order still has not traded at yet.
+   * 
+   * Next, it will deal with the threshold, filling and canceling orders
+   * depending on the threshold state.
+   * 
+   * Finally, it will deal with the inventory limit, canceling and filling
+   * orders as necessary.
    */
   @Override
   void act() {
@@ -175,8 +203,6 @@ public class IntelligentAgent extends Agent {
     // Deal with threshold. Update orders to cover accordingly.
     switch (oldThresholdState) {
       case BELOW_THRESHOLD:
-        // Is this normally covered?
-
         if (inventoryLimitHistory.get(inventoryLimitIndex) == InventoryState.BALANCED) {
           if (previousInventoryState == InventoryState.SHARE_DEFICIT) {
             pricesToOrder.add(bestAskPriceToFill);
@@ -355,6 +381,10 @@ public class IntelligentAgent extends Agent {
         * volumeTraded;
   }
 
+  /**
+   * Implementation of createNewOrder that does not create an order if one
+   * already exists in the agent's orderbook.
+   */
   public boolean createNewOrder(int price, int initialQuant, boolean buyOrder) {
     if (currentOrderBook.add(price)) {
       return super.createNewOrder(price, initialQuant, buyOrder);
@@ -362,6 +392,9 @@ public class IntelligentAgent extends Agent {
     return false;
   }
 
+  /**
+   * Implementation of cancelOrder that updates the agent's orderbook.
+   */
   public void cancelOrder(int price) {
     currentOrderBook.remove(price);
     super.cancelOrder(price);
@@ -410,6 +443,9 @@ public class IntelligentAgent extends Agent {
     oldThresholdState = newState;
   }
 
+  /**
+   * @return The profit made by this intelligent agent.
+   */
   public int getProfit() {
     return profit;
   }

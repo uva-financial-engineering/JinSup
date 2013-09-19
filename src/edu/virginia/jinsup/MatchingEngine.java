@@ -23,10 +23,8 @@ public class MatchingEngine {
   private static final int LOG_BUFFER_SIZE = 524288;
 
   /**
-   * Number of milliseconds to calculate moving average
+   * ID to be assigned to orders that trade.
    */
-  private static final int MOVING_AVERAGE_LENGTH = 500;
-
   private int tradeMatchID;
 
   /**
@@ -70,12 +68,6 @@ public class MatchingEngine {
   private final ArrayList<String> logBuffer;
 
   /**
-   * Stores the moving sum, which is used to efficiently calculate moving the
-   * average of the best bid and best ask prices.
-   */
-  private int movingSum;
-
-  /**
    * Time in milliseconds that an action occurs. This is kept in sync with the
    * controller's time. Used as a time-stamp for the log.
    */
@@ -85,12 +77,6 @@ public class MatchingEngine {
    * Creates a matching engine with empty fields. Everything is initialized to
    * zero. Also initializes the log file.
    * 
-   * @param buyPrice
-   *          The price (CENTS) that orders should be centered around.
-   * @param startupTime
-   *          The startup period in milliseconds.
-   * @param testing
-   *          If true, no logging will be done.
    */
   public MatchingEngine() {
     orderMap = new HashMap<Long, ArrayList<Order>>();
@@ -99,7 +85,6 @@ public class MatchingEngine {
     agentMap = new HashMap<Long, Agent>();
     lastTradePrice = Settings.getBuyPrice();
     startingPeriod = true;
-    movingSum = 0;
     tradeMatchID = 0;
 
     // 2^19 lines before writing to file
@@ -472,6 +457,9 @@ public class MatchingEngine {
     startingPeriod = isStartingPeriod;
   }
 
+  /**
+   * @return True if the simulator is in the start-up period.
+   */
   public boolean isStartingPeriod() {
     return startingPeriod;
   }
