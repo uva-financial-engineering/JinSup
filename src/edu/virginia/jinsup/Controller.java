@@ -137,7 +137,7 @@ public class Controller {
   /**
    * The last time the news was updated. Time in milliseconds.
    */
-  private int lastNewsTime;
+  private long lastNewsTime;
 
   /**
    * Creates a controller with no agents.

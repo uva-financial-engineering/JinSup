@@ -25,7 +25,7 @@ public class MatchingEngine {
   /**
    * ID to be assigned to orders that trade.
    */
-  private int tradeMatchID;
+  private long tradeMatchID;
 
   /**
    * All the orders in the simulation, grouped by agent ID.
@@ -512,7 +512,7 @@ public class MatchingEngine {
         writeToLog();
       }
       logBuffer.add(time + "," + order.getCreatorID() + "," + messageType + ","
-        + (order.isBuyOrder() ? "1" : "2") + "," + order.getId() + ","
+        + (order.isBuyOrder() ? "1" : "2") + "," + order.getID() + ","
         + order.getOriginalQuant() + "," + order.getPrice() / 100.0 + ","
         + (market ? "Market" : "Limit") + "," + order.getCurrentQuant() + "\n");
     }
@@ -542,7 +542,7 @@ public class MatchingEngine {
         writeToLog();
       }
       logBuffer.add(time + "," + order.getCreatorID() + ",105,"
-        + (order.isBuyOrder() ? "1" : "2") + "," + order.getId() + ","
+        + (order.isBuyOrder() ? "1" : "2") + "," + order.getID() + ","
         + order.getOriginalQuant() + "," + order.getPrice() * 0.01 + ","
         + (market ? "Market," : "Limit,") + order.getCurrentQuant() + ","
         + tradePrice * 0.01 + "," + volume + (aggressor ? ",Y" : ",N") + ", "
@@ -598,9 +598,9 @@ public class MatchingEngine {
     Order oldestOrder = null;
     long oldest = Order.getNextOrderID();
     for (Order order : orders) {
-      if (order.getId() < oldest) {
+      if (order.getID() < oldest) {
         oldestOrder = order;
-        oldest = order.getId();
+        oldest = order.getID();
       }
     }
     return oldestOrder;
@@ -677,7 +677,7 @@ public class MatchingEngine {
     return buyArrayList;
   }
 
-  public int getAndUpdateTradeMatchID() {
+  public long getAndUpdateTradeMatchID() {
     return tradeMatchID++;
   }
 

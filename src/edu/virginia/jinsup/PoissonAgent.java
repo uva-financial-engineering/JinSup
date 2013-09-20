@@ -157,7 +157,7 @@ public abstract class PoissonAgent extends Agent {
    *          order with respect to the number of ticks of the last trade price,
    *          e.g. P[1 tick], P[2 tick], etc.
    */
-  void createPoissonOrder(boolean isBuying, int quantity,
+  protected void createPoissonOrder(boolean isBuying, int quantity,
     double... probabilities) {
     double probability = JinSup.rand.nextDouble();
 
@@ -190,7 +190,7 @@ public abstract class PoissonAgent extends Agent {
    *          the order quantity, e.g. P[Q=1], P[Q=2], etc.
    * @return The quantity to issue an order for.
    */
-  int getOrderSize(double... probabilities) {
+  protected int getOrderSize(double... probabilities) {
     double probability = JinSup.rand.nextDouble();
     double cumulativeProb = 0;
     int i = 0;

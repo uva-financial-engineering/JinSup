@@ -233,7 +233,6 @@ public abstract class Agent {
    *          Volume that was traded
    */
   public void setLastOrderTraded(boolean traded, int volume) {
-    // lastOrderTraded = traded;
     inventory += volume;
   }
 

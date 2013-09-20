@@ -76,7 +76,7 @@ public class Order implements Comparator<Order> {
   /**
    * @return The ID of the order.
    */
-  public long getId() {
+  public long getID() {
     return id;
   }
 
@@ -220,7 +220,7 @@ public class Order implements Comparator<Order> {
     return nextOrderID;
   }
 
-  public static void setNextOrderID(int newNextOrderID) {
+  public static void setNextOrderID(long newNextOrderID) {
     nextOrderID = newNextOrderID;
   }
 }
