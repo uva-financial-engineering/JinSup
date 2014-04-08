@@ -50,3 +50,4 @@ Options can be any of the following below. Options only need to be specified if 
 
 When test mode is disabled, the user will be able to see a moving history of the market condition in a graphing window as shown below.
 
+![alt tag](https://raw.github.com/uva-financial-engineering/JinSup/master/tradeHistory.png)
