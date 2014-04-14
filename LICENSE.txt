@@ -10,6 +10,12 @@ furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
 
+Any academic publication that makes use of this software must cite the
+following paper: Hayes, Roy and Todd, Andrew and Chaidarun, Nachapon and
+Tepsuporn, Scott and Beling, Peter and Scherer, Willam T., An Agent-Based
+Financial Simulation for Use by Researchers (April 10, 2014). Available at
+SSRN: http://ssrn.com/abstract=2423370
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
