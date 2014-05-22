@@ -1,0 +1,362 @@
+% !TEX TS-program = pdflatex
+% !TEX encoding = UTF-8 Unicode
+
+% This is a simple template for a LaTeX document using the "article" class.
+% See "book", "report", "letter" for other types of document.
+
+\documentclass[11pt]{article} % use larger type; default would be 10pt
+
+\usepackage[utf8]{inputenc} % set input encoding (not needed with XeLaTeX)
+%%% Examples of Article customizations
+% These packages are optional, depending whether you want the features they provide.
+% See the LaTeX Companion or other references for full information.
+
+%%% PAGE DIMENSIONS
+\usepackage[landscape]{geometry} % to change the page dimensions
+\geometry{a2paper} % or letterpaper (US) or a5paper or....
+\geometry{margin=0.2in} % for example, change the margins to 2 inches all round
+% \geometry{landscape} % set up the page for landscape
+% read geometry.pdf for detailed page layout information
+
+\usepackage{graphicx} % support the \includegraphics command and options
+
+% \usepackage[parfill]{parskip} % Activate to begin paragraphs with an empty line rather than an indent
+
+%%% PACKAGES
+\usepackage{booktabs} % for much better looking tables
+\usepackage{array} % for better arrays (eg matrices) in maths
+\usepackage{paralist} % very flexible & customisable lists (eg. enumerate/itemize, etc.)
+\usepackage{verbatim} % adds environment for commenting out blocks of text & for better verbatim
+\usepackage{subfig} % make it possible to include more than one captioned figure/table in a single float
+% These packages are all incorporated in the memoir class to one degree or another...
+\usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{makebox}
+
+%%% HEADERS & FOOTERS
+\usepackage{fancyhdr} % This should be set AFTER setting up the page geometry
+\pagestyle{fancy} % options: empty , plain , fancy
+\lhead{}\chead{}\rhead{}
+\lfoot{}\cfoot{\thepage\ of 2}\rfoot{}
+\renewcommand{\headrulewidth}{0pt} % customise the layout...
+
+%%% SECTION TITLE APPEARANCE
+\usepackage{tikz-uml}
+\usepackage{sectsty}
+\usepackage[T1]{fontenc}
+\allsectionsfont{\sffamily\mdseries\upshape} % (See the fntguide.pdf for font help)
+% (This matches ConTeXt defaults)
+
+%%% ToC (table of contents) APPEARANCE
+\usepackage[nottoc,notlof,notlot]{tocbibind} % Put the bibliography in the ToC
+\usepackage[titles,subfigure]{tocloft} % Alter the style of the Table of Contents
+\renewcommand{\cftsecfont}{\rmfamily\mdseries\upshape}
+\renewcommand{\cftsecpagefont}{\rmfamily\mdseries\upshape} % No bold!
+
+%%% END Article customizations
+
+%%% The "real" document content comes below...
+
+\title{UML Class Diagram}
+\author{Scott Tepsuporn}
+\date{} % Activate to display a given date or no date (if empty),
+% otherwise the current date is printed 
+
+\begin{document}
+\begin{tikzpicture}
+  \umlclass[type=abstract,x=40,y=21]{Agent} {
+    - id : long \\
+    - matchingEngine : MatchingEngine \\
+    - nextActTime : long \\
+    - willAct : boolean \\
+    - inventory : int \\
+    - nextOrderTime : long \\
+    - nextCancelTime : long \\
+    \umlstatic{- nextAgentID : long} \\
+    - nextAction : Action \\
+    \umlstatic{\# WILL\_BUY : int} \\
+    \umlstatic{\# OVER\_LIMIT : int} \\
+    \umlstatic{\# TICK\_SIZE : int} \\
+  }{
+    +Agent(MatchingEngine matchEng)\\
+    \umlvirt{+ act(): void} \\
+    + notify(Object... arguments) : void \\
+    + getNextActTime() : long \\
+    + setNextActTime(long nextTime) : void \\
+    + getWillAct() : boolean \\
+    + setWillAct(boolean act) : void \\
+    + cancelOrder(Order order) : void \\
+    + cancelOrder(int price) : void \\
+    + createNewOrder(int price, int initialQuant, boolean buyOrder) : boolean \\
+    + createMarketOrder(int intitialQuant, boolean buyOrder) : void \\
+    + modifyOrder(Order order, int newPrice, int newQuantity) : void \\
+    + setLastOrderTraded(boolean traded, int volume) : void \\
+    + getMidPoint() : void \\
+    + getNextOrderTime() : long \\
+    + getNextCancelTime() : long \\
+    + setNextOrderTime(long nextOrderTime) : void \\
+    + setNextCanelTime(long nextCancelTime) : void \\
+    + getNextAction() : Action \\
+    + setNextAction(Action nextAction) : void \\
+    + getRandomOrder() : Order \\
+    + getLastTradePrice() : int \\
+    + getBestBuyPrice() : int \\
+    + getBestSellPrice() : int \\
+    + getInventory() : int \\
+    + cancelAllSellOrders() : void \\
+    + cancelAllBuyOrders() : void \\
+    + getStartupTime() : long \\
+    + getBestBidQuantity() : int \\
+    + getBestAskQuantity() : int \\
+    + getOldestOrder() : Order \\
+    + agentHasOrders() : boolean \\
+    + getID() : long \\
+    \# processInventory(boolean override, boolean willBuy): void\\
+    \# checkInventory(int currentInventory, int inventoryLimit, boolean previousOverLimitState) : boolean[]\\ 
+  }
+  
+  \umlclass[x=0,y=0]{Order} {
+    - id : long \\
+    - price : int \\
+    - buyOrder : boolean\\
+    - marketOrder : boolean\\
+    - agentID : long \\
+    - originalQuant : int \\
+    - currentQuant : int \\
+    \umlstatic{- nextOrderID : long} \\
+  }{
+    + Order(long agentID, int price, int originalQuant, boolean buyOrder, boolean marketOrder)\\
+    + getID() : long \\
+    + getPrice() : int \\
+    + getOriginalQuant() : int \\
+    + getCurrentQuant() : int \\
+    + setQuant(int newQuant) : void \\
+    + setPrice(int newPrice) : void \\
+    + isBuyOrder() : boolean \\
+    + getCreatorID() : long \\
+    + isMarketOrder() : boolean \\
+    \umlstatic{+ getNextOrderID() : long} \\
+    + setNextOrderID(int newNextOrderID) : void \\
+  }
+  
+  \umlclass[type=enum,x=40,y=28]{Action} {
+    ORDER \\
+    CANCEL \\
+    NULL \\
+  }{
+  }
+  
+  \umlclass[x=-5,y=-7]{highestFirstComparator} {
+  }{
+    + compare(Order o1, Order o2) : int
+  }
+  \umlclass[x=5,y=-7]{lowestFirstComparator} {
+  }{
+    + compare(Order o1, Order o2) : int
+  }
+  \umlclass[x=40]{MatchingEngine} {
+    \umlstatic{- LOG\_BUFFER\_SIZE : int} \\
+    - tradeMatchID : long \\
+    - orderMap : HashMap<Long, ArrayList>\\
+    - agentMap : HashMap<Long, Agent>\\
+    - buyOrders : TreeSet<Order>\\
+    - sellOrders : TreeSet<Order>\\
+    - lastTradePrice : int \\
+    - startingPeriod : boolean \\
+    - logBuffer : ArrayList<String> \\
+    - time : long \\
+  }{
+    + MatchingEngine() \\
+    + cancelOrder(Order order) : void \\
+    + cancelOrder(long agentID, int price) : void \\
+    + addNewAgent(long id, Agent agent) : void \\
+    + createOrder(Order order) : boolean \\
+    + tradeMarketOrder(long agentID, int initialQuant, boolean buyOrder) : void \\
+    + modifyOrder(Order order, int newPrice, int newQuant) : void \\
+    + getLastTradePrice() : int \\
+    + getBestBidQuantity() : int \\
+    + getBestAskQuantity() : int \\
+    + willTrade(Order order) : ArrayList<Order> \\
+    + trade(Order order, ArrayList<Order> samePricedOrders) : boolean \\
+    + getBestBid() : Order \\
+    + getBestAsk() : Order \\
+    + setStartingPeriod(boolean isStartingPeriod) : void \\
+    + isStartingPeriod() : boolean \\
+    + logOrder(Order order, int messageType, boolean market, int quantChanged, int priceChanged) : void \\
+    + logTrade(Order order, boolean market, int tradePrice, int volume, boolean aggressor, long matchID) : void \\
+    + writeToLog() : void \\
+    + getRandomOrder(long agentID) : Order \\
+    + getOldestOrder(long agentID) : Order \\
+    + agentHasOrders(long agentID) : boolean\\
+    + cancelAllSellOrders(long agentID) : void \\
+    + cancelAllBuyOrders(long agentID) : void\\
+    + incrementTime() : void \\
+    + getSellOrdersAsArrayList() : ArrayList<Order> \\
+    + getBuyOrdersAsArrayList() : ArrayList<Order> \\
+    + getAndUpdateTradeMatchID() : long \\
+    + setTradePrice(int newTradePrice) : void \\
+    + trade(Order agOrder, Order passOrder, long matchID) : int \\
+    + checkIntelligentAgentOrder(Order order, int volumeTraded) : void \\
+  }
+  
+  \umlaggreg[geometry=-|]{MatchingEngine}{Order}
+  \umlclass[x=20]{Controller} {
+    \umlstatic{- FUND\_BUYER\_SELLER\_COUNT : int} \\
+    \umlstatic{- MARKET\_MAKER\_COUNT : int} \\
+    \umlstatic{- OPPOR\_STRAT\_COUNT : int} \\
+    \umlstatic{- HFT\_COUNT : int} \\
+    \umlstatic{- SMALL\_TRADER\_COUNT : int }\\
+    \umlstatic{- INTELLIGENT\_AGENT\_THRESHOLD\_ENABLE: boolean}\\
+    \umlstatic{- INTELLIGENT\_AGENT\_PROFIT\_LOG\_FREQUENCY: boolean} \\
+    \umlstatic{- FUND\_BUYER\_SELLER\_LAMBDA\_ORDER : int} \\
+    \umlstatic{- FUND\_BUYER\_SELLER\_LAMBDA\_CANCEL : int} \\
+    \umlstatic{- MARKET\_MAKER\_LAMBDA\_ORDER : int} \\
+    \umlstatic{- MARKET\_MAKER\_LAMBDA\_CANCEL : int} \\
+    \umlstatic{- OPPOR\_STRAT\_LAMBDA\_ORDER : int} \\
+    \umlstatic{- OPPOR\_STRAT\_LAMBDA\_CANCEL : int} \\
+    \umlstatic{- HFT\_LAMBDA\_ORDER : double} \\
+    \umlstatic{- HFT\_LAMBDA\_CANCEL : double} \\
+    \umlstatic{- SMALL\_TRADER\_LAMBDA\_ORDER : int} \\
+    \umlstatic{- SMALL\_TRADER\_LAMBDA\_CANCEL : int} \\
+    \umlstatic{- NEWS\_FREQUENCY : int}\\
+    + agentList : ArrayList<Agent> \\
+    \umlstatic{+ time : long }\\
+    \umlstatic{+ GraphFrame : graphFrame}\\
+    - matchingEngine : MatchingEngine \\
+    - intelligentAgentByDelay : ArrayList<ArrayList> \\
+    - poissonGeneratorNews : PoissonDistribution\\
+    - lastNewsTime : int \\
+  }{
+    + Controller(MatchingEngine matchingEngine)\\
+    + runSimulator() : void\\
+    + moveTime() : void\\
+  }
+  \umlaggreg{Agent}{Controller}
+  \umlclass[type=abstract,x=5,y=25]{PoissonAgent} {
+    - lambdaOrder : double\\
+    - lambdaCancel : double \\
+    - orderDist : ExponentialDistribution \\
+    - cancelDist : ExponentialDistribution \\
+  }{
+    + PoissonAgent(MatchingEngine matchEng, double lambdaOrder, lambdaCancel, long initialActTime)\\
+    + act() : void \\
+    \# setNextOrderTime(long currOrderTime) : void \\
+    \# setNextCancelTime(long currCancelTime) : void\\
+    \umlvirt{\# makeOrder() : void} \\
+    \# createPoissonOrder(boolean isBuying, int quantity, double... probabilities) : void \\
+    \# getOrderSize(double... probabilities) : int \\
+  }
+  
+  \umlinherit{PoissonAgent}{Agent}
+  
+  \umlclass[x=-5,y=20]{FundBuyerPoisson} {
+  }
+  {
+    + makeOrder() : void\\
+  }
+  \umlinherit{FundBuyerPoisson}{PoissonAgent}
+  \umlclass[x=5,y=20]{FundSellerPoisson} {
+  }{
+    + makeOrder() : void\\
+  }
+  \umlinherit{FundSellerPoisson}{PoissonAgent}
+  \umlclass[x=20,y=20]{MarketMakerPoisson} {
+    \umlstatic{- INVENTORY\_LIMIT : int}\\
+    - overLimit : boolean
+  }{
+    + makeOrder() : void\\
+  }
+  \umlinherit{MarketMakerPoisson}{PoissonAgent}
+  \umlclass[x=22,y=27]{OpporStratPoisson} {
+    \umlstatic{- INVENTORY\_LIMIT : int}\\
+    - overLimit : boolean
+    \umlstatic{- currBuyProbability : double}
+  }{
+    + makeOrder() : void\\
+    \umlstatic{+ calcNewBuyProbability() : void} \\
+    \umlstatic{+ setBuyProbability(double buyProbability) : void} \\
+    \umlstatic{+ getCurrBuyProbability() : void} \\
+  }
+  \umlinherit{OpporStratPoisson}{PoissonAgent}
+  \umlclass[x=5,y=30]{HFTPoisson} {
+    \umlstatic{- INVENTORY\_LIMIT : int}\\
+    - overLimit : boolean
+  }{
+    + makeOrder() : void \\
+  }
+  \umlinherit{HFTPoisson}{PoissonAgent}
+  \umlclass[x=-5,y=30]{SmallTrader} {
+  }{
+    + makeOrder() : void \\
+  }
+  \umlinherit{SmallTrader}{PoissonAgent}
+  \umlclass[x=20,y=13]{IntelligentAgent} {
+    \umlstatic{- INVENTORY\_LIMIT : int} \\
+    - overLimit : boolean \\
+    - profit : int \\
+    \umlstatic{- INTERVAL : int} \\
+    \umlstatic{- ORDER\_SIZE : int} \\
+    - intelligentAgentHelper : IntelligentAgentHelper\\
+    - oldThresholdState : ThresholdState\\
+    - potentialOrdersPricesToCover : ArrayList<HashSet>\\
+    - orderBuffer : Set<Integer> \\
+    - currentOrderBook : Set<Integer> \\
+    - delayLength : int \\
+    - inventoryLimitIndex : int \\
+    - previousInventoryState : InventoryState \\
+  }{
+    + IntelligentAgent(MatchingEngine matchEng, IntelligentAgentHelper iah, int delayLength)\\
+    + act() : void\\
+    + notify(Object ... arguments) : void \\
+    + createNewOrder(int price, int initialQuant, boolean buyOrder) : boolean \\
+    + cancelOrder(int price) : void \\
+    + isInInterval(int priceToCheck, int bestBidPrice, int bestAskPrice) : boolean \\
+    + setIntelligentAgentHelper(IntelligentAgentHelper iah) : void \\
+    + setOldThresholdState(ThresholdState newState) : void \\
+    + getProfit() : int \\
+  }
+  \umlinherit{IntelligentAgent}{Agent}
+  \umlclass[y=12]{IntelligentAgentHelper} {
+    - delayLength : int \\
+    - volumeDifferenceData : int[] \\
+    - bestBidPriceData : int[] \\
+    - bestAskPriceData : int[] \\
+    - previousOldBestBidPrice : int \\
+    - previousOldBestAskPrice : int \\
+    - oldestIndex : int \\
+    - threshold : int \\
+    - thresholdEnabled : boolean \\
+    - oldThresholdState: ThresholdState \\
+  }{
+    + IntelligentAgentHelper(int delayLength, int threshold, int initialTradePrice, boolean thresholdEnabled)\\
+    + getOldBestBidPrice() : int \\
+    + getOldBestAskPrice() : int \\
+    + addData(int newVolumeDifference, int newBestBidPrice, int newBestAskPrice) : void \\
+    + updateOldIndex() : void \\
+    + updateOldINdexWithThreshold(int newVolumeDifference) : void \\
+    - computeThresholdState(int volumeDifference) : ThresholdState \\
+    + getOldThresholdState() : ThresholdState \\
+    + getOldestIndex() : int \\
+    + getPreviousOldBestBidPrice() : int \\
+    + getPreviousOldBestAskPrice() : int \\
+  }
+  \umlaggreg{MatchingEngine}{Agent}
+  \umlaggreg{Controller}{IntelligentAgentHelper}
+  \umlaggreg{IntelligentAgent}{IntelligentAgentHelper}
+  \umlassoc{Order}{highestFirstComparator}
+  \umlassoc{Order}{lowestFirstComparator}
+  \umlclass[type=enum,x=5,y=14]{ThresholdState} {
+    BELOW\_THRESHOLD \\
+    BUY\_ORDER\_SURPLUS \\
+    SELL\_ORDER\_SURPLUS \\
+  }{
+  }
+  \umlclass[type=enum,x=25,y=14]{InventoryState} {
+    BALANCED \\
+    SHARE\_SURPLUS \\
+    SHARE\_DEFICIT \\
+  }{
+  }
+\end{tikzpicture}
+\end{document}
