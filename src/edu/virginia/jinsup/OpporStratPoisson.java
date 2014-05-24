@@ -11,7 +11,8 @@ public class OpporStratPoisson extends PoissonAgent {
   /**
    * Limits the number of shares owned by the agent.
    */
-  private static final int INVENTORY_LIMIT = 30;
+  private static final int INVENTORY_LIMIT =
+    Parameters.opporStratInventoryLimit;
 
   /**
    * Whether or not agent owns more shares than INVENTORY_LIMIT or has a deficit
@@ -59,8 +60,8 @@ public class OpporStratPoisson extends PoissonAgent {
     }
 
     createPoissonOrder(willBuy,
-      getOrderSize(0.66, 0.16, 0.05, 0.04, 0.03, 0.03, 0.03), 0.35, 0.20, 0.05,
-      0.05, 0.05, 0.05, 0.07, 0.05, 0.05, 0.05, 0.03);
+      getOrderSize(Parameters.opporStratOrderSizeProbabilities),
+      Parameters.opporStratTickProbabilities);
   }
 
   /**
@@ -69,14 +70,15 @@ public class OpporStratPoisson extends PoissonAgent {
   public static void calcNewBuyProbability() {
     currBuyProbability =
       currBuyProbability
-        + (new UniformRealDistribution(JinSup.randGen, -0.2, 0.2)).sample();
+        + (new UniformRealDistribution(JinSup.randGen,
+          Parameters.lowerUniformBound, Parameters.upperUniformBound)).sample();
 
     // prevent the probability from going over the limit
-    if (currBuyProbability < 0.30) {
-      currBuyProbability = 0.30;
+    if (currBuyProbability < Parameters.minBuyProbability) {
+      currBuyProbability = Parameters.minBuyProbability;
     }
-    if (currBuyProbability > 0.70) {
-      currBuyProbability = 0.70;
+    if (currBuyProbability > Parameters.maxBuyProbability) {
+      currBuyProbability = Parameters.maxBuyProbability;
     }
   }
 

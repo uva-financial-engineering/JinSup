@@ -9,7 +9,7 @@ public class HFTPoisson extends PoissonAgent {
   /**
    * Limits the number of shares owned by the agent.
    */
-  private static final int INVENTORY_LIMIT = 150;
+  private static final int INVENTORY_LIMIT = Parameters.hftInventoryLimit;
 
   /**
    * Whether or not agent owns more shares than INVENTORY_LIMIT or has a deficit
@@ -52,7 +52,7 @@ public class HFTPoisson extends PoissonAgent {
     }
 
     createPoissonOrder(willBuy,
-      getOrderSize(0.57, 0.19, 0.04, 0.05, 0.05, 0.05, 0.05), 0.02, 0.15, 0.20,
-      0.15, 0.15, 0.15, 0.13, 0.05);
+      getOrderSize(Parameters.hftOrderSizeProbabilities),
+      Parameters.hftTickProbabilities);
   }
 }

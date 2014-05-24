@@ -16,31 +16,6 @@ import org.apache.commons.math3.distribution.PoissonDistribution;
 public class Controller {
 
   /**
-   * Number of fund buyers (equal to number of fund sellers)
-   */
-  private static final int FUND_BUYER_SELLER_COUNT = 84;
-
-  /**
-   * Number of market makers
-   */
-  private static final int MARKET_MAKER_COUNT = 19;
-
-  /**
-   * Number of oppor strat traders
-   */
-  private static final int OPPOR_STRAT_COUNT = 180;
-
-  /**
-   * Number of HFT traders
-   */
-  private static final int HFT_COUNT = 7;
-
-  /**
-   * Number of small traders
-   */
-  private static final int SMALL_TRADER_COUNT = 421;
-
-  /**
    * To speed up the simulation with infinite thresholds, set this to false.
    * Takes precedence over INTELLIGENT_AGENT_THRESHOLD.
    */
@@ -59,27 +34,6 @@ public class Controller {
    * "IAProfits-{time}.csv".
    */
   private final String INTELLIGENT_AGENT_PROFIT_LOG_LOCATION;
-
-  // Specify the lambdas here in seconds
-  private static final int FUND_BUYER_SELLER_LAMBDA_ORDER = 40;
-
-  private static final int FUND_BUYER_SELLER_LAMBDA_CANCEL = 60;
-
-  private static final int MARKET_MAKER_LAMBDA_ORDER = 3;
-
-  private static final int MARKET_MAKER_LAMBDA_CANCEL = 2;
-
-  private static final int OPPOR_STRAT_LAMBDA_ORDER = 30;
-
-  private static final int OPPOR_STRAT_LAMBDA_CANCEL = 40;
-
-  private static final double HFT_LAMBDA_ORDER = 0.35;
-
-  private static final double HFT_LAMBDA_CANCEL = 0.4;
-
-  private static final int SMALL_TRADER_LAMBDA_ORDER = 1500;
-
-  private static final int SMALL_TRADER_LAMBDA_CANCEL = 1000;
 
   /**
    * How often buy probabilities for poisson opportunistic traders should
@@ -173,53 +127,59 @@ public class Controller {
 
     FundBuyerPoisson fundBuyerPoisson;
     FundSellerPoisson fundSellerPoisson;
-    for (int i = 0; i < FUND_BUYER_SELLER_COUNT; ++i) {
+    for (int i = 0; i < Parameters.fundCount; ++i) {
       fundBuyerPoisson =
-        new FundBuyerPoisson(matchingEngine, FUND_BUYER_SELLER_LAMBDA_ORDER,
-          FUND_BUYER_SELLER_LAMBDA_CANCEL,
-          (long) (JinSup.rand.nextDouble() * Settings.getStartTime()));
+        new FundBuyerPoisson(matchingEngine,
+          (int) Parameters.fundamentalArrivalRate,
+          (int) Parameters.fundamentalCancelRate,
+          (long) (Math.random() * Parameters.startTime));
       fundSellerPoisson =
-        new FundSellerPoisson(matchingEngine, FUND_BUYER_SELLER_LAMBDA_ORDER,
-          FUND_BUYER_SELLER_LAMBDA_CANCEL,
-          (long) (JinSup.rand.nextDouble() * Settings.getStartTime()));
+        new FundSellerPoisson(matchingEngine,
+          (int) Parameters.fundamentalArrivalRate,
+          (int) Parameters.fundamentalCancelRate,
+          (long) (Math.random() * Parameters.startTime));
       agentList.add(fundBuyerPoisson);
       agentList.add(fundSellerPoisson);
     }
 
     MarketMakerPoisson marketMakerPoisson;
-    for (int i = 0; i < MARKET_MAKER_COUNT; ++i) {
+    for (int i = 0; i < Parameters.marketMakerCount; ++i) {
       marketMakerPoisson =
-        new MarketMakerPoisson(matchingEngine, MARKET_MAKER_LAMBDA_ORDER,
-          MARKET_MAKER_LAMBDA_CANCEL,
-          (long) (JinSup.rand.nextDouble() * Settings.getStartTime()));
+        new MarketMakerPoisson(matchingEngine,
+          (int) Parameters.marketMakerArrivalRate,
+          (int) Parameters.marketMakerCancelRate,
+          (long) (Math.random() * Parameters.startTime));
       agentList.add(marketMakerPoisson);
     }
 
     OpporStratPoisson opporStratPoisson;
     // Explicitly set global buy probability.
-    OpporStratPoisson.setBuyProbability(0.50);
-    for (int i = 0; i < OPPOR_STRAT_COUNT; ++i) {
+    OpporStratPoisson.setBuyProbability(Parameters.initialBuyProbability);
+    for (int i = 0; i < Parameters.opporStratCount; ++i) {
       opporStratPoisson =
-        new OpporStratPoisson(matchingEngine, OPPOR_STRAT_LAMBDA_ORDER,
-          OPPOR_STRAT_LAMBDA_CANCEL,
-          (long) (JinSup.rand.nextDouble() * Settings.getStartTime()));
+        new OpporStratPoisson(matchingEngine,
+          (int) Parameters.opporStratArrivalRate,
+          (int) Parameters.opporStratCancelRate,
+          (long) (Math.random() * Parameters.startTime));
       agentList.add(opporStratPoisson);
     }
 
     HFTPoisson hftPoisson;
-    for (int i = 0; i < HFT_COUNT; ++i) {
+    for (int i = 0; i < Parameters.hftCount; ++i) {
       hftPoisson =
-        new HFTPoisson(matchingEngine, HFT_LAMBDA_ORDER, HFT_LAMBDA_CANCEL,
-          (long) (JinSup.rand.nextDouble() * Settings.getStartTime()));
+        new HFTPoisson(matchingEngine, Parameters.hftArrivalRate,
+          Parameters.hftCancelRate,
+          (long) (Math.random() * Parameters.startTime));
       agentList.add(hftPoisson);
     }
 
     SmallTrader smallTrader;
-    for (int i = 0; i < SMALL_TRADER_COUNT; ++i) {
+    for (int i = 0; i < Parameters.smallTraderCount; ++i) {
       smallTrader =
-        new SmallTrader(matchingEngine, SMALL_TRADER_LAMBDA_ORDER,
-          SMALL_TRADER_LAMBDA_CANCEL,
-          (long) (JinSup.rand.nextDouble() * Settings.getStartTime()));
+        new SmallTrader(matchingEngine,
+          (int) Parameters.smallTraderArrivalRate,
+          (int) Parameters.smallTraderCancelRate,
+          (long) (Math.random() * Parameters.startTime));
       agentList.add(smallTrader);
     }
 

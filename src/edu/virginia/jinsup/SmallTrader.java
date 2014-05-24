@@ -25,8 +25,9 @@ public class SmallTrader extends PoissonAgent {
   @Override
   void makeOrder() {
     boolean willBuy = JinSup.rand.nextBoolean();
-    createPoissonOrder(willBuy, getOrderSize(0.98, 0.02), 0.20, 0.11, 0.09,
-      0.07, 0.07, 0.07, 0.07, 0.05, 0.05, 0.10, 0.12);
+    createPoissonOrder(willBuy,
+      getOrderSize(Parameters.smallTraderOrderSizeProbabilities),
+      Parameters.smallTraderTickProbabilities);
   }
 
 }
