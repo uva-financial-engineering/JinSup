@@ -24,7 +24,6 @@ public class JinSup {
     // Read command-line flags
     try {
       JCommander jcommander = new JCommander(new Settings(), args);
-      Settings.setEndTime(Settings.getStartTime() + Settings.getTradeTime());
 
       // Show help and exit if help flag was given
       if (Settings.showHelp()) {
@@ -37,6 +36,16 @@ public class JinSup {
         + "\nUse --help to display usage information.");
       System.exit(1);
     }
+
+    // Use appropriate parser to load simulation parameters.
+    if (Settings.getConfigPath()
+      .substring(Settings.getConfigPath().length() - 3).equals("xml")) {
+      XMLParser.loadParameters(Settings.getConfigPath());
+    } else {
+      // TODO JSON Parser
+    }
+
+    Parameters.endTime = (Parameters.startTime + Parameters.tradeTime);
 
     // Initialize reusable RNG instance
     String rng = Settings.getRNG().toLowerCase();
@@ -102,14 +111,14 @@ public class JinSup {
     }
 
     // Create window
-    if (!Settings.isTestMode()) {
+    if (!Parameters.testing) {
       Controller.graphFrame = new GraphFrame();
     }
 
     Controller controller = new Controller(new MatchingEngine());
     long elapsedTime = System.nanoTime();
     controller.runSimulator();
-    if (!Settings.isTestMode()) {
+    if (!Parameters.testing) {
       Controller.graphFrame.showFinished(System.nanoTime() - elapsedTime);
     }
   }

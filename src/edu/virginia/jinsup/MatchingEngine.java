@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.TreeSet;
 
 /**
@@ -83,13 +82,13 @@ public class MatchingEngine {
     buyOrders = new TreeSet<Order>(Order.highestFirstComparator);
     sellOrders = new TreeSet<Order>(Order.highestFirstComparator);
     agentMap = new HashMap<Long, Agent>();
-    lastTradePrice = Settings.getBuyPrice();
+    lastTradePrice = Parameters.buyPrice;
     startingPeriod = true;
     tradeMatchID = 0;
 
     // 2^19 lines before writing to file
     logBuffer = new ArrayList<String>(LOG_BUFFER_SIZE);
-    if (!Settings.isTestMode()) {
+    if (!Parameters.testing) {
       // create the CSV file
       File logFile = new File(Settings.getDestTradeFile());
       try {
@@ -417,7 +416,7 @@ public class MatchingEngine {
     }
 
     // Update trading graph
-    if (!Settings.isTestMode()) {
+    if (!Parameters.testing) {
       Controller.graphFrame.addTrade(Controller.time * 0.001, price);
     }
     return true;
@@ -480,7 +479,7 @@ public class MatchingEngine {
    */
   public void logOrder(Order order, int messageType, boolean market,
     int quantChanged, int priceChanged) {
-    if (!Settings.isTestMode()) {
+    if (!Parameters.testing) {
       switch (messageType) {
         case 1:
           Controller.graphFrame.addOrder(order.isBuyOrder(),
@@ -532,7 +531,7 @@ public class MatchingEngine {
    */
   public void logTrade(Order order, boolean market, int tradePrice, int volume,
     boolean aggressor, long matchID) {
-    if (!Settings.isTestMode()) {
+    if (!Parameters.testing) {
 
       Controller.graphFrame.addOrder(order.isBuyOrder(), -volume, tradePrice);
 

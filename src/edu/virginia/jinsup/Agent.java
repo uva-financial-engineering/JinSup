@@ -314,7 +314,7 @@ public abstract class Agent {
    */
   public int getBestBuyPrice() {
     if (matchingEngine.isStartingPeriod()) {
-      return Settings.getBuyPrice() - TICK_SIZE;
+      return Parameters.buyPrice - TICK_SIZE;
     }
     return matchingEngine.getBestBid().getPrice();
   }
@@ -324,7 +324,7 @@ public abstract class Agent {
    */
   public int getBestSellPrice() {
     if (matchingEngine.isStartingPeriod()) {
-      return Settings.getBuyPrice() + TICK_SIZE;
+      return Parameters.buyPrice + TICK_SIZE;
     }
     return matchingEngine.getBestAsk().getPrice();
   }
@@ -356,7 +356,7 @@ public abstract class Agent {
    * @return The startup period of the simulation, in milliseconds.
    */
   public long getStartupTime() {
-    return Settings.getStartTime();
+    return Parameters.startTime;
   }
 
   /**

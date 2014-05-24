@@ -19,14 +19,15 @@ public class Controller {
    * To speed up the simulation with infinite thresholds, set this to false.
    * Takes precedence over INTELLIGENT_AGENT_THRESHOLD.
    */
-  private static final boolean INTELLIGENT_AGENT_THRESHOLD_ENABLE = true;
+  private static final boolean INTELLIGENT_AGENT_THRESHOLD_ENABLE =
+    Parameters.intelligentAgentThresholdEnable;
 
   /**
    * How often the average profit over all intelligent agents should be logged,
    * in milliseconds.
    */
   private static final int INTELLIGENT_AGENT_PROFIT_LOG_FREQUENCY =
-    1000 * 60 * 10;
+    Parameters.intelligentAgentLogFreq;
 
   /**
    * Location of the log file for intelligent agent average profits. It will be
@@ -34,12 +35,6 @@ public class Controller {
    * "IAProfits-{time}.csv".
    */
   private final String INTELLIGENT_AGENT_PROFIT_LOG_LOCATION;
-
-  /**
-   * How often buy probabilities for poisson opportunistic traders should
-   * change, in seconds.
-   */
-  private static final int NEWS_FREQUENCY = 60;
 
   /**
    * List of all agents in the simulator
@@ -101,10 +96,11 @@ public class Controller {
     time = 0;
     this.matchingEngine = matchingEngine;
     poissonGeneratorNews =
-      new PoissonDistribution(JinSup.randGen, NEWS_FREQUENCY * 1000,
+      new PoissonDistribution(JinSup.randGen,
+        Parameters.opporStratNewsFreq * 1000,
         PoissonDistribution.DEFAULT_EPSILON,
         PoissonDistribution.DEFAULT_MAX_ITERATIONS);
-    lastNewsTime = NEWS_FREQUENCY * 1000;
+    lastNewsTime = Parameters.opporStratNewsFreq * 1000;
     File logFile = new File(Settings.getDestIAProfitFile());
     INTELLIGENT_AGENT_PROFIT_LOG_LOCATION = logFile.getAbsolutePath();
     intelligentAgentByDelay = new ArrayList<ArrayList<IntelligentAgent>>();
@@ -117,8 +113,8 @@ public class Controller {
    * at a specified time specified by the user.
    */
   public void runSimulator() {
-    if (!Settings.isTestMode()) {
-      graphFrame.setTradePeriod(Settings.getStartTime(), Settings.getEndTime());
+    if (!Parameters.testing) {
+      graphFrame.setTradePeriod(Parameters.startTime, Parameters.endTime);
       graphFrame.updateTitleBar(0, "Creating agents...");
     }
 
@@ -183,12 +179,12 @@ public class Controller {
       agentList.add(smallTrader);
     }
 
-    if (Settings.getNumIntelligentAgents() != 0) {
+    if (Parameters.intelligentAgentCount != 0) {
       // Set up appropriate number of log files, depending on number of delays
       IntelligentAgentHelper currentIAH;
       IntelligentAgent intelligentAgent;
       String fileName;
-      for (Integer l : Settings.getDelays()) {
+      for (Integer l : Parameters.intelligentAgentDelays) {
         try {
           fileName =
             INTELLIGENT_AGENT_PROFIT_LOG_LOCATION.split(".csv")[0] + "-Delay"
@@ -204,14 +200,15 @@ public class Controller {
           System.exit(1);
         }
         currentIAH =
-          new IntelligentAgentHelper((int) l, Settings.getThreshold(),
-            Settings.getBuyPrice(), INTELLIGENT_AGENT_THRESHOLD_ENABLE);
+          new IntelligentAgentHelper((int) l,
+            Parameters.intelligentAgentThreshold, Parameters.buyPrice,
+            INTELLIGENT_AGENT_THRESHOLD_ENABLE);
 
         intelligentAgentHelpers.add(currentIAH);
         ArrayList<IntelligentAgent> intelligentAgentList =
           new ArrayList<IntelligentAgent>();
-        for (int i = 0; i < Settings.getNumIntelligentAgents()
-          / Settings.getDelays().size(); i++) {
+        for (int i = 0; i < Parameters.intelligentAgentCount
+          / Parameters.intelligentAgentDelays.size(); i++) {
           intelligentAgent =
             new IntelligentAgent(matchingEngine, currentIAH, l);
           intelligentAgentList.add(intelligentAgent);
@@ -221,17 +218,17 @@ public class Controller {
       }
 
       // run simulator until Settings.getEndTime() is reached.
-      while (time < Settings.getStartTime()) {
+      while (time < Parameters.startTime) {
         moveTime();
       }
       matchingEngine.setStartingPeriod(false);
       state = "Trading Period";
-      while (time < Settings.getEndTime()) {
+      while (time < Parameters.endTime) {
         moveTime();
       }
 
       // write remaining entries to the log
-      if (!Settings.isTestMode()) {
+      if (!Parameters.testing) {
         matchingEngine.writeToLog();
         graphFrame.updateTitleBar(time, "Simulation Finished");
       }
@@ -259,11 +256,12 @@ public class Controller {
       } while (a.getWillAct());
     }
 
-    if (Settings.getNumIntelligentAgents() != 0) {
+    if (Parameters.intelligentAgentCount != 0) {
       // Update the delay data for intelligent agents. A positive number means
       // that there are more buy orders than sell orders at the best bid/ask.
-      for (int i = 0; i < Settings.getDelays().size(); i++) {
-        if (time >= (Settings.getStartTime() - Settings.getDelays().get(i))) {
+      for (int i = 0; i < Parameters.intelligentAgentDelays.size(); i++) {
+        if (time >= (Parameters.startTime - Parameters.intelligentAgentDelays
+          .get(i))) {
           intelligentAgentHelpers.get(i).addData(
             matchingEngine.getBestBidQuantity()
               - matchingEngine.getBestAskQuantity(),
@@ -285,7 +283,7 @@ public class Controller {
       int totalProfit;
       int totalInventory;
       FileWriter writer;
-      for (int i = 0; i < Settings.getDelays().size(); i++) {
+      for (int i = 0; i < Parameters.intelligentAgentDelays.size(); i++) {
         totalProfit = 0;
         totalInventory = 0;
         for (IntelligentAgent a : intelligentAgentByDelay.get(i)) {
@@ -318,7 +316,7 @@ public class Controller {
       lastNewsTime += poissonGeneratorNews.sample();
     }
 
-    if (!Settings.isTestMode() && time % 500 == 0) {
+    if (!Parameters.testing && time % 500 == 0) {
       graphFrame.updateTitleBar(time, state);
     }
   }

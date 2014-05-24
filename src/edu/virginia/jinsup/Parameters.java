@@ -9,9 +9,11 @@ import java.util.ArrayList;
 public class Parameters {
 
   // Overall simulation parameters
-  public static double buyPrice;
-  public static int startTime;
-  public static int tradeTime;
+  // Price must be in CENTS and a multiple of 25.
+  public static int buyPrice;
+  public static long startTime;
+  public static long endTime;
+  public static long tradeTime;
   public static boolean testing;
 
   // Agent counts
@@ -75,7 +77,7 @@ public class Parameters {
 
   // IA parameters
   public static int intelligentAgentThreshold;
-  public static int intelligentAgentDelay;
+  public static ArrayList<Integer> intelligentAgentDelays;
   public static int intelligentAgentLogFreq;
   public static boolean intelligentAgentThresholdEnable;
 

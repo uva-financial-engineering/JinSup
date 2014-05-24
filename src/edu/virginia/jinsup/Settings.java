@@ -1,7 +1,6 @@
 package edu.virginia.jinsup;
 
 import java.util.Calendar;
-import java.util.List;
 
 import com.beust.jcommander.Parameter;
 
@@ -12,32 +11,6 @@ public class Settings {
     calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
     calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY),
     calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND));
-
-  // UI
-
-  /**
-   * If true, no trade logging information will be saved and graphs will not be
-   * updated. Other logging may still be done, however (e.g. IA profit).
-   */
-  @Parameter(names = {"--test"}, description = "Enable test mode")
-  private static boolean testMode;
-
-  // Time
-
-  @Parameter(names = {"--buy", "-b"},
-    description = "Buy price in cents (must be multiple of 25)",
-    required = true)
-  private static int buyPrice;
-
-  @Parameter(names = {"--start", "-s"},
-    description = "Length of starting period in milliseconds", required = true)
-  private static long startTime;
-
-  @Parameter(names = {"--trade", "-t"},
-    description = "Length of trading period in milliseconds", required = true)
-  private static long tradeTime;
-
-  private static long endTime;
 
   // Random
 
@@ -58,51 +31,16 @@ public class Settings {
     description = "File to write IA profits")
   private static String destIAProfitFile = "IAProfits-" + timestamp + ".csv";
 
-  // Agents
-
-  @Parameter(names = {"--numIntelligentAgents", "-nia"},
-    description = "Number of intelligent agents", required = true)
-  private static int numIntelligentAgents;
-
-  @Parameter(names = {"--threshold", "-th"}, description = "Threshold for IAs",
+  // Configuration File
+  @Parameter(names = {"--config"}, description = "Configuration file",
     required = true)
-  private static int threshold = 0;
-
-  @Parameter(names = {"--delays", "-d"}, variableArity = true,
-    description = "Delays for IAs, in ms", required = true)
-  private static List<Integer> delays = null;
+  private static String configPath;
 
   // Help
 
   @Parameter(names = {"--help"}, description = "Show this usage information",
     help = true)
   private static boolean help;
-
-  // Getters
-
-  public static boolean isTestMode() {
-    return testMode;
-  }
-
-  public static int getBuyPrice() {
-    return buyPrice;
-  }
-
-  public static long getStartTime() {
-    return startTime;
-  }
-
-  public static long getTradeTime() {
-    return tradeTime;
-  }
-
-  public static long getEndTime() {
-    return endTime;
-  }
-
-  public static void setEndTime(long n) {
-    endTime = n;
-  }
 
   public static String getRNG() {
     return rng;
@@ -120,19 +58,12 @@ public class Settings {
     return destIAProfitFile;
   }
 
-  public static int getNumIntelligentAgents() {
-    return numIntelligentAgents;
-  }
-
-  public static int getThreshold() {
-    return threshold;
-  }
-
-  public static List<Integer> getDelays() {
-    return delays;
+  public static String getConfigPath() {
+    return configPath;
   }
 
   public static boolean showHelp() {
     return help;
   }
+
 }

@@ -30,11 +30,11 @@ public class XMLParser {
 
     // Overall simulation parameters
     Parameters.buyPrice =
-      Double.parseDouble(root.getAttribute("buyPrice").getValue());
+      Integer.parseInt(root.getAttribute("buyPrice").getValue());
     Parameters.startTime =
-      Integer.parseInt(root.getAttribute("startTime").getValue());
+      Long.parseLong(root.getAttribute("startTime").getValue());
     Parameters.tradeTime =
-      Integer.parseInt(root.getAttribute("tradeTime").getValue());
+      Long.parseLong(root.getAttribute("tradeTime").getValue());
     Parameters.testing =
       root.getAttribute("testing").getValue().toLowerCase().equals("true");
 
@@ -176,16 +176,16 @@ public class XMLParser {
     Parameters.intelligentAgentThreshold =
       Integer.parseInt(intelligentAgentParams.getFirstChildElement("Threshold")
         .getValue());
-    Parameters.intelligentAgentDelay =
-      Integer.parseInt(intelligentAgentParams.getFirstChildElement("Delay")
-        .getValue());
+    Parameters.intelligentAgentDelays =
+      getMultipleIntegerElements(intelligentAgentParams
+        .getFirstChildElement("Delay"));
     Parameters.intelligentAgentThresholdEnable =
       intelligentAgentParams.getFirstChildElement("ThresholdEnable").getValue()
         .toLowerCase().equals("true");
   }
 
   /**
-   * Helper method used to parse a list of values.
+   * Helper method used to parse a list of Double values.
    * 
    * @param element
    *          The element to extract the list from.
@@ -201,6 +201,23 @@ public class XMLParser {
       System.err
         .println("Error: Probabilities do not add up close enough to 1.0.");
     }
+    return values;
+  }
+
+  /**
+   * Helper method used to parse a list of Integer values.
+   * 
+   * @param element
+   *          The element to extract the list from.
+   * @return ArrayList of values from the given element.
+   */
+  private static ArrayList<Integer> getMultipleIntegerElements(Element element) {
+    ArrayList<Integer> values = new ArrayList<Integer>();
+    String[] strArray = element.getValue().split(" ");
+    for (String str : strArray) {
+      values.add(Integer.parseInt(str));
+    }
+
     return values;
   }
 
