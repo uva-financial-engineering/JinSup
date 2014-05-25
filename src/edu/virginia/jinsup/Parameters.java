@@ -66,6 +66,7 @@ public class Parameters {
   public static int marketMakerInventoryLimit;
   public static int opporStratInventoryLimit;
   public static int hftInventoryLimit;
+  public static int intelligentAgentInventoryLimit;
 
   // OS parameters
   public static int opporStratNewsFreq;
@@ -80,16 +81,16 @@ public class Parameters {
   public static ArrayList<Integer> intelligentAgentDelays;
   public static int intelligentAgentLogFreq;
   public static boolean intelligentAgentThresholdEnable;
+  public static int halfTickWidth;
+  public static int orderSize;
+  public static int actInterval;
 
   public static boolean checkProbabilitiesList(ArrayList<Double> listToCheck) {
     double sum = 0.0;
     for (double i : listToCheck) {
       sum += i;
     }
-    if (sum < 0.9999999998 || sum > 1.0000000002) {
-      return false;
-    }
-    return true;
+    return (sum > 0.9999999998 && sum < 1.0000000002);
   }
 
 }

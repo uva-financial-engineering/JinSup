@@ -17,7 +17,8 @@ public class IntelligentAgent extends Agent {
   /**
    * Limits the number of shares owned by the agent.
    */
-  private static final int INVENTORY_LIMIT = 30;
+  private static final int INVENTORY_LIMIT =
+    Parameters.intelligentAgentInventoryLimit;
 
   /**
    * Different inventory states the intelligent agent can be in.
@@ -40,17 +41,17 @@ public class IntelligentAgent extends Agent {
   /**
    * How often the agent should act, in milliseconds.
    */
-  private static final int INTERVAL = 1;
+  private static final int INTERVAL = Parameters.actInterval;
 
   /**
    * Half of the size of the order book the agent maintains.
    */
-  private static final int HALF_TICK_WIDTH = 10;
+  private static final int HALF_TICK_WIDTH = Parameters.halfTickWidth;
 
   /**
    * The quantity of each order the agent orders.
    */
-  private static final int ORDER_SIZE = 1;
+  private static final int ORDER_SIZE = Parameters.orderSize;
 
   /**
    * Helper class for all Intelligent Agents.

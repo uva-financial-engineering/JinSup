@@ -146,6 +146,34 @@ public class XMLParser {
     Parameters.hftInventoryLimit =
       Integer.parseInt(inventoryLimits
         .getFirstChildElement("HFTInventoryLimit").getValue());
+    Parameters.intelligentAgentInventoryLimit =
+      Integer.parseInt(inventoryLimits.getFirstChildElement(
+        "IntelligentAgentInventoryLimit").getValue());
+
+    // Intelligent Agent Parameters
+    Element intelligentAgentParams =
+      root.getFirstChildElement("IntelligentAgentParams");
+    Parameters.intelligentAgentLogFreq =
+      Integer.parseInt(intelligentAgentParams.getFirstChildElement(
+        "ProfitLogFrequency").getValue());
+    Parameters.intelligentAgentThreshold =
+      Integer.parseInt(intelligentAgentParams.getFirstChildElement("Threshold")
+        .getValue());
+    Parameters.intelligentAgentDelays =
+      getMultipleIntegerElements(intelligentAgentParams
+        .getFirstChildElement("Delays"));
+    Parameters.halfTickWidth =
+      Integer.parseInt(intelligentAgentParams.getFirstChildElement(
+        "HalfTickWidth").getValue());
+    Parameters.orderSize =
+      Integer.parseInt(intelligentAgentParams.getFirstChildElement("OrderSize")
+        .getValue());
+    Parameters.actInterval =
+      Integer.parseInt(intelligentAgentParams.getFirstChildElement(
+        "ActInterval").getValue());
+    Parameters.intelligentAgentThresholdEnable =
+      intelligentAgentParams.getFirstChildElement("ThresholdEnable").getValue()
+        .toLowerCase().equals("true");
 
     // OpporStrat Parameters
     Element opporStratParams = root.getFirstChildElement("OpporStratParams");
@@ -168,21 +196,6 @@ public class XMLParser {
       Double.parseDouble(opporStratParams.getFirstChildElement(
         "UpperUniformBound").getValue());
 
-    // Intelligent Agent Parameters
-    Element intelligentAgentParams =
-      root.getFirstChildElement("IntelligentAgentParams");
-    Parameters.intelligentAgentLogFreq =
-      Integer.parseInt(intelligentAgentParams.getFirstChildElement(
-        "ProfitLogFrequency").getValue());
-    Parameters.intelligentAgentThreshold =
-      Integer.parseInt(intelligentAgentParams.getFirstChildElement("Threshold")
-        .getValue());
-    Parameters.intelligentAgentDelays =
-      getMultipleIntegerElements(intelligentAgentParams
-        .getFirstChildElement("Delays"));
-    Parameters.intelligentAgentThresholdEnable =
-      intelligentAgentParams.getFirstChildElement("ThresholdEnable").getValue()
-        .toLowerCase().equals("true");
   }
 
   /**

@@ -103,6 +103,8 @@ public class JSONParser {
       inventoryLimits.path("OpporStratInventoryLimit").asInt();
     Parameters.hftInventoryLimit =
       inventoryLimits.path("HFTInventoryLimit").asInt();
+    Parameters.intelligentAgentInventoryLimit =
+      inventoryLimits.path("IntelligentAgentInventoryLimit").asInt();
 
     // Intelligent Agent Parameters
     JsonNode intelligentAgentParams =
@@ -113,6 +115,10 @@ public class JSONParser {
       intelligentAgentParams.path("ThresholdEnable").asBoolean();
     Parameters.intelligentAgentThreshold =
       intelligentAgentParams.path("Threshold").asInt();
+    Parameters.halfTickWidth =
+      intelligentAgentParams.path("HalfTickWidth").asInt();
+    Parameters.orderSize = intelligentAgentParams.path("OrderSize").asInt();
+    Parameters.actInterval = intelligentAgentParams.path("ActInterval").asInt();
     Parameters.intelligentAgentDelays =
       getMulitpleIntegerElements(intelligentAgentParams.path("Delays"));
 
