@@ -96,8 +96,7 @@ public class Controller {
     time = 0;
     this.matchingEngine = matchingEngine;
     poissonGeneratorNews =
-      new PoissonDistribution(JinSup.randGen,
-        Parameters.opporStratNewsFreq * 1000,
+      new PoissonDistribution(JinSup.randGen, Parameters.opporStratNewsFreq,
         PoissonDistribution.DEFAULT_EPSILON,
         PoissonDistribution.DEFAULT_MAX_ITERATIONS);
     lastNewsTime = Parameters.opporStratNewsFreq * 1000;

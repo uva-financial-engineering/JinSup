@@ -41,8 +41,13 @@ public class JinSup {
     if (Settings.getConfigPath()
       .substring(Settings.getConfigPath().length() - 3).equals("xml")) {
       XMLParser.loadParameters(Settings.getConfigPath());
+    } else if (Settings.getConfigPath()
+      .substring(Settings.getConfigPath().length() - 4).equals("json")) {
+      JSONParser.loadParameters(Settings.getConfigPath());
     } else {
-      // TODO JSON Parser
+      System.err
+        .println("Configuration file must be in either XML or JSON format!"
+          + "\nSee the wiki for more details and examples.");
     }
 
     Parameters.endTime = (Parameters.startTime + Parameters.tradeTime);

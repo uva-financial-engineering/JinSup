@@ -3,7 +3,7 @@ package edu.virginia.jinsup;
 import java.util.ArrayList;
 
 /**
- * Parses all parameters required for the simulation and provides the parameters
+ * Holds all parameters required for the simulation and provides the parameters
  * to the rest of the simulation.
  */
 public class Parameters {
@@ -80,5 +80,16 @@ public class Parameters {
   public static ArrayList<Integer> intelligentAgentDelays;
   public static int intelligentAgentLogFreq;
   public static boolean intelligentAgentThresholdEnable;
+
+  public static boolean checkProbabilitiesList(ArrayList<Double> listToCheck) {
+    double sum = 0.0;
+    for (double i : listToCheck) {
+      sum += i;
+    }
+    if (sum < 0.9999999998 || sum > 1.0000000002) {
+      return false;
+    }
+    return true;
+  }
 
 }

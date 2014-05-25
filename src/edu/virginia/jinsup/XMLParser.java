@@ -10,8 +10,9 @@ import nu.xom.Element;
 import nu.xom.ParsingException;
 
 public class XMLParser {
+
   /**
-   * Parse the configuration file for simulation parameters.
+   * Parse the XML configuration file for simulation parameters.
    * 
    * @param configFileLocation
    *          The location of the configuration file.
@@ -178,7 +179,7 @@ public class XMLParser {
         .getValue());
     Parameters.intelligentAgentDelays =
       getMultipleIntegerElements(intelligentAgentParams
-        .getFirstChildElement("Delay"));
+        .getFirstChildElement("Delays"));
     Parameters.intelligentAgentThresholdEnable =
       intelligentAgentParams.getFirstChildElement("ThresholdEnable").getValue()
         .toLowerCase().equals("true");
@@ -197,7 +198,7 @@ public class XMLParser {
     for (String str : strArray) {
       values.add(Double.parseDouble(str));
     }
-    if (!checkProbabilitiesList(values)) {
+    if (!Parameters.checkProbabilitiesList(values)) {
       System.err
         .println("Error: Probabilities do not add up close enough to 1.0.");
     }
@@ -221,14 +222,4 @@ public class XMLParser {
     return values;
   }
 
-  private static boolean checkProbabilitiesList(ArrayList<Double> listToCheck) {
-    double sum = 0.0;
-    for (double i : listToCheck) {
-      sum += i;
-    }
-    if (sum < 0.9999999998 || sum > 1.0000000002) {
-      return false;
-    }
-    return true;
-  }
 }

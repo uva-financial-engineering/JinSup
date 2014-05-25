@@ -24,7 +24,7 @@ public class OpporStratPoisson extends PoissonAgent {
    * Global buy probability for all poisson opportunistic traders. Initially set
    * at 50 %.
    */
-  private static double currBuyProbability = 0.50;
+  private static double currBuyProbability = Parameters.initialBuyProbability;
 
   /**
    * Creates an opportunistic trader.
