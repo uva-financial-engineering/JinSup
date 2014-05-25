@@ -9,44 +9,33 @@ To run the simulation, simply download `jinsup.jar` and run the following comman
 java -jar jinsup.jar [options]
 ```
 
-Options can be any of the following below. Options only need to be specified if the default value needs to be changed (which in most cases, should be):
+Options can be any of the following below. Options only need to be specified if the default value needs to be changed:
 ```
-    --buy, -b
-       Buy price in cents (must be multiple of 25)
-       Default: 0
-    --delays, -d
-       Delays for IAs, in ms
-    --destIAProfitFile, -dia
-       File to write IA profits
-       Default: IAProfits-YYYYMMDD-HHMM.csv
-    --destTradeFile, -dt
-       File to write trade log data
-       Default: log-YYYYMMDD-HHMM.csv
-        --help
-       Show this usage information
-       Default: false
-    --numIntelligentAgents, -nia
-       Number of intelligent agents
-       Default: 0
     --randomGenerator, -rng
        Random number generation algorithm
        Default: mersenne
-        --seed
+
+    --seed
        PRNG seed
-       Default: 1396840757467
-    --start, -s
-       Length of starting period in milliseconds
-       Default: 0
-    --test
-       Enable test mode
+       Default: Number of milliseconds since Unix Epoch
+
+    --destIAProfitFile, -dia
+       File to write IA profits
+       Default: IAProfits-YYYYMMDD-HHMM.csv
+
+    --destTradeFile, -dt
+       File to write trade log data
+       Default: log-YYYYMMDD-HHMM.csv
+
+    --config
+       Path to the configuration file
+
+    --help
+       Show this usage information
        Default: false
-    --threshold, -th
-       Threshold for IAs
-       Default: 0
-    --trade, -t
-       Length of trading period in milliseconds
-       Default: 0
 ```
+
+See [Configuration File Formats](https://github.com/uva-financial-engineering/JinSup/wiki/Configuration-File-Formats) for more information about the configuration file. This parameter is required to run the simulation.
 
 When test mode is disabled, the user will be able to see a moving history of the market condition in a graphing window as shown below.
 
