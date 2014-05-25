@@ -41,9 +41,9 @@ public abstract class PoissonAgent extends Agent {
    * @param initialActTime
    *          Length of startup period in milliseconds.
    */
-  public PoissonAgent(MatchingEngine matchEng, double lambdaOrder,
+  public PoissonAgent(MatchingEngine matchEng, String name, double lambdaOrder,
     double lambdaCancel, long initialActTime) {
-    super(matchEng);
+    super(matchEng, name);
 
     this.lambdaOrder = lambdaOrder * 1000;
     this.lambdaCancel = lambdaCancel * 1000;

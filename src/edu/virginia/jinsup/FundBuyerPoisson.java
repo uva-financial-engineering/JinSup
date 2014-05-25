@@ -19,7 +19,8 @@ public class FundBuyerPoisson extends PoissonAgent {
    */
   public FundBuyerPoisson(MatchingEngine matchEng, int lambdaOrder,
     int lambdaCancel, long initialActTime) {
-    super(matchEng, lambdaOrder, lambdaCancel, initialActTime);
+    super(matchEng, "FundBuyerPoisson", lambdaOrder, lambdaCancel,
+      initialActTime);
   }
 
   public void makeOrder() {

@@ -19,7 +19,7 @@ public class SmallTrader extends PoissonAgent {
    */
   public SmallTrader(MatchingEngine matchEng, int lambdaOrder,
     int lambdaCancel, long initialActTime) {
-    super(matchEng, lambdaOrder, lambdaCancel, initialActTime);
+    super(matchEng, "SmallTrader", lambdaOrder, lambdaCancel, initialActTime);
   }
 
   @Override

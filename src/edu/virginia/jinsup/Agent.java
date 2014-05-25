@@ -36,6 +36,12 @@ public abstract class Agent {
    * ID of the agent. Used by the Order class to track agents.
    */
   private final long id;
+
+  /**
+   * Type of the agent.
+   */
+  private String type;
+
   /**
    * Matching engine that is used in the simulation. Should not be changed.
    */
@@ -91,8 +97,11 @@ public abstract class Agent {
    * 
    * @param matchEng
    *          The MatchingEngine of the simulator.
+   * 
+   * @param type
+   *          The Type of the agent.
    */
-  public Agent(MatchingEngine matchEng) {
+  public Agent(MatchingEngine matchEng, String type) {
     this.id = nextAgentID;
     nextAgentID++;
     this.matchingEngine = matchEng;
@@ -101,6 +110,7 @@ public abstract class Agent {
     this.nextOrderTime = -1;
     this.nextCancelTime = -1;
     this.nextAction = Action.NULL;
+    this.type = type;
     matchEng.addNewAgent(this.id, this);
   }
 
@@ -109,6 +119,13 @@ public abstract class Agent {
    * strategy code depending on the type of agent desired.
    */
   abstract void act();
+
+  /**
+   * @return The type of the agent.
+   */
+  public String getType() {
+    return type;
+  }
 
   /**
    * Method used by some classes to allow messages to be passed from

@@ -30,7 +30,8 @@ public class MarketMakerPoisson extends PoissonAgent {
    */
   public MarketMakerPoisson(MatchingEngine matchEng, int lambdaOrder,
     int lambdaCancel, long initialActTime) {
-    super(matchEng, lambdaOrder, lambdaCancel, initialActTime);
+    super(matchEng, "MarketMakerPoisson", lambdaOrder, lambdaCancel,
+      initialActTime);
     overLimit = false;
   }
 

@@ -42,7 +42,8 @@ public class OpporStratPoisson extends PoissonAgent {
    */
   public OpporStratPoisson(MatchingEngine matchEng, int lambdaOrder,
     int lambdaCancel, long initialActTime) {
-    super(matchEng, lambdaOrder, lambdaCancel, initialActTime);
+    super(matchEng, "OpporStratPoisson", lambdaOrder, lambdaCancel,
+      initialActTime);
     overLimit = false;
   }
 

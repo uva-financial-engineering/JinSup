@@ -93,9 +93,10 @@ public class MatchingEngine {
       File logFile = new File(Settings.getDestTradeFile());
       try {
         FileWriter writer = new FileWriter(logFile.getAbsoluteFile());
-        writer.append("Time, Agent ID, Message, Buy/Sell, Order ID, "
-          + "Original Quantity, Price, Type, Leaves Quantity, Trade Price, "
-          + "Quantity Filled, Aggressor, Trade Match ID\n");
+        writer
+          .append("Time, Agent ID, Agent Type, Message, Buy/Sell, Order ID, "
+            + "Original Quantity, Price, Type, Leaves Quantity, Trade Price, "
+            + "Quantity Filled, Aggressor, Trade Match ID\n");
         writer.flush();
         writer.close();
       } catch (IOException e) {
@@ -510,8 +511,9 @@ public class MatchingEngine {
         // write the stuff to the file.
         writeToLog();
       }
-      logBuffer.add(time + "," + order.getCreatorID() + "," + messageType + ","
-        + (order.isBuyOrder() ? "1" : "2") + "," + order.getID() + ","
+      logBuffer.add(time + "," + order.getCreatorID() + ","
+        + agentMap.get(order.getCreatorID()).getType() + "," + messageType
+        + "," + (order.isBuyOrder() ? "1" : "2") + "," + order.getID() + ","
         + order.getOriginalQuant() + "," + order.getPrice() / 100.0 + ","
         + (market ? "Market" : "Limit") + "," + order.getCurrentQuant() + "\n");
     }
@@ -540,7 +542,8 @@ public class MatchingEngine {
         // logging for the passive order
         writeToLog();
       }
-      logBuffer.add(time + "," + order.getCreatorID() + ",105,"
+      logBuffer.add(time + "," + order.getCreatorID() + ","
+        + agentMap.get(order.getCreatorID()).getType() + ",105,"
         + (order.isBuyOrder() ? "1" : "2") + "," + order.getID() + ","
         + order.getOriginalQuant() + "," + order.getPrice() * 0.01 + ","
         + (market ? "Market," : "Limit,") + order.getCurrentQuant() + ","

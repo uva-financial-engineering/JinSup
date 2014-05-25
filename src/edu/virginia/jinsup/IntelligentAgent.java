@@ -117,7 +117,7 @@ public class IntelligentAgent extends Agent {
    */
   public IntelligentAgent(MatchingEngine matchEng, IntelligentAgentHelper iah,
     int delayLength) {
-    super(matchEng);
+    super(matchEng, "IntelligentAgent");
     this.profit = 0;
     this.intelligentAgentHelper = iah;
     this.delayLength = delayLength;

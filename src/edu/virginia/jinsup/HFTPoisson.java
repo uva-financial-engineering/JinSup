@@ -31,7 +31,7 @@ public class HFTPoisson extends PoissonAgent {
    */
   public HFTPoisson(MatchingEngine matchEng, double lambdaOrder,
     double lambdaCancel, long initialActTime) {
-    super(matchEng, lambdaOrder, lambdaCancel, initialActTime);
+    super(matchEng, "HFTPoisson", lambdaOrder, lambdaCancel, initialActTime);
     overLimit = false;
   }
 
