@@ -127,12 +127,12 @@ public class Controller {
         new FundBuyerPoisson(matchingEngine,
           (int) Parameters.fundamentalArrivalRate,
           (int) Parameters.fundamentalCancelRate,
-          (long) (Math.random() * Parameters.startTime));
+          (long) (JinSup.rand.nextDouble() * Parameters.startTime));
       fundSellerPoisson =
         new FundSellerPoisson(matchingEngine,
           (int) Parameters.fundamentalArrivalRate,
           (int) Parameters.fundamentalCancelRate,
-          (long) (Math.random() * Parameters.startTime));
+          (long) (JinSup.rand.nextDouble() * Parameters.startTime));
       agentList.add(fundBuyerPoisson);
       agentList.add(fundSellerPoisson);
     }
@@ -143,7 +143,7 @@ public class Controller {
         new MarketMakerPoisson(matchingEngine,
           (int) Parameters.marketMakerArrivalRate,
           (int) Parameters.marketMakerCancelRate,
-          (long) (Math.random() * Parameters.startTime));
+          (long) (JinSup.rand.nextDouble() * Parameters.startTime));
       agentList.add(marketMakerPoisson);
     }
 
@@ -155,7 +155,7 @@ public class Controller {
         new OpporStratPoisson(matchingEngine,
           (int) Parameters.opporStratArrivalRate,
           (int) Parameters.opporStratCancelRate,
-          (long) (Math.random() * Parameters.startTime));
+          (long) (JinSup.rand.nextDouble() * Parameters.startTime));
       agentList.add(opporStratPoisson);
     }
 
@@ -164,7 +164,7 @@ public class Controller {
       hftPoisson =
         new HFTPoisson(matchingEngine, Parameters.hftArrivalRate,
           Parameters.hftCancelRate,
-          (long) (Math.random() * Parameters.startTime));
+          (long) (JinSup.rand.nextDouble() * Parameters.startTime));
       agentList.add(hftPoisson);
     }
 
@@ -174,7 +174,7 @@ public class Controller {
         new SmallTrader(matchingEngine,
           (int) Parameters.smallTraderArrivalRate,
           (int) Parameters.smallTraderCancelRate,
-          (long) (Math.random() * Parameters.startTime));
+          (long) (JinSup.rand.nextDouble() * Parameters.startTime));
       agentList.add(smallTrader);
     }
 
