@@ -37,6 +37,8 @@ Options can be any of the following below. Options only need to be specified if 
 
 See [Configuration File Formats](https://github.com/uva-financial-engineering/JinSup/wiki/Configuration-File-Formats) for more information about the configuration file. This parameter is required to run the simulation.
 
+Also please see [Logging Columns](https://github.com/uva-financial-engineering/JinSup/wiki/Logging-Columns) for an explanation of what is logged in the simulation.
+
 When test mode is disabled, the user will be able to see a moving history of the market condition in a graphing window as shown below.
 
 ![](https://raw.github.com/uva-financial-engineering/JinSup/master/tradeHistory.png)
