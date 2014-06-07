@@ -94,7 +94,8 @@ public class MatchingEngine {
       try {
         FileWriter writer = new FileWriter(logFile.getAbsoluteFile());
         writer
-          .append("Time, Agent ID, Agent Type, Message, Buy/Sell, Order ID, "
+          .append("Time, Best Bid Price, Best Ask Price, Agent ID, Agent Type,"
+            + " Message, Buy/Sell, Order ID, "
             + "Original Quantity, Price, Type, Leaves Quantity, Trade Price, "
             + "Quantity Filled, Aggressor, Trade Match ID\n");
         writer.flush();
@@ -511,7 +512,9 @@ public class MatchingEngine {
         // write the stuff to the file.
         writeToLog();
       }
-      logBuffer.add(time + "," + order.getCreatorID() + ","
+
+      logBuffer.add(time + "," + getBestBidOrAskPriceString(true) + ","
+        + getBestBidOrAskPriceString(false) + "," + order.getCreatorID() + ","
         + agentMap.get(order.getCreatorID()).getType() + "," + messageType
         + "," + (order.isBuyOrder() ? "1" : "2") + "," + order.getID() + ","
         + order.getOriginalQuant() + "," + order.getPrice() / 100.0 + ","
@@ -542,7 +545,8 @@ public class MatchingEngine {
         // logging for the passive order
         writeToLog();
       }
-      logBuffer.add(time + "," + order.getCreatorID() + ","
+      logBuffer.add(time + "," + getBestBidOrAskPriceString(true) + ","
+        + getBestBidOrAskPriceString(false) + "," + order.getCreatorID() + ","
         + agentMap.get(order.getCreatorID()).getType() + ",105,"
         + (order.isBuyOrder() ? "1" : "2") + "," + order.getID() + ","
         + order.getOriginalQuant() + "," + order.getPrice() * 0.01 + ","
@@ -774,5 +778,21 @@ public class MatchingEngine {
       agentMap.get(order.getCreatorID()).notify(order.getPrice(), time,
         volumeTraded, order.isBuyOrder());
     }
+  }
+
+  /**
+   * Gets the best bid/ask price as a string for logging purposes.
+   * 
+   * @param wantBidPrice
+   *          True if the requesting the best bid price as a string. Otherwise,
+   *          will return the best ask price as a string.
+   * 
+   * @return The best bid/ask price in CENTS as a string. Returns "None" if
+   *         there were no bid/ask orders.
+   */
+  private String getBestBidOrAskPriceString(boolean wantBidPrice) {
+    return (wantBidPrice) ? (getBestBid() == null) ? "None" : Integer
+      .toString(getBestBid().getPrice()) : (getBestAsk() == null) ? "None"
+      : Integer.toString(getBestAsk().getPrice());
   }
 }
