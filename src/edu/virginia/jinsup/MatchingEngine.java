@@ -791,8 +791,8 @@ public class MatchingEngine {
    *         there were no bid/ask orders.
    */
   private String getBestBidOrAskPriceString(boolean wantBidPrice) {
-    return (wantBidPrice) ? (getBestBid() == null) ? "None" : Integer
-      .toString(getBestBid().getPrice()) : (getBestAsk() == null) ? "None"
-      : Integer.toString(getBestAsk().getPrice());
+    return (wantBidPrice) ? (getBestBid() == null) ? "None" : Double
+      .toString(getBestBid().getPrice() / 100.0) : (getBestAsk() == null)
+      ? "None" : Double.toString(getBestAsk().getPrice() / 100.0);
   }
 }
