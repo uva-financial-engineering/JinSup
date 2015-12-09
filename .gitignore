@@ -1,5 +1,7 @@
-bin/
-doc/
-log*
 *.csv
 *.sh
+/.classpath
+/.settings/
+/bin/
+/doc/
+/log*
