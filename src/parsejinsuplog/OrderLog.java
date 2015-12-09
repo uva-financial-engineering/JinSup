@@ -18,7 +18,7 @@ public final class OrderLog {
   /*
    * Array of transaction log objects with each transaction for this order.
    */
-  private ArrayList<TransactionLog> Transactions = new ArrayList();
+  private ArrayList<TransactionLog> Transactions = new ArrayList<TransactionLog>();
 
   /*
    * Constructor for the order
