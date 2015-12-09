@@ -15,6 +15,7 @@ public class Parameters {
   public static long endTime;
   public static long tradeTime;
   public static boolean testing;
+  public static boolean showGui;
 
   // Agent counts
   public static int fundCount;

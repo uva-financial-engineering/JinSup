@@ -418,7 +418,7 @@ public class MatchingEngine {
     }
 
     // Update trading graph
-    if (!Parameters.testing) {
+    if (Parameters.showGui) {
       Controller.graphFrame.addTrade(Controller.time * 0.001, price);
     }
     return true;
@@ -481,7 +481,7 @@ public class MatchingEngine {
    */
   public void logOrder(Order order, int messageType, boolean market,
     int quantChanged, int priceChanged) {
-    if (!Parameters.testing) {
+    if (Parameters.showGui) {
       switch (messageType) {
         case 1:
           Controller.graphFrame.addOrder(order.isBuyOrder(),
@@ -507,7 +507,8 @@ public class MatchingEngine {
           System.exit(1);
           break;
       }
-
+    }
+    if (!Parameters.testing) {
       if (logBuffer.size() == LOG_BUFFER_SIZE) {
         // write the stuff to the file.
         writeToLog();
@@ -536,10 +537,10 @@ public class MatchingEngine {
    */
   public void logTrade(Order order, boolean market, int tradePrice, int volume,
     boolean aggressor, long matchID) {
-    if (!Parameters.testing) {
-
+    if (Parameters.showGui) {
       Controller.graphFrame.addOrder(order.isBuyOrder(), -volume, tradePrice);
-
+    }
+    if (!Parameters.testing) {
       if (logBuffer.size() == LOG_BUFFER_SIZE) {
         // write the stuff to the file.
         // logging for the passive order

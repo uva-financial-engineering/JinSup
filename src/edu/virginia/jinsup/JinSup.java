@@ -116,14 +116,14 @@ public class JinSup {
     }
 
     // Create window
-    if (!Parameters.testing) {
+    if (Parameters.showGui) {
       Controller.graphFrame = new GraphFrame();
     }
 
     Controller controller = new Controller(new MatchingEngine());
     long elapsedTime = System.nanoTime();
     controller.runSimulator();
-    if (!Parameters.testing) {
+    if (Parameters.showGui) {
       Controller.graphFrame.showFinished(System.nanoTime() - elapsedTime);
     }
   }
