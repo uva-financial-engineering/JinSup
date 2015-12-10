@@ -38,6 +38,8 @@ public class XMLParser {
       Long.parseLong(root.getAttribute("tradeTime").getValue());
     Parameters.testing =
       root.getAttribute("testing").getValue().toLowerCase().equals("true");
+    Parameters.showGui =
+      root.getAttribute("showGui").getValue().toLowerCase().equals("true");
 
     // Agent Counts
     Element agentCounts = root.getFirstChildElement("AgentCounts");

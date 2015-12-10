@@ -31,6 +31,7 @@ public class JSONParser {
     Parameters.startTime = rootConfigs.path("startTime").asLong();
     Parameters.tradeTime = rootConfigs.path("tradeTime").asLong();
     Parameters.testing = rootConfigs.path("testing").asBoolean();
+    Parameters.showGui = rootConfigs.path("showGui").asBoolean();
 
     // Agent Counts
     JsonNode agentCounts = rootConfigs.path("AgentCounts");

@@ -112,7 +112,7 @@ public class Controller {
    * at a specified time specified by the user.
    */
   public void runSimulator() {
-    if (!Parameters.testing) {
+    if (Parameters.showGui) {
       graphFrame.setTradePeriod(Parameters.startTime, Parameters.endTime);
       graphFrame.updateTitleBar(0, "Creating agents...");
     }
@@ -227,9 +227,11 @@ public class Controller {
       }
 
       // write remaining entries to the log
+      if (Parameters.showGui) {
+          graphFrame.updateTitleBar(time, "Simulation Finished");
+      }
       if (!Parameters.testing) {
         matchingEngine.writeToLog();
-        graphFrame.updateTitleBar(time, "Simulation Finished");
       }
     }
   }
@@ -315,7 +317,7 @@ public class Controller {
       lastNewsTime += poissonGeneratorNews.sample();
     }
 
-    if (!Parameters.testing && time % 500 == 0) {
+    if (Parameters.showGui && time % 500 == 0) {
       graphFrame.updateTitleBar(time, state);
     }
   }
