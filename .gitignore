@@ -1,6 +1,5 @@
 *.csv
 *.sh
-/.classpath
 /.settings/
 /bin/
 /doc/
